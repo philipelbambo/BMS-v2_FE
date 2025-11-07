@@ -70,50 +70,50 @@ const InventoryDashboard = () => {
           <p className="text-black mt-1">{selectedMonth}</p>
         </div>
 
-        {/* Key Metrics Cards */}
+        {/* Key Metrics Cards — BLACK NEUMORPHISM APPLIED HERE ONLY */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="border-2 border-black p-4 bg-white rounded-lg">
+          <div className="p-4 bg-[#1a1a1a] rounded-xl shadow-[6px_6px_12px_#000000, -6px_-6px_12px_#242424]">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-black rounded-lg">
-                <span className="text-white font-bold text-lg">₱</span>
+              <div className="p-2 bg-white rounded-lg">
+                <span className="text-black font-bold text-lg">₱</span>
               </div>
-              <span className="text-xs text-black font-medium">This Month</span>
+              <span className="text-xs text-white font-medium">This Month</span>
             </div>
-            <div className="text-2xl font-bold text-black mb-1">₱{totalSales.toLocaleString()}</div>
-            <p className="text-black text-xs">Total Sales Revenue</p>
+            <div className="text-2xl font-bold text-white mb-1">₱{totalSales.toLocaleString()}</div>
+            <p className="text-gray-300 text-xs">Total Sales Revenue</p>
           </div>
 
-          <div className="border-2 border-black p-4 bg-white rounded-lg">
+          <div className="p-4 bg-[#1a1a1a] rounded-xl shadow-[6px_6px_12px_#000000, -6px_-6px_12px_#242424]">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-black rounded-lg">
-                <ShoppingCart className="w-5 h-5 text-white" />
+              <div className="p-2 bg-white rounded-lg">
+                <ShoppingCart className="w-5 h-5 text-black" />
               </div>
-              <span className="text-xs text-black font-medium">This Month</span>
+              <span className="text-xs text-white font-medium">This Month</span>
             </div>
-            <div className="text-2xl font-bold text-black mb-1">{totalItemsSold}</div>
-            <p className="text-black text-xs">Items Sold</p>
+            <div className="text-2xl font-bold text-white mb-1">{totalItemsSold}</div>
+            <p className="text-gray-300 text-xs">Items Sold</p>
           </div>
 
-          <div className="border-2 border-black p-4 bg-white rounded-lg">
+          <div className="p-4 bg-[#1a1a1a] rounded-xl shadow-[6px_6px_12px_#000000, -6px_-6px_12px_#242424]">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-black rounded-lg">
-                <AlertTriangle className="w-5 h-5 text-white" />
+              <div className="p-2 bg-white rounded-lg">
+                <AlertTriangle className="w-5 h-5 text-black" />
               </div>
-              <span className="text-xs text-black font-medium">Total Damaged</span>
+              <span className="text-xs text-white font-medium">Total Damaged</span>
             </div>
-            <div className="text-2xl font-bold text-black mb-1">{totalDamagedItems}</div>
-            <p className="text-black text-xs">Worth ₱{totalDamagedValue.toLocaleString()}</p>
+            <div className="text-2xl font-bold text-white mb-1">{totalDamagedItems}</div>
+            <p className="text-gray-300 text-xs">Worth ₱{totalDamagedValue.toLocaleString()}</p>
           </div>
 
-          <div className="border-2 border-black p-4 bg-white rounded-lg">
+          <div className="p-4 bg-[#1a1a1a] rounded-xl shadow-[6px_6px_12px_#000000, -6px_-6px_12px_#242424]">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-black rounded-lg">
-                <Activity className="w-5 h-5 text-white" />
+              <div className="p-2 bg-white rounded-lg">
+                <Activity className="w-5 h-5 text-black" />
               </div>
-              <span className="text-xs text-black font-medium">Status</span>
+              <span className="text-xs text-white font-medium">Status</span>
             </div>
-            <div className="text-2xl font-bold text-black mb-1">{lowStockItems.length}</div>
-            <p className="text-black text-xs">Low Stock Alerts</p>
+            <div className="text-2xl font-bold text-white mb-1">{lowStockItems.length}</div>
+            <p className="text-gray-300 text-xs">Low Stock Alerts</p>
           </div>
         </div>
 

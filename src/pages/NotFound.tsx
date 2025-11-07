@@ -8,20 +8,20 @@ const NotFound: React.FC = () => {
       <div className="text-center">
         <div className="flex justify-center mb-6">
           <img 
-            src="/block.png" 
+            src="/construction.png" 
             alt="Logo" 
             className="h-20 w-20 object-contain" 
           />
         </div>
-        <h1 className="text-6xl font-bold text-black mb-4">404</h1>
-        <h2 className="text-2xl font-semibold text-black mb-6">Page Not Found</h2>
+        <h1 className="text-6xl font-bold text-red-700 mb-4">404</h1>
+        <h2 className="text-2xl font-semibold text-red-700 mb-6">Page Not Found</h2>
         <p className="text-black max-w-md mx-auto">
           Sorry, the page you were looking for doesn't exist or has been moved.
         </p>
         
         <Link 
         to="/" 
-        className="inline-flex items-center bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition-colors"
+        className="inline-flex items-center bg-red-700 text-white px-4 py-2 rounded-md hover:bg-gray-800 transition-colors"
       >
         <Home size={18} className="mr-2" />
         Back to Home

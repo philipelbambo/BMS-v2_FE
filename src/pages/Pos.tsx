@@ -1,6 +1,5 @@
     import React, { useState, useEffect } from 'react';
     import { ShoppingCart, Package, TrendingUp, DollarSign, Search, Plus, Minus, Edit2, Save, X, Download, BarChart3, AlertTriangle, RotateCcw, FileText } from 'lucide-react';
-
     interface Product {
     id: string;
     name: string;
@@ -15,7 +14,6 @@
     issued: number;
     lastUpdated: string;
     }
-
     interface Transaction {
     id: string;
     productId: string;
@@ -27,7 +25,6 @@
     customerName?: string;
     type: 'sale' | 'return' | 'issue' | 'damage';
     }
-
     interface IssuanceRecord {
     id: string;
     productId: string;
@@ -38,7 +35,6 @@
     timestamp: string;
     status: 'issued' | 'returned';
     }
-
     export default function POSInventorySystem() {
     const [products, setProducts] = useState<Product[]>([
         { id: '1', name: 'Cement Bags (50kg)', sku: 'CEM-001', category: 'Building Materials', price: 350, cost: 280, quantity: 150, minStock: 50, sold: 245, damaged: 5, issued: 10, lastUpdated: new Date().toISOString() },
@@ -54,7 +50,6 @@
         { id: '11', name: 'Gravel (per cu.m)', sku: 'AGG-GRV', category: 'Aggregates', price: 950, cost: 720, quantity: 12, minStock: 5, sold: 38, damaged: 1, issued: 2, lastUpdated: new Date().toISOString() },
         { id: '12', name: 'Paint White 4L', sku: 'PNT-WHT-4L', category: 'Paint & Finishing', price: 680, cost: 520, quantity: 35, minStock: 10, sold: 72, damaged: 3, issued: 1, lastUpdated: new Date().toISOString() },
     ]);
-
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [issuances, setIssuances] = useState<IssuanceRecord[]>([]);
     const [cart, setCart] = useState<Array<{ product: Product; quantity: number }>>([]);
@@ -63,27 +58,23 @@
     const [editValue, setEditValue] = useState('');
     const [currentTime, setCurrentTime] = useState(new Date());
     const [activeTab, setActiveTab] = useState<'inventory' | 'pos' | 'analytics' | 'issuance' | 'returns'>('inventory');
-    
     // Return/Damage Modal States
     const [showReturnModal, setShowReturnModal] = useState(false);
     const [returnTransactionId, setReturnTransactionId] = useState('');
     const [returnReason, setReturnReason] = useState<'damaged' | 'other'>('damaged');
     const [customerName, setCustomerName] = useState('');
-    
     // Issuance Modal States
     const [showIssuanceModal, setShowIssuanceModal] = useState(false);
     const [issuanceProduct, setIssuanceProduct] = useState<Product | null>(null);
     const [issuanceQuantity, setIssuanceQuantity] = useState(1);
     const [issuedTo, setIssuedTo] = useState('');
     const [issuancePurpose, setIssuancePurpose] = useState('');
-
     useEffect(() => {
         const timer = setInterval(() => {
         setCurrentTime(new Date());
         }, 1000);
         return () => clearInterval(timer);
     }, []);
-
     const updateQuantity = (id: string, change: number) => {
         setProducts(prev => prev.map(product => 
         product.id === id 
@@ -91,12 +82,10 @@
             : product
         ));
     };
-
     const startEdit = (id: string, currentQty: number) => {
         setEditingId(id);
         setEditValue(currentQty.toString());
     };
-
     const saveEdit = (id: string) => {
         const newQty = parseInt(editValue);
         if (!isNaN(newQty) && newQty >= 0) {
@@ -108,12 +97,10 @@
         }
         setEditingId(null);
     };
-
     const cancelEdit = () => {
         setEditingId(null);
         setEditValue('');
     };
-
     const addToCart = (product: Product) => {
         const existingItem = cart.find(item => item.product.id === product.id);
         if (existingItem) {
@@ -126,11 +113,9 @@
         setCart([...cart, { product, quantity: 1 }]);
         }
     };
-
     const removeFromCart = (productId: string) => {
         setCart(cart.filter(item => item.product.id !== productId));
     };
-
     const updateCartQuantity = (productId: string, quantity: number) => {
         if (quantity <= 0) {
         removeFromCart(productId);
@@ -142,14 +127,12 @@
         ));
         }
     };
-
     const processSale = () => {
         if (cart.length === 0) return;
         if (!customerName.trim()) {
         alert('Please enter customer name');
         return;
         }
-
         const newTransactions: Transaction[] = cart.map(item => ({
         id: `TXN-${Date.now()}-${item.product.id}`,
         productId: item.product.id,
@@ -161,9 +144,7 @@
         customerName: customerName,
         type: 'sale'
         }));
-
         setTransactions([...newTransactions, ...transactions]);
-
         setProducts(prev => prev.map(product => {
         const cartItem = cart.find(item => item.product.id === product.id);
         if (cartItem) {
@@ -176,19 +157,16 @@
         }
         return product;
         }));
-
         setCart([]);
         setCustomerName('');
         alert('Sale completed successfully!');
     };
-
     const processReturn = () => {
         const transaction = transactions.find(t => t.id === returnTransactionId);
         if (!transaction) {
         alert('Transaction not found!');
         return;
         }
-
         const returnTxn: Transaction = {
         id: `RTN-${Date.now()}`,
         productId: transaction.productId,
@@ -200,9 +178,7 @@
         customerName: transaction.customerName,
         type: returnReason === 'damaged' ? 'damage' : 'return'
         };
-
         setTransactions([returnTxn, ...transactions]);
-
         setProducts(prev => prev.map(product => {
         if (product.id === transaction.productId) {
             if (returnReason === 'damaged') {
@@ -223,24 +199,20 @@
         }
         return product;
         }));
-
         setShowReturnModal(false);
         setReturnTransactionId('');
         setReturnReason('damaged');
         alert('Return processed successfully!');
     };
-
     const processIssuance = () => {
         if (!issuanceProduct || !issuedTo.trim() || !issuancePurpose.trim()) {
         alert('Please fill all fields');
         return;
         }
-
         if (issuanceQuantity > issuanceProduct.quantity) {
         alert('Insufficient stock for issuance');
         return;
         }
-
         const newIssuance: IssuanceRecord = {
         id: `ISS-${Date.now()}`,
         productId: issuanceProduct.id,
@@ -251,9 +223,7 @@
         timestamp: new Date().toISOString(),
         status: 'issued'
         };
-
         setIssuances([newIssuance, ...issuances]);
-
         const issuanceTxn: Transaction = {
         id: `ITXN-${Date.now()}`,
         productId: issuanceProduct.id,
@@ -265,9 +235,7 @@
         customerName: issuedTo,
         type: 'issue'
         };
-
         setTransactions([issuanceTxn, ...transactions]);
-
         setProducts(prev => prev.map(product => {
         if (product.id === issuanceProduct.id) {
             return {
@@ -279,7 +247,6 @@
         }
         return product;
         }));
-
         setShowIssuanceModal(false);
         setIssuanceProduct(null);
         setIssuanceQuantity(1);
@@ -287,7 +254,6 @@
         setIssuancePurpose('');
         alert('Material issued successfully!');
     };
-
     const markDamaged = (productId: string, quantity: number) => {
         const qty = parseInt(prompt(`Enter quantity to mark as damaged (max: ${quantity})`) || '0');
         if (qty > 0 && qty <= quantity) {
@@ -302,7 +268,6 @@
             }
             return product;
         }));
-
         const product = products.find(p => p.id === productId);
         if (product) {
             const damageTxn: Transaction = {
@@ -317,23 +282,19 @@
             };
             setTransactions([damageTxn, ...transactions]);
         }
-        
         alert('Items marked as damaged');
         }
     };
-
     const getStockStatus = (product: Product) => {
         if (product.quantity === 0) return { label: 'OUT OF STOCK', color: 'bg-red-100 text-red-800 border-red-300' };
         if (product.quantity <= product.minStock) return { label: 'LOW STOCK', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' };
         return { label: 'IN STOCK', color: 'bg-green-100 text-green-800 border-green-300' };
     };
-
     const filteredProducts = products.filter(product =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.category.toLowerCase().includes(searchTerm.toLowerCase())
     );
-
     const totalRevenue = products.reduce((sum, p) => sum + (p.price * p.sold), 0);
     const totalCost = products.reduce((sum, p) => sum + (p.cost * p.sold), 0);
     const totalProfit = totalRevenue - totalCost;
@@ -341,7 +302,6 @@
     const totalDamaged = products.reduce((sum, p) => sum + p.damaged, 0);
     const totalIssued = products.reduce((sum, p) => sum + p.issued, 0);
     const cartTotal = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
-
     const exportInventory = () => {
         const headers = ['SKU', 'Product Name', 'Category', 'Price', 'Cost', 'Quantity', 'Min Stock', 'Sold', 'Damaged', 'Issued', 'Revenue', 'Profit', 'Status'];
         const rows = products.map(p => {
@@ -350,7 +310,6 @@
         const profit = revenue - (p.cost * p.sold);
         return [p.sku, p.name, p.category, p.price, p.cost, p.quantity, p.minStock, p.sold, p.damaged, p.issued, revenue, profit, status.label];
         });
-        
         const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
         const blob = new Blob([csv], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
@@ -359,7 +318,6 @@
         a.download = `pos_inventory_${new Date().toISOString().split('T')[0]}.csv`;
         a.click();
     };
-
     return (
         <div className="min-h-screen bg-white p-8">
         <div className="max-w-8xl mx-auto">
@@ -383,7 +341,6 @@
                 </div>
             </div>
             </div>
-
             {/* Navigation Tabs */}
             <div className="flex gap-0 mb-8 border-2 border-black">
             <button
@@ -432,31 +389,29 @@
                 ANALYTICS
             </button>
             </div>
-
-            {/* Summary Cards */}
+            {/* Summary Cards — BLACK NEUMORPHISM APPLIED HERE ONLY */}
             <div className="grid grid-cols-5 gap-4 mb-8">
-            <div className="border-2 border-black p-4">
-                <div className="text-sm text-black mb-1">Total Revenue</div>
-                <div className="text-2xl font-bold text-black">₱{totalRevenue.toLocaleString()}</div>
+            <div className="p-4 bg-[#1a1a1a] rounded-xl shadow-[6px_6px_12px_#000000, -6px_-6px_12px_#242424]">
+                <div className="text-sm text-gray-300 mb-1">Total Revenue</div>
+                <div className="text-2xl font-bold text-white">₱{totalRevenue.toLocaleString()}</div>
             </div>
-            <div className="border-2 border-black p-4">
-                <div className="text-sm text-black mb-1">Total Profit</div>
-                <div className="text-2xl font-bold text-black">₱{totalProfit.toLocaleString()}</div>
+            <div className="p-4 bg-[#1a1a1a] rounded-xl shadow-[6px_6px_12px_#000000, -6px_-6px_12px_#242424]">
+                <div className="text-sm text-gray-300 mb-1">Total Profit</div>
+                <div className="text-2xl font-bold text-white">₱{totalProfit.toLocaleString()}</div>
             </div>
-            <div className="border-2 border-black p-4">
-                <div className="text-sm text-black mb-1">Inventory Value</div>
-                <div className="text-2xl font-bold text-black">₱{totalInventoryValue.toLocaleString()}</div>
+            <div className="p-4 bg-[#1a1a1a] rounded-xl shadow-[6px_6px_12px_#000000, -6px_-6px_12px_#242424]">
+                <div className="text-sm text-gray-300 mb-1">Inventory Value</div>
+                <div className="text-2xl font-bold text-white">₱{totalInventoryValue.toLocaleString()}</div>
             </div>
-            <div className="border-2 border-black p-4">
-                <div className="text-sm text-black mb-1">Damaged Items</div>
-                <div className="text-2xl font-bold text-red-600">{totalDamaged}</div>
+            <div className="p-4 bg-[#1a1a1a] rounded-xl shadow-[6px_6px_12px_#000000, -6px_-6px_12px_#242424]">
+                <div className="text-sm text-gray-300 mb-1">Damaged Items</div>
+                <div className="text-2xl font-bold text-red-400">{totalDamaged}</div>
             </div>
-            <div className="border-2 border-black p-4">
-                <div className="text-sm text-black mb-1">Issued Items</div>
-                <div className="text-2xl font-bold text-blue-600">{totalIssued}</div>
+            <div className="p-4 bg-[#1a1a1a] rounded-xl shadow-[6px_6px_12px_#000000, -6px_-6px_12px_#242424]">
+                <div className="text-sm text-gray-300 mb-1">Issued Items</div>
+                <div className="text-2xl font-bold text-blue-400">{totalIssued}</div>
             </div>
             </div>
-
             {/* INVENTORY TAB */}
             {activeTab === 'inventory' && (
             <>
@@ -479,7 +434,6 @@
                     Export
                 </button>
                 </div>
-
                 <div className="border-2 border-black">
                 <table className="w-full">
                     <thead className="bg-black text-white">
@@ -580,7 +534,6 @@
                 </div>
             </>
             )}
-
             {/* POS TAB */}
             {activeTab === 'pos' && (
             <div className="grid grid-cols-3 gap-6">
@@ -603,10 +556,8 @@
                     ))}
                 </div>
                 </div>
-
                 <div className="border-2 border-black p-6">
                 <h2 className="text-2xl font-bold text-black mb-4 border-b-2 border-black pb-2">CART</h2>
-                
                 <div className="mb-4">
                     <label className="block text-black text-sm font-bold mb-2">Customer Name:</label>
                     <input
@@ -617,7 +568,6 @@
                     className="w-full px-3 py-2 border-2 border-black text-black placeholder-gray-400 focus:outline-none"
                     />
                 </div>
-
                 <div className="space-y-3 mb-6 max-h-[350px] overflow-y-auto">
                     {cart.map(item => (
                     <div key={item.product.id} className="border border-black p-3">
@@ -651,11 +601,9 @@
                     </div>
                     ))}
                 </div>
-
                 {cart.length === 0 && (
                     <div className="text-center text-black py-8">Cart is empty</div>
                 )}
-
                 <div className="border-t-2 border-black pt-4 mb-4">
                     <div className="flex justify-between text-black mb-2">
                     <span>Items:</span>
@@ -666,7 +614,6 @@
                     <span>₱{cartTotal.toLocaleString()}</span>
                     </div>
                 </div>
-
                 <button
                     onClick={processSale}
                     disabled={cart.length === 0}
@@ -681,7 +628,6 @@
                 </div>
             </div>
             )}
-
             {/* ISSUANCE TAB */}
             {activeTab === 'issuance' && (
             <div>
@@ -695,7 +641,6 @@
                     New Issuance
                 </button>
                 </div>
-
                 <div className="border-2 border-black">
                 <table className="w-full">
                     <thead className="bg-black text-white">
@@ -743,7 +688,6 @@
                 </div>
             </div>
             )}
-
             {/* RETURNS TAB */}
             {activeTab === 'returns' && (
             <div>
@@ -757,7 +701,6 @@
                     Process Return
                 </button>
                 </div>
-
                 <div className="border-2 border-black">
                 <table className="w-full">
                     <thead className="bg-black text-white">
@@ -801,7 +744,6 @@
                     </tbody>
                 </table>
                 </div>
-
                 <h3 className="text-xl font-bold text-black mt-8 mb-4">RETURN HISTORY</h3>
                 <div className="border-2 border-black">
                 <table className="w-full">
@@ -850,31 +792,11 @@
                 </div>
             </div>
             )}
-
             {/* ANALYTICS TAB */}
             {activeTab === 'analytics' && (
             <div className="space-y-6">
                 <div className="grid grid-cols-3 gap-6">
-                <div className="border-2 border-black p-6">
-                    <DollarSign className="w-8 h-8 text-black mb-2" />
-                    <div className="text-sm text-black mb-1">Total Revenue</div>
-                    <div className="text-3xl font-bold text-black">₱{totalRevenue.toLocaleString()}</div>
-                    <div className="text-xs text-black mt-2">From {products.reduce((sum, p) => sum + p.sold, 0)} units sold</div>
                 </div>
-                <div className="border-2 border-black p-6">
-                    <TrendingUp className="w-8 h-8 text-black mb-2" />
-                    <div className="text-sm text-black mb-1">Total Profit</div>
-                    <div className="text-3xl font-bold text-black">₱{totalProfit.toLocaleString()}</div>
-                    <div className="text-xs text-black mt-2">Profit Margin: {((totalProfit / totalRevenue) * 100).toFixed(1)}%</div>
-                </div>
-                <div className="border-2 border-black p-6">
-                    <Package className="w-8 h-8 text-black mb-2" />
-                    <div className="text-sm text-black mb-1">Inventory Value</div>
-                    <div className="text-3xl font-bold text-black">₱{totalInventoryValue.toLocaleString()}</div>
-                    <div className="text-xs text-black mt-2">{products.length} products in stock</div>
-                </div>
-                </div>
-
                 <div className="border-2 border-black">
                 <div className="bg-black text-white px-6 py-4">
                     <h3 className="text-xl font-bold">TOP SELLING PRODUCTS</h3>
@@ -911,13 +833,11 @@
                 </div>
             </div>
             )}
-
             {/* Issuance Modal */}
             {showIssuanceModal && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white border-4 border-black p-8 max-w-2xl w-full mx-4">
                 <h2 className="text-2xl font-bold text-black mb-6">ISSUE MATERIAL</h2>
-                
                 <div className="space-y-4 mb-6">
                     <div>
                     <label className="block text-black font-bold mb-2">Select Product:</label>
@@ -936,7 +856,6 @@
                         ))}
                     </select>
                     </div>
-
                     {issuanceProduct && (
                     <>
                         <div>
@@ -950,7 +869,6 @@
                             className="w-full px-4 py-3 border-2 border-black text-black focus:outline-none"
                         />
                         </div>
-
                         <div>
                         <label className="block text-black font-bold mb-2">Issued To:</label>
                         <input
@@ -961,7 +879,6 @@
                             className="w-full px-4 py-3 border-2 border-black text-black focus:outline-none"
                         />
                         </div>
-
                         <div>
                         <label className="block text-black font-bold mb-2">Purpose:</label>
                         <textarea
@@ -975,7 +892,6 @@
                     </>
                     )}
                 </div>
-
                 <div className="flex gap-4">
                     <button
                     onClick={processIssuance}
@@ -999,13 +915,11 @@
                 </div>
             </div>
             )}
-
             {/* Return Modal */}
             {showReturnModal && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white border-4 border-black p-8 max-w-2xl w-full mx-4">
                 <h2 className="text-2xl font-bold text-black mb-6">PROCESS RETURN</h2>
-                
                 <div className="space-y-4 mb-6">
                     <div>
                     <label className="block text-black font-bold mb-2">Transaction ID:</label>
@@ -1017,7 +931,6 @@
                         className="w-full px-4 py-3 border-2 border-black text-black focus:outline-none"
                     />
                     </div>
-
                     <div>
                     <label className="block text-black font-bold mb-2">Return Reason:</label>
                     <div className="space-y-2">
@@ -1045,7 +958,6 @@
                         </label>
                     </div>
                     </div>
-
                     {returnReason === 'damaged' && (
                     <div className="bg-red-50 border-2 border-red-300 p-4">
                         <div className="flex items-start gap-3">
@@ -1061,7 +973,6 @@
                     </div>
                     )}
                 </div>
-
                 <div className="flex gap-4">
                     <button
                     onClick={processReturn}
@@ -1083,7 +994,6 @@
                 </div>
             </div>
             )}
-
             {/* Footer */}
             <div className="mt-8 pt-6 border-t-2 border-black text-center text-black text-sm">
             <p>© 2025 POS Inventory Management System - Professional Point of Sale Solution</p>
@@ -1091,4 +1001,4 @@
         </div>
         </div>
     );
-    }
+    }   
