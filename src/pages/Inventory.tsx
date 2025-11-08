@@ -1,815 +1,627 @@
-import React, { useState, useRef } from 'react';
-import { 
-Package, 
-Plus, 
-ArrowLeft, 
-AlertTriangle, 
-RotateCcw, 
-Trash2, 
-Search,
-Upload
-} from 'lucide-react';
+    import React, { useState } from 'react';
+    import { Package, Plus, Edit2, AlertCircle, Hammer, Lightbulb, Droplet, Settings, Paintbrush, Upload, AlertTriangle } from 'lucide-react';
 
-interface Material {
-id: string;
-name: string;
-quantity: number;
-unit: string;
-price: number;
-damaged: number;
-image: string; // Can be a public path OR a blob URL
-description: string;
-}
+    // 🔥 Updated TypeScript interface: added `damagedQuantity`
+    interface Product {
+    id: number;
+    name: string;
+    price: number;
+    quantity: number;          // ✅ Usable/good stock
+    damagedQuantity: number;   // ✅ NEW: damaged stock
+    category: string;
+    imageUrl: string;
+    }
 
-interface Category {
-id: string;
-name: string;
-materials: Material[];
-}
+    interface Category {
+    id: number;
+    name: string;
+    icon: React.ReactNode;
+    }
 
-const HardwareInventory = () => {
-const [categories, setCategories] = useState<Category[]>([
-    {
-    id: '1',
-    name: 'Cement',
-    materials: [
+    const InventoryPOS: React.FC = () => {
+    const categories: Category[] = [
         { 
-        id: '1-1', 
-        name: 'Portland Cement Type I', 
-        quantity: 250, 
-        unit: 'bags', 
-        price: 245.00, 
-        damaged: 5, 
-        image: '/cement.png',
-        description: '40kg bag' 
+        id: 1, 
+        name: 'Cement', 
+        icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         },
         { 
-        id: '1-2', 
-        name: 'Portland Cement Type II',
-        quantity: 180, 
-        unit: 'bags', 
-        price: 255.00, 
-        damaged: 2, 
-        image: '/portland-cement-2.png',
-        description: '40kg bag' 
+        id: 2, 
+        name: 'Lumber', 
+        icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
         },
         { 
-        id: '1-3', 
-        name: 'Masonry Cement', 
-        quantity: 120, 
-        unit: 'bags', 
-        price: 235.00, 
-        damaged: 0, 
-        image: '/masonry-cement.png',
-        description: '40kg bag' 
+        id: 3, 
+        name: 'Nails', 
+        icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="21"/><circle cx="12" cy="21" r="2"/></svg>
+        },
+        { 
+        id: 4, 
+        name: 'Paints', 
+        icon: <Paintbrush size={20} />
+        },
+        { 
+        id: 5, 
+        name: 'Tools', 
+        icon: <Hammer size={20} />
+        },
+        { 
+        id: 6, 
+        name: 'Electrical', 
+        icon: <Lightbulb size={20} />
+        },
+        { 
+        id: 7, 
+        name: 'Plumbing', 
+        icon: <Droplet size={20} />
+        },
+        { 
+        id: 8, 
+        name: 'Hardware', 
+        icon: <Settings size={20} />
         }
-    ]
-    },
-    {
-    id: '2',
-    name: 'Hollow Blocks',
-    materials: [
-        { 
-        id: '2-1', 
-        name: 'CHB 4" Standard', 
-        quantity: 5000, 
-        unit: 'pcs', 
-        price: 12.50, 
-        damaged: 120, 
-        image: '/hollow-blocks.png',
-        description: '4 inches thickness' 
-        },
-        { 
-        id: '2-2', 
-        name: 'CHB 6" Standard',
-        quantity: 3200, 
-        unit: 'pcs', 
-        price: 18.00, 
-        damaged: 85, 
-        image: '/chb-6.png',
-        description: '6 inches thickness' 
-        },
-        { 
-        id: '2-3', 
-        name: 'CHB 8" Standard',
-        quantity: 1500, 
-        unit: 'pcs', 
-        price: 24.00, 
-        damaged: 45, 
-        image: '/chb-8.png',
-        description: '8 inches thickness' 
-        }
-    ]
-    },
-    {
-    id: '3',
-    name: 'Metal Roofing',
-    materials: [
-        { 
-        id: '3-1', 
-        name: 'G.I. Sheet 0.5mm', 
-        quantity: 450, 
-        unit: 'sheets', 
-        price: 385.00, 
-        damaged: 12, 
-        image: '/metal-roofing.png',
-        description: '8ft length' 
-        },
-        { 
-        id: '3-2', 
-        name: 'G.I. Sheet 0.8mm',
-        quantity: 280, 
-        unit: 'sheets', 
-        price: 465.00, 
-        damaged: 8, 
-        image: '/gi-sheet-08.png',
-        description: '8ft length' 
-        },
-        { 
-        id: '3-3', 
-        name: 'Long Span Roofing', 
-        quantity: 320, 
-        unit: 'sheets', 
-        price: 520.00, 
-        damaged: 15, 
-        image: '/long-span.png',
-        description: '10ft length' 
-        }
-    ]
-    },
-    {
-    id: '4',
-    name: 'Plywood',
-    materials: [
-        { 
-        id: '4-1', 
-        name: 'Marine Plywood 1/4"', 
-        quantity: 180, 
-        unit: 'sheets', 
-        price: 485.00, 
-        damaged: 8, 
-        image: '/plywood.png',
-        description: '4x8 feet' 
-        },
-        { 
-        id: '4-2', 
-        name: 'Marine Plywood 1/2"', 
-        quantity: 220, 
-        unit: 'sheets', 
-        price: 785.00, 
-        damaged: 5, 
-        image: '/marine-half.png',
-        description: '4x8 feet' 
-        },
-        { 
-        id: '4-3', 
-        name: 'Marine Plywood 3/4"', 
-        quantity: 150, 
-        unit: 'sheets', 
-        price: 1050.00, 
-        damaged: 3, 
-        image: '/marine-three-quarter.png',
-        description: '4x8 feet' 
-        },
-        { 
-        id: '4-4', 
-        name: 'Ordinary Plywood 1/4"', 
-        quantity: 280, 
-        unit: 'sheets', 
-        price: 325.00, 
-        damaged: 12, 
-        image: '/ordinary-quarter.png',
-        description: '4x8 feet' 
-        },
-        { 
-        id: '4-5', 
-        name: 'Ordinary Plywood 1/2"', 
-        quantity: 195, 
-        unit: 'sheets', 
-        price: 565.00, 
-        damaged: 9, 
-        image: '/ordinary-half.png',
-        description: '4x8 feet' 
-        }
-    ]
-    }
-]);
+    ];
 
-const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
-const [view, setView] = useState<'categories' | 'materials' | 'details'>('categories');
-const [showAddCategory, setShowAddCategory] = useState(false);
-const [showAddMaterial, setShowAddMaterial] = useState(false);
-const [showReturnModal, setShowReturnModal] = useState(false);
-const [returnQuantity, setReturnQuantity] = useState(0);
-const [searchQuery, setSearchQuery] = useState('');
+    // 🔥 Updated initial products: added `damagedQuantity`
+    const [products, setProducts] = useState<Product[]>([
+        // Cement
+        { id: 1, name: 'Portland Cement Type I - 40kg', price: 285, quantity: 150, damagedQuantity: 3, category: 'Cement', imageUrl: 'https://ik.imagekit.io/tuc2020/wp-content/uploads/2024/03/APO-CEMEX-PORTLAND-TYPE-1.jpg' },
+        { id: 2, name: 'Portland Cement Type II - 40kg', price: 295, quantity: 8, damagedQuantity: 2, category: 'Cement', imageUrl: 'https://cebuhomebuilders.com/wp-content/uploads/2020/02/apo-pozzolan-cement..png' },
+        { id: 3, name: 'Masonry Cement - 40kg', price: 270, quantity: 95, damagedQuantity: 0, category: 'Cement', imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzOCAG_9SJJ6woGzqGAtGicnqZ05kquTpvWA&s' },
+        { id: 4, name: 'White Cement - 40kg', price: 520, quantity: 5, damagedQuantity: 1, category: 'Cement', imageUrl: 'https://mackunhardware.com/cdn/shop/products/MPORT.png?v=1614046944' },
+        
+        // Lumber
+        { id: 5, name: '2x4x8 Pine Lumber', price: 185, quantity: 200, damagedQuantity: 5, category: 'Lumber', imageUrl: 'https://images.unsplash.com/photo-161108139834-6b8f844fbe61?w=400' },
+        { id: 6, name: '2x6x10 Pine Lumber', price: 320, quantity: 7, damagedQuantity: 0, category: 'Lumber', imageUrl: 'https://images.unsplash.com/photo-1620799139834-6b8f844fbe61?w=400' },
+        { id: 7, name: '4x4x8 Treated Post', price: 450, quantity: 85, damagedQuantity: 2, category: 'Lumber', imageUrl: 'https://images.unsplash.com/photo-1563207153-f403bf289096?w=400' },
+        { id: 8, name: 'Plywood 4x8 - 1/2 inch', price: 680, quantity: 45, damagedQuantity: 3, category: 'Lumber', imageUrl: 'https://images.unsplash.com/photo-1601885353691-9db469bdc2af?w=400' },
+        
+        // Nails
+        { id: 9, name: 'Common Nails 2 inch - 1kg', price: 65, quantity: 120, damagedQuantity: 0, category: 'Nails', imageUrl: 'https://images.unsplash.com/photo-1635003435037-a40c18587e0d?w=400' },
+        { id: 10, name: 'Common Nails 3 inch - 1kg', price: 70, quantity: 9, damagedQuantity: 1, category: 'Nails', imageUrl: 'https://images.unsplash.com/photo-1616401776142-57818a4e4293?w=400' },
+        { id: 11, name: 'Roofing Nails - 1kg', price: 85, quantity: 95, damagedQuantity: 0, category: 'Nails', imageUrl: 'https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=400' },
+        { id: 12, name: 'Finishing Nails - 500g', price: 45, quantity: 110, damagedQuantity: 0, category: 'Nails', imageUrl: 'https://images.unsplash.com/photo-1572981779307-e8f0c1d3e8e5?w=400' },
+        
+        // Paints
+        { id: 13, name: 'Latex White Paint - 4L', price: 895, quantity: 55, damagedQuantity: 2, category: 'Paints', imageUrl: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400' },
+        { id: 14, name: 'Latex Beige Paint - 4L', price: 895, quantity: 6, damagedQuantity: 1, category: 'Paints', imageUrl: 'https://images.unsplash.com/photo-1513467535987-fd81bc7d62f8?w=400' },
+        { id: 15, name: 'Enamel Paint White - 1L', price: 320, quantity: 75, damagedQuantity: 0, category: 'Paints', imageUrl: 'https://images.unsplash.com/photo-1572981779307-e8f0c1d3e8e5?w=400' },
+        { id: 16, name: 'Paint Primer - 4L', price: 650, quantity: 40, damagedQuantity: 1, category: 'Paints', imageUrl: 'https://images.unsplash.com/photo-1604709177225-055f99402ea3?w=400' },
+        
+        // Tools
+        { id: 17, name: 'Claw Hammer 16oz', price: 285, quantity: 30, damagedQuantity: 1, category: 'Tools', imageUrl: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400' },
+        { id: 18, name: 'Screwdriver Set 6pcs', price: 450, quantity: 9, damagedQuantity: 0, category: 'Tools', imageUrl: 'https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=400' },
+        { id: 19, name: 'Measuring Tape 5m', price: 185, quantity: 45, damagedQuantity: 2, category: 'Tools', imageUrl: 'https://images.unsplash.com/photo-1572981779307-e8f0c1d3e8e5?w=400' },
+        { id: 20, name: 'Hand Saw 20 inch', price: 395, quantity: 25, damagedQuantity: 1, category: 'Tools', imageUrl: 'https://images.unsplash.com/photo-1586864387634-29e49c7f1820?w=400' }
+    ]);
 
-const [newCategoryName, setNewCategoryName] = useState('');
-
-const [newMaterial, setNewMaterial] = useState({
-    name: '',
-    quantity: 0,
-    unit: '',
-    price: 0,
-    damaged: 0,
-    image: '',
-    description: '',
-    file: null as File | null
-});
-
-const fileInputRef = useRef<HTMLInputElement>(null);
-const [imagePreview, setImagePreview] = useState<string | null>(null);
-
-const getCategoryImage = (category: Category): string => {
-    return category.materials.length > 0 
-    ? category.materials[0].image 
-    : '/placeholder.png';
-};
-
-// ✅ Improved ImageRenderer that supports blob URLs
-const ImageRenderer = ({ src, alt = '', className = '' }: { 
-    src: string; 
-    alt?: string; 
-    className?: string;
-}) => {
-    if (!src) {
-    return <span className="text-gray-500 text-sm p-2 text-center bg-gray-100 w-full block">No image</span>;
-    }
-
-    // Handle blob URLs directly
-    if (src.startsWith('blob:')) {
-    return (
-        <img 
-        src={src} 
-        alt={alt} 
-        className={`${className} object-cover w-full h-full`}
-        onError={(e) => {
-            (e.target as HTMLImageElement).style.display = 'none';
-            const fallback = document.createElement('div');
-            fallback.className = 'text-gray-500 text-sm p-3 text-center bg-gray-100 w-full h-full flex items-center justify-center';
-            fallback.textContent = 'Image not found';
-            (e.target as HTMLImageElement).after(fallback);
-        }}
-        />
-    );
-    }
-
-    // Handle public paths
-    let normalizedSrc = src;
-    if (!src.startsWith('http') && !src.startsWith('/')) {
-    normalizedSrc = `/${src}`;
-    }
-
-    return (
-    <img 
-        src={normalizedSrc} 
-        alt={alt} 
-        className={`${className} object-cover w-full h-full`}
-        onError={(e) => {
-        (e.target as HTMLImageElement).style.display = 'none';
-        const fallback = document.createElement('div');
-        fallback.className = 'text-gray-500 text-sm p-3 text-center bg-gray-100 w-full h-full flex items-center justify-center';
-        fallback.textContent = 'Image not found';
-        (e.target as HTMLImageElement).after(fallback);
-        }}
-    />
-    );
-};
-
-const handleCategoryClick = (category: Category) => {
-    setSelectedCategory(category);
-    setView('materials');
-    setSearchQuery('');
-};
-
-const handleMaterialClick = (material: Material) => {
-    setSelectedMaterial(material);
-    setView('details');
-};
-
-const handleBack = () => {
-    if (view === 'details') {
-    setView('materials');
-    setSelectedMaterial(null);
-    } else if (view === 'materials') {
-    setView('categories');
-    setSelectedCategory(null);
-    }
-};
-
-const handleAddCategory = () => {
-    if (newCategoryName.trim()) {
-    const category: Category = {
-        id: `cat-${Date.now()}`,
-        name: newCategoryName.trim(),
-        materials: []
-    };
-    setCategories([...categories, category]);
-    setNewCategoryName('');
-    setShowAddCategory(false);
+    const [selectedCategory, setSelectedCategory] = useState<string>('Cement');
+    const [showAddForm, setShowAddForm] = useState<boolean>(false);
+    const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     
-    setSelectedCategory(category);
-    setView('materials');
-    setShowAddMaterial(true);
-    }
-};
+    // 🔥 Updated form state: added `damagedQuantity`
+    const [formData, setFormData] = useState({
+        name: '',
+        price: '',
+        quantity: '',
+        damagedQuantity: '', // ✅ NEW field
+        imageUrl: ''
+    });
 
-const handleAddMaterial = () => {
-    if (selectedCategory && newMaterial.name.trim()) {
-    const material: Material = {
-        id: `${selectedCategory.id}-${Date.now()}`,
-        name: newMaterial.name.trim(),
-        quantity: newMaterial.quantity,
-        unit: newMaterial.unit,
-        price: newMaterial.price,
-        damaged: newMaterial.damaged,
-        image: newMaterial.image, // This is now a blob URL or public path
-        description: newMaterial.description.trim(),
+    const filteredProducts = products.filter(p => p.category === selectedCategory);
+
+    const isLowStock = (quantity: number): boolean => quantity < 10;
+    const hasDamaged = (damagedQuantity: number): boolean => damagedQuantity > 0;
+
+    const handleCategoryClick = (categoryName: string) => {
+        setSelectedCategory(categoryName);
+        setShowAddForm(false);
+        setEditingProduct(null);
+        resetForm();
     };
 
-    const updatedCat: Category = {
-        ...selectedCategory,
-        materials: [...selectedCategory.materials, material]
+    const resetForm = () => {
+        setFormData({ name: '', price: '', quantity: '', damagedQuantity: '', imageUrl: '' });
     };
 
-    setCategories(categories.map(cat => 
-        cat.id === selectedCategory.id ? updatedCat : cat
-    ));
-    setSelectedCategory(updatedCat);
-
-    setNewMaterial({ name: '', quantity: 0, unit: '', price: 0, damaged: 0, image: '', description: '', file: null });
-    setShowAddMaterial(false);
-    setImagePreview(null);
-    }
-};
-
-const handleReturnDamaged = () => {
-    if (selectedMaterial && selectedCategory && returnQuantity > 0 && returnQuantity <= selectedMaterial.damaged) {
-    const updatedMaterial = { 
-        ...selectedMaterial, 
-        damaged: selectedMaterial.damaged - returnQuantity,
-        quantity: selectedMaterial.quantity + returnQuantity
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({
+        ...formData,
+        [e.target.name]: e.target.value
+        });
     };
-    const updatedCat: Category = {
-        ...selectedCategory,
-        materials: selectedCategory.materials.map(m => 
-        m.id === selectedMaterial.id ? updatedMaterial : m
-        )
+
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setFormData({
+            ...formData,
+            imageUrl: reader.result as string
+            });
+        };
+        reader.readAsDataURL(file);
+        }
     };
-    setSelectedMaterial(updatedMaterial);
-    setSelectedCategory(updatedCat);
-    setCategories(categories.map(cat => 
-        cat.id === selectedCategory.id ? updatedCat : cat
-    ));
-    setReturnQuantity(0);
-    setShowReturnModal(false);
-    }
-};
 
-const handleDeleteMaterial = (materialId: string) => {
-    if (selectedCategory) {
-    const updatedCat: Category = {
-        ...selectedCategory,
-        materials: selectedCategory.materials.filter(m => m.id !== materialId)
-    };
-    setCategories(categories.map(cat => 
-        cat.id === selectedCategory.id ? updatedCat : cat
-    ));
-    setSelectedCategory(updatedCat);
-    if (selectedMaterial?.id === materialId) {
-        setSelectedMaterial(null);
-        setView('materials');
-    }
-    }
-};
-
-const filteredMaterials = selectedCategory?.materials.filter(mat =>
-    mat.name.toLowerCase().includes(searchQuery.toLowerCase())
-) || [];
-
-// ✅ Fixed: Store blob URL in `newMaterial.image`
-const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-    if (!/\.(jpg|jpeg|png|gif|webp|svg)$/i.test(file.name)) {
-        alert("Only image files are allowed.");
+    const handleAddProduct = () => {
+        const { name, price, quantity, damagedQuantity, imageUrl } = formData;
+        if (!name || !price || !quantity || !imageUrl) {
+        alert('Please fill all required fields (name, price, quantity, image)');
         return;
-    }
+        }
 
-    const previewUrl = URL.createObjectURL(file);
-    setImagePreview(previewUrl);
-    
-    // 👇 Critical: store the blob URL, not just filename
-    setNewMaterial(prev => ({ ...prev, image: previewUrl, file }));
-    }
-};
+        const parsedQuantity = parseInt(quantity);
+        const parsedDamaged = parseInt(damagedQuantity || '0');
 
-return (
-    <div className="min-h-screen bg-white">
-    {/* Header */}
-    <header className="border-b-2 border-[#DC0E0E] bg-white">
-        <div className="px-6 py-5 md:px-8 md:py-6">
-        <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-            {view !== 'categories' && (
-                <button 
-                onClick={handleBack} 
-                className="p-2.5 hover:bg-gray-100 rounded transition-colors focus:outline-none"
-                >
-                <ArrowLeft className="w-6 h-6 text-[#DC0E0E]" />
-                </button>
-            )}
-            <Package className="w-8 h-8 text-[#DC0E0E]" />
-            <h1 className="text-2xl md:text-3xl font-bold text-[#DC0E0E]">Hardware Inventory System</h1>
-            </div>
-            {view === 'categories' && (
-            <button
-                onClick={() => setShowAddCategory(true)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-[#DC0E0E] text-white hover:bg-red-800 rounded transition-colors"
-            >
-                <Plus className="w-5 h-5" />
-                Add Category
-            </button>
-            )}
-            {view === 'materials' && (
-            <button
-                onClick={() => setShowAddMaterial(true)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-[#DC0E0E] text-white hover:bg-red-800 rounded transition-colors"
-            >
-                <Plus className="w-5 h-5" />
-                Add Material
-            </button>
-            )}
-        </div>
-        </div>
-    </header>
+        if (parsedDamaged < 0) {
+        alert('Damaged quantity cannot be negative.');
+        return;
+        }
 
-    {/* Main Content */}
-    <main className="px-4 sm:px-6 md:px-8 py-6 md:py-8">
-        {view === 'categories' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-            {categories.map(category => {
-            const categoryImage = getCategoryImage(category);
-            return (
-                <div
-                key={category.id}
-                onClick={() => handleCategoryClick(category)}
-                className="border-2 border-white bg-white cursor-pointer hover:bg-gray-100 transition-colors rounded-lg overflow-hidden shadow-sm"
-                role="button"
-                tabIndex={0}
-                >
-                <div className="aspect-[5/5] w-full bg-gray-200 overflow-hidden">
-                    <ImageRenderer 
-                    src={categoryImage} 
-                    alt={category.name}
-                    className="w-full h-full"
-                    />
-                </div>
-                <div className="p-5">
-                    <h3 className="text-xl font-bold text-[#DC0E0E]">{category.name}</h3>
-                    <p className="text-gray-600 mt-1">{category.materials.length} materials</p>
-                </div>
-                </div>
-            );
-            })}
-        </div>
-        )}
+        // ✅ Ensure usable quantity is non-negative
+        if (parsedQuantity < 0) {
+        alert('Usable quantity cannot be negative.');
+        return;
+        }
 
-        {view === 'materials' && selectedCategory && (
-        <div>
-            <div className="mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold text-[#DC0E0E]">{selectedCategory.name}</h2>
-            <div className="relative mt-3 max-w-2xl">
-                <Search className="w-5 h-5 text-gray-500 absolute left-3.5 top-3.5" />
-                <input
-                type="text"
-                placeholder="Search materials..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border-2 border-white text-black placeholder-gray-500 focus:outline-none rounded-lg"
-                />
-            </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredMaterials.map(material => (
-                <div
-                key={material.id}
-                onClick={() => handleMaterialClick(material)}
-                className="border-2 border-white bg-white cursor-pointer hover:bg-gray-50 transition-colors rounded-lg overflow-hidden shadow-sm"
-                role="button"
-                tabIndex={0}
-                >
-                <div className="aspect-video w-full bg-gray-200 overflow-hidden">
-                    <ImageRenderer 
-                    src={material.image} 
-                    alt={material.name}
-                    className="w-full h-full"
-                    />
-                </div>
-                <div className="p-4">
-                    <h4 className="font-bold text-[#423939] mb-1 line-clamp-2">{material.name}</h4>
-                    <div className="space-y-1.5 text-sm text-[#423939]">
-                    <p>Stock: <span className="font-semibold">{material.quantity} {material.unit}</span></p>
-                    <p>Price: <span className="font-semibold">₱{material.price.toFixed(2)}</span></p>
-                    {material.damaged > 0 && (
-                        <div className="flex items-center gap-1.5 text-[#423939] pt-1">
-                        <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                        <span className="font-semibold">{material.damaged} damaged</span>
-                        </div>
-                    )}
-                    </div>
-                </div>
-                </div>
-            ))}
-            {filteredMaterials.length === 0 && (
-                <div className="col-span-full text-center py-12 text-gray-500">
-                No materials yet. Click "Add Material" to begin.
-                </div>
-            )}
-            </div>
-        </div>
-        )}
+        const newProduct: Product = {
+        id: products.length + 1,
+        name,
+        price: parseFloat(price),
+        quantity: parsedQuantity,
+        damagedQuantity: parsedDamaged,
+        category: selectedCategory,
+        imageUrl
+        };
 
-        {view === 'details' && selectedMaterial && (
-        <div className="max-w-7xl mx-auto">
-            <div className="border-2 border-[#ffffff] bg-white p-6 md:p-8 rounded-xl">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 xl:gap-12">
-                <div className="flex justify-center lg:justify-start">
-                <div className="w-full max-w-lg aspect-square overflow-hidden rounded-lg border-2 border-[#ffffff] bg-gray-200">
-                    <ImageRenderer 
-                    src={selectedMaterial.image} 
-                    alt={selectedMaterial.name}
-                    className="w-full h-full"
-                    />
-                </div>
-                </div>
-                <div className="space-y-5">
+        setProducts([...products, newProduct]);
+        setShowAddForm(false);
+        resetForm();
+    };
+
+    const handleEditClick = (product: Product) => {
+        setEditingProduct(product);
+        setFormData({
+        name: product.name,
+        price: product.price.toString(),
+        quantity: product.quantity.toString(),
+        damagedQuantity: product.damagedQuantity.toString(), // ✅ prefill damaged quantity
+        imageUrl: product.imageUrl
+        });
+        setShowAddForm(false);
+    };
+
+    const handleSaveEdit = () => {
+        if (!editingProduct) return;
+
+        const { quantity, damagedQuantity } = formData;
+        const newQuantity = parseInt(quantity);
+        const newDamaged = parseInt(damagedQuantity || '0');
+
+        if (newQuantity < 0) {
+        alert('Usable quantity cannot be negative.');
+        return;
+        }
+        if (newDamaged < 0) {
+        alert('Damaged quantity cannot be negative.');
+        return;
+        }
+
+        // 🔒 Prevent logic error: usable + damaged should reflect reality.
+        // But we allow editing both freely — no auto-correction, just validation.
+        // (In real-world, you’d have a "Report Damage" action separately.)
+
+        const updatedProducts = products.map(p => 
+        p.id === editingProduct.id 
+            ? { 
+                ...p, 
+                name: formData.name, 
+                price: parseFloat(formData.price), 
+                quantity: newQuantity, 
+                damagedQuantity: newDamaged,
+                imageUrl: formData.imageUrl 
+            }
+            : p
+        );
+
+        setProducts(updatedProducts);
+        setEditingProduct(null);
+        resetForm();
+    };
+
+    const handleCancelEdit = () => {
+        setEditingProduct(null);
+        resetForm();
+    };
+
+    // 🔥 NEW: Dedicated function to report damage (optional — future-ready)
+    // For now, editing is the main way, but this shows how to do it safely:
+    // Example usage: you could add a "Report Damage" button per product later.
+    const reportDamage = (productId: number, damagedAmount: number) => {
+        if (damagedAmount <= 0) return;
+
+        setProducts(products.map(p => {
+        if (p.id === productId) {
+            const newDamaged = p.damagedQuantity + damagedAmount;
+            const newUsable = p.quantity - damagedAmount;
+
+            if (newUsable < 0) {
+            alert(`Cannot damage ${damagedAmount} units — only ${p.quantity} usable available.`);
+            return p;
+            }
+
+            return {
+            ...p,
+            quantity: newUsable,
+            damagedQuantity: newDamaged
+            };
+        }
+        return p;
+        }));
+    };
+
+    return (
+        <div className="min-h-screen bg-white">
+        <header className="bg-[#DC0E0E] text-white shadow-lg">
+            <div className="container mx-auto px-6 py-4">
+            <div className="flex items-center space-x-3">
+                <Package size={32} />
                 <div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-[#DC0E0E]">{selectedMaterial.name}</h2>
-                    <p className="text-gray-700 text-lg mt-2">{selectedMaterial.description}</p>
+                <h1 className="text-3xl font-bold">Hardware POS</h1>
+                <p className="text-sm text-white/90">Inventory Management System</p>
                 </div>
-                
-                <div className="space-y-3 pt-5 border-t-2 border-[#fffefe]">
-                    <div className="flex justify-between">
-                    <span className="font-semibold text-[#DC0E0E] text-lg">Available Stock:</span>
-                    <span className="text-xl font-bold text-[#DC0E0E]">{selectedMaterial.quantity} {selectedMaterial.unit}</span>
-                    </div>
-                    <div className="flex justify-between">
-                    <span className="font-semibold text-[#DC0E0E] text-lg">Unit Price:</span>
-                    <span className="text-xl font-bold text-[#DC0E0E]">₱{selectedMaterial.price.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                    <span className="font-semibold text-[#DC0E0E] text-lg">Total Value:</span>
-                    <span className="text-xl font-bold text-[#DC0E0E]">₱{(selectedMaterial.quantity * selectedMaterial.price).toFixed(2)}</span>
-                    </div>
+            </div>
+            </div>
+        </header>
+
+        <div className="container mx-auto px-6 py-8">
+            <div className="flex gap-8">
+            <aside className="w-64 flex-shrink-0">
+                <div className="bg-gray-50 rounded-lg shadow-md p-4 sticky top-8">
+                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <Package size={24} className="mr-2" /> Categories
+                </h2>
+                <nav className="space-y-2">
+                    {categories.map(category => (
+                    <button
+                        key={category.id}
+                        onClick={() => handleCategoryClick(category.name)}
+                        className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-3 ${
+                        selectedCategory === category.name
+                            ? 'bg-[#DC0E0E] text-white shadow-md'
+                            : 'bg-white text-gray-700 hover:bg-gray-100'
+                        }`}
+                    >
+                        <span className="flex-shrink-0">{category.icon}</span>
+                        <span>{category.name}</span>
+                    </button>
+                    ))}
+                </nav>
+                </div>
+            </aside>
+
+            <main className="flex-1">
+                <div className="flex justify-between items-center mb-6">
+                <div>
+                    <h2 className="text-3xl font-bold text-gray-800">{selectedCategory}</h2>
+                    <p className="text-gray-600 mt-1">{filteredProducts.length} items in stock</p>
+                </div>
+                <button
+                    onClick={() => {
+                    setShowAddForm(!showAddForm);
+                    setEditingProduct(null);
+                    resetForm();
+                    }}
+                    className="bg-[#DC0E0E] text-white px-6 py-3 rounded-lg font-medium flex items-center space-x-2 hover:bg-[#B80C0C] transition-colors shadow-md"
+                >
+                    <Plus size={20} />
+                    <span>Add New Product</span>
+                </button>
                 </div>
 
-                {selectedMaterial.damaged > 0 && (
-                    <div className="border-2 border-[#ffffff] bg-gray-50 p-5 rounded-lg">
-                    <div className="flex items-center gap-2.5 mb-3">
-                        <AlertTriangle className="w-5 h-5 text-[#ad2020]" />
-                        <span className="font-bold text-[#DC0E0E] text-lg">Damaged Items</span>
+                {/* Add Product Form — ✅ with damagedQuantity */}
+                {showAddForm && (
+                <div className="bg-gray-50 rounded-lg shadow-md p-6 mb-6 border-2 border-[#DC0E0E]">
+                    <h3 className="text-xl font-bold text-gray-800 mb-4">Add New Product to {selectedCategory}</h3>
+                    <div className="space-y-4">
+                    <div>
+                        <label className="block text-gray-700 font-medium mb-2">Product Name</label>
+                        <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#DC0E0E] focus:border-transparent"
+                        placeholder="Enter product name"
+                        />
                     </div>
-                    <div className="flex justify-between items-center mb-4">
-                        <span className="text-[#DC0E0E] text-lg">Damaged Quantity:</span>
-                        <span className="text-2xl font-bold text-[#DC0E0E]">{selectedMaterial.damaged} {selectedMaterial.unit}</span>
+                    <div>
+                        <label className="block text-gray-700 font-medium mb-2">Product Image</label>
+                        <div className="relative">
+                        <input
+                            type="text"
+                            name="imageUrl"
+                            value={formData.imageUrl}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#DC0E0E] focus:border-transparent"
+                            placeholder="Click icon to upload image"
+                            readOnly
+                        />
+                        <label className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#DC0E0E] text-white p-2 rounded-lg cursor-pointer hover:bg-[#B80C0C] transition-colors">
+                            <Upload size={20} />
+                            <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                            />
+                        </label>
+                        </div>
+                        {formData.imageUrl && (
+                        <div className="mt-3">
+                            <img src={formData.imageUrl} alt="Preview" className="w-32 h-32 object-cover rounded-lg border-2 border-gray-300 shadow-sm" />
+                        </div>
+                        )}
                     </div>
-                    <button
-                        onClick={() => setShowReturnModal(true)}
-                        className="w-full flex items-center justify-center gap-2.5 px-5 py-3 bg-[#DC0E0E] text-white hover:bg-red-800 transition-colors rounded-lg"
-                    >
-                        <RotateCcw className="w-5 h-5" />
-                        Return to Inventory
-                    </button>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                        <label className="block text-gray-700 font-medium mb-2">Price (₱)</label>
+                        <input
+                            type="number"
+                            name="price"
+                            value={formData.price}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#DC0E0E] focus:border-transparent"
+                            placeholder="0.00"
+                            step="0.01"
+                        />
+                        </div>
+                        <div>
+                        <label className="block text-gray-700 font-medium mb-2">Usable Quantity</label>
+                        <input
+                            type="number"
+                            name="quantity"
+                            value={formData.quantity}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#DC0E0E] focus:border-transparent"
+                            placeholder="0"
+                            min="0"
+                        />
+                        </div>
                     </div>
+                    {/* 🔥 NEW: Damaged Quantity Input */}
+                    <div>
+                        <label className="block text-gray-700 font-medium mb-2">Damaged Quantity (optional)</label>
+                        <input
+                        type="number"
+                        name="damagedQuantity"
+                        value={formData.damagedQuantity}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#DC0E0E] focus:border-transparent"
+                        placeholder="0"
+                        min="0"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Items that are damaged, expired, or unusable.</p>
+                    </div>
+                    <div className="flex space-x-3">
+                        <button
+                        onClick={handleAddProduct}
+                        className="bg-[#DC0E0E] text-white px-6 py-2 rounded-lg font-medium hover:bg-[#B80C0C] transition-colors"
+                        >
+                        Add Product
+                        </button>
+                        <button
+                        onClick={() => {
+                            setShowAddForm(false);
+                            resetForm();
+                        }}
+                        className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg font-medium hover:bg-gray-400 transition-colors"
+                        >
+                        Cancel
+                        </button>
+                    </div>
+                    </div>
+                </div>
                 )}
 
-                <div className="pt-3">
-                    <button
-                    onClick={() => handleDeleteMaterial(selectedMaterial.id)}
-                    className="w-full flex items-center justify-center gap-2.5 px-5 py-3 border-2 border-[#DC0E0E] text-[#DC0E0E] hover:bg-gray-100 transition-colors rounded-lg"
-                    >
-                    <Trash2 className="w-5 h-5" />
-                    Delete This Material
-                    </button>
-                </div>
-                </div>
-            </div>
-            </div>
-        </div>
-        )}
-    </main>
-
-    {/* Add Category Modal */}
-    {showAddCategory && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
-        <div className="bg-white border-2 border-[#DC0E0E] p-6 rounded-xl w-full max-w-md mx-4">
-            <h3 className="text-2xl font-bold text-[#DC0E0E] mb-5">➕ Add New Category</h3>
-            <div className="space-y-5">
-            <input
-                type="text"
-                placeholder="Category Name *"
-                value={newCategoryName}
-                onChange={(e) => setNewCategoryName(e.target.value)}
-                className="w-full px-5 py-3.5 border-2 border-[#DC0E0E] text-black placeholder-gray-500 focus:outline-none rounded-lg text-lg"
-                autoFocus
-            />
-            <p className="text-sm text-gray-600">
-                📝 After creating, you'll be prompted to add the first material.  
-                Its image will become the category's main image.
-            </p>
-            <div className="flex gap-3 pt-2">
-                <button
-                onClick={() => setShowAddCategory(false)}
-                className="px-6 py-3.5 border-2 border-[#DC0E0E] text-[#DC0E0E] hover:bg-gray-100 transition-colors rounded-lg flex-1"
-                >
-                Cancel
-                </button>
-                <button
-                onClick={handleAddCategory}
-                className="px-6 py-3.5 bg-[#DC0E0E] text-white hover:bg-red-800 transition-colors rounded-lg flex-1"
-                >
-                ✅ Create & Add First Material
-                </button>
-            </div>
-            </div>
-        </div>
-        </div>
-    )}
-
-    {/* Add Material Modal */}
-    {showAddMaterial && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 overflow-y-auto">
-        <div className="bg-white border-2 border-[#DC0E0E] p-6 rounded-xl w-full max-w-2xl mx-4">
-            <h3 className="text-2xl font-bold text-[#DC0E0E] mb-5">
-            ➕ Add Material to <span className="text-blue-600">"{selectedCategory?.name}"</span>
-            </h3>
-            <div className="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
-            <input
-                type="text"
-                placeholder="Material Name *"
-                value={newMaterial.name}
-                onChange={(e) => setNewMaterial({ ...newMaterial, name: e.target.value })}
-                className="w-full px-5 py-3.5 border-2 border-[#DC0E0E] text-black placeholder-gray-500 focus:outline-none rounded-lg text-lg"
-                autoFocus
-            />
-
-            <div className="flex items-center gap-2">
-                <input
-                type="text"
-                placeholder="Image will update automatically when you upload"
-                value={newMaterial.image ? 'Image selected (see preview below)' : ''}
-                readOnly
-                className="flex-1 px-5 py-3.5 border-2 border-[#DC0E0E] text-black bg-gray-50 rounded-lg"
-                />
-                <button
-                onClick={() => fileInputRef.current?.click()}
-                className="p-3 bg-gray-100 hover:bg-gray-200 border-2 border-gray-300 rounded-lg transition-colors focus:outline-none"
-                aria-label="Upload image file"
-                >
-                <Upload className="w-5 h-5 text-gray-600" />
-                </button>
-                <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileSelect}
-                className="hidden"
-                />
-            </div>
-            <p className="text-sm text-gray-600 -mt-1 mb-3">
-                📁 You can place files in <code className="bg-gray-100 px-1.5 py-0.5 rounded">public/</code> for permanent paths.
-            </p>
-
-            {/* Image Preview */}
-            <div className="border-2 border-[#DC0E0E] p-3 rounded-lg">
-                <h4 className="font-semibold text-[#DC0E0E] mb-2">Image Preview:</h4>
-                {imagePreview ? (
-                <img
-                    src={imagePreview}
-                    alt="Selected preview"
-                    className="max-w-full h-auto max-h-48 object-contain rounded-md"
-                />
-                ) : (
-                <div className="w-full h-48 bg-gray-100 flex items-center justify-center text-gray-500 rounded-md">
-                    No image selected
+                {/* Edit Product Form — ✅ with damagedQuantity */}
+                {editingProduct && (
+                <div className="bg-yellow-50 rounded-lg shadow-md p-6 mb-6 border-2 border-yellow-400">
+                    <h3 className="text-xl font-bold text-gray-800 mb-4">Edit Product</h3>
+                    <div className="space-y-4">
+                    <div>
+                        <label className="block text-gray-700 font-medium mb-2">Product Name</label>
+                        <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-gray-700 font-medium mb-2">Product Image</label>
+                        <div className="relative">
+                        <input
+                            type="text"
+                            name="imageUrl"
+                            value={formData.imageUrl}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                            placeholder="Click icon to upload image"
+                            readOnly
+                        />
+                        <label className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#DC0E0E] text-white p-2 rounded-lg cursor-pointer hover:bg-[#B80C0C] transition-colors">
+                            <Upload size={20} />
+                            <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                            />
+                        </label>
+                        </div>
+                        {formData.imageUrl && (
+                        <div className="mt-3">
+                            <img src={formData.imageUrl} alt="Preview" className="w-32 h-32 object-cover rounded-lg border-2 border-gray-300 shadow-sm" />
+                        </div>
+                        )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                        <label className="block text-gray-700 font-medium mb-2">Price (₱)</label>
+                        <input
+                            type="number"
+                            name="price"
+                            value={formData.price}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                            step="0.01"
+                        />
+                        </div>
+                        <div>
+                        <label className="block text-gray-700 font-medium mb-2">Usable Quantity</label>
+                        <input
+                            type="number"
+                            name="quantity"
+                            value={formData.quantity}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                            min="0"
+                        />
+                        </div>
+                    </div>
+                    {/* 🔥 NEW: Damaged Quantity in Edit */}
+                    <div>
+                        <label className="block text-gray-700 font-medium mb-2">Damaged Quantity</label>
+                        <input
+                        type="number"
+                        name="damagedQuantity"
+                        value={formData.damagedQuantity}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                        min="0"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                        Damaged: {editingProduct.damagedQuantity} | Usable: {editingProduct.quantity}
+                        </p>
+                    </div>
+                    <div className="flex space-x-3">
+                        <button
+                        onClick={handleSaveEdit}
+                        className="bg-green-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors"
+                        >
+                        Save Changes
+                        </button>
+                        <button
+                        onClick={handleCancelEdit}
+                        className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg font-medium hover:bg-gray-400 transition-colors"
+                        >
+                        Cancel
+                        </button>
+                    </div>
+                    </div>
                 </div>
                 )}
-            </div>
 
-            <input
-                type="text"
-                placeholder="Description"
-                value={newMaterial.description}
-                onChange={(e) => setNewMaterial({ ...newMaterial, description: e.target.value })}
-                className="w-full px-5 py-3.5 border-2 border-[#DC0E0E] text-black placeholder-gray-500 focus:outline-none rounded-lg"
-            />
-            <div className="grid grid-cols-2 gap-4">
-                <input
-                type="number"
-                placeholder="Quantity *"
-                value={newMaterial.quantity || ''}
-                onChange={(e) => setNewMaterial({ ...newMaterial, quantity: Number(e.target.value) })}
-                min="0"
-                className="w-full px-5 py-3.5 border-2 border-[#DC0E0E] text-black placeholder-gray-500 focus:outline-none rounded-lg"
-                />
-                <input
-                type="text"
-                placeholder="Unit (e.g., bags) *"
-                value={newMaterial.unit}
-                onChange={(e) => setNewMaterial({ ...newMaterial, unit: e.target.value })}
-                className="w-full px-5 py-3.5 border-2 border-[#DC0E0E] text-black placeholder-gray-500 focus:outline-none rounded-lg"
-                />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-                <input
-                type="number"
-                step="0.01"
-                placeholder="Price *"
-                value={newMaterial.price || ''}
-                onChange={(e) => setNewMaterial({ ...newMaterial, price: Number(e.target.value) })}
-                min="0"
-                className="w-full px-5 py-3.5 border-2 border-[#DC0E0E] text-black placeholder-gray-500 focus:outline-none rounded-lg"
-                />
-                <input
-                type="number"
-                placeholder="Damaged"
-                value={newMaterial.damaged || ''}
-                onChange={(e) => setNewMaterial({ ...newMaterial, damaged: Number(e.target.value) })}
-                min="0"
-                className="w-full px-5 py-3.5 border-2 border-[#DC0E0E] text-black placeholder-gray-500 focus:outline-none rounded-lg"
-                />
-            </div>
-            <div className="flex gap-3 pt-3">
-                <button
-                onClick={() => {
-                    setShowAddMaterial(false);
-                    setImagePreview(null);
-                }}
-                className="px-6 py-3.5 border-2 border-[#DC0E0E] text-[#DC0E0E] hover:bg-gray-100 transition-colors rounded-lg flex-1"
-                >
-                Cancel
-                </button>
-                <button
-                onClick={() => {
-                    handleAddMaterial();
-                    setImagePreview(null);
-                }}
-                className="px-6 py-3.5 bg-[#DC0E0E] text-white hover:bg-red-800 transition-colors rounded-lg flex-1"
-                >
-                ✅ Add Material
-                </button>
-            </div>
-            </div>
-        </div>
-        </div>
-    )}
+                {/* Products Grid — ✅ Show damaged status */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredProducts.map(product => (
+                    <div
+                    key={product.id}
+                    className={`bg-white rounded-lg shadow-md overflow-hidden border-2 transition-all hover:shadow-lg ${
+                        isLowStock(product.quantity) && !hasDamaged(product.damagedQuantity)
+                        ? 'border-[#DC0E0E] bg-red-50'
+                        : hasDamaged(product.damagedQuantity)
+                        ? 'border-yellow-500 bg-yellow-50'
+                        : 'border-gray-200'
+                    }`}
+                    >
+                    <div className="relative h-70 bg-white">
+                        <img 
+                        src={product.imageUrl} 
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/400x300/eee/999?text=No+Image' }}
+                        />
+                        {/* Low Stock Badge */}
+                        {isLowStock(product.quantity) && !hasDamaged(product.damagedQuantity) && (
+                        <div className="absolute top-2 right-2 bg-[#DC0E0E] text-white px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1">
+                            <AlertCircle size={14} />
+                            <span>Low Stock</span>
+                        </div>
+                        )}
+                        {/* 🔥 Damaged Badge */}
+                        {hasDamaged(product.damagedQuantity) && (
+                        <div className="absolute top-2 left-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1">
+                            <AlertTriangle size={14} />
+                            <span>{product.damagedQuantity} Damaged</span>
+                        </div>
+                        )}
+                    </div>
 
-    {/* Return Modal */}
-    {showReturnModal && selectedMaterial && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
-        <div className="bg-white border-2 border-[#DC0E0E] p-6 rounded-xl w-full max-w-md mx-4">
-            <h3 className="text-2xl font-bold text-[#DC0E0E] mb-4">🔄 Return Damaged Items</h3>
-            <p className="text-[#DC0E0E] mb-5">
-            Damaged stock: <span className="font-bold text-lg">{selectedMaterial.damaged} {selectedMaterial.unit}</span>
-            </p>
-            <input
-            type="number"
-            placeholder="Quantity to return"
-            value={returnQuantity || ''}
-            onChange={(e) => setReturnQuantity(Number(e.target.value))}
-            max={selectedMaterial.damaged}
-            min="1"
-            className="w-full px-5 py-3.5 border-2 border-[#DC0E0E] text-black placeholder-gray-500 focus:outline-none rounded-lg text-lg mb-5"
-            autoFocus
-            />
-            <div className="flex gap-3">
-            <button
-                onClick={() => {
-                setShowReturnModal(false);
-                setReturnQuantity(0);
-                }}
-                className="px-6 py-3.5 border-2 border-[#DC0E0E] text-[#DC0E0E] hover:bg-gray-100 transition-colors rounded-lg flex-1"
-            >
-                Cancel
-            </button>
-            <button
-                onClick={handleReturnDamaged}
-                disabled={returnQuantity <= 0 || returnQuantity > selectedMaterial.damaged}
-                className={`px-6 py-3.5 rounded-lg flex-1 ${
-                returnQuantity > 0 && returnQuantity <= selectedMaterial.damaged
-                    ? 'bg-[#DC0E0E] text-white hover:bg-red-800'
-                    : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                }`}
-            >
-                ✅ Confirm Return
-            </button>
+                    <div className="p-5">
+                        <h3 className="text-lg font-bold text-gray-800 mb-3">{product.name}</h3>
+                        
+                        <div className="space-y-2 mb-4">
+                        <div className="flex justify-between items-center">
+                            <span className="text-gray-600">Price:</span>
+                            <span className="text-xl font-bold text-[#DC0E0E]">₱{product.price.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-gray-600">Available:</span>
+                            <span className={`text-lg font-semibold ${
+                            isLowStock(product.quantity) ? 'text-[#DC0E0E]' : 'text-gray-800'
+                            }`}>
+                            {product.quantity} units
+                            </span>
+                        </div>
+                        {/* 🔥 Show damaged line only if >0 */}
+                        {product.damagedQuantity > 0 && (
+                            <div className="flex justify-between items-center">
+                            <span className="text-gray-600">Damaged:</span>
+                            <span className="text-lg font-semibold text-yellow-600">
+                                {product.damagedQuantity} units
+                            </span>
+                            </div>
+                        )}
+                        {/* Optional: Show total physical stock */}
+                        {product.damagedQuantity > 0 && (
+                            <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-500">Total Stock:</span>
+                            <span className="text-gray-700 font-medium">
+                                {product.quantity + product.damagedQuantity}
+                            </span>
+                            </div>
+                        )}
+                        </div>
+
+                        <button
+                        onClick={() => handleEditClick(product)}
+                        className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg font-medium flex items-center justify-center space-x-2 hover:bg-gray-200 transition-colors"
+                        >
+                        <Edit2 size={16} />
+                        <span>Edit</span>
+                        </button>
+                    </div>
+                    </div>
+                ))}
+                </div>
+
+                {filteredProducts.length === 0 && (
+                <div className="text-center py-16">
+                    <Package size={64} className="mx-auto text-gray-300 mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-600 mb-2">No products in this category</h3>
+                    <p className="text-gray-500">Click "Add New Product" to get started</p>
+                </div>
+                )}
+            </main>
             </div>
         </div>
         </div>
-    )}
-    </div>
-); 
-};
+    );
+    };
 
-export default HardwareInventory;
+    export default InventoryPOS;
