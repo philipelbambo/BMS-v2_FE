@@ -49,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 Settings
               </Link>
               <Link 
-                to="/login" 
+                to="/" 
                 className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
               >
                 <div className="flex items-center">

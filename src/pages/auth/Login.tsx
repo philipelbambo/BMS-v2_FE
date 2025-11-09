@@ -1,141 +1,169 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+    import React, { useState } from 'react';
+    import { User, Lock, LogIn, Eye, EyeOff } from 'lucide-react';
+    import { useNavigate } from 'react-router-dom';
 
-const Login: React.FC = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    rememberMe: false,
-  });
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+    export default function LoginPage() {
+    const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  };
+    // Temporary credentials
+    const TEMP_USERNAME = "junivs";
+    const TEMP_PASSWORD = "sajol";
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+    const [username, setUsername] = useState(TEMP_USERNAME); // pre-filled
+    const [password, setPassword] = useState(TEMP_PASSWORD); // pre-filled
+    const [showError, setShowError] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
-    try {
-      const response = await fetch('http://localhost:8000/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
+    const handleLogin = () => {
+        if (username === TEMP_USERNAME && password === TEMP_PASSWORD) {
+        setShowError(false);
 
-      const data = await response.json();
+        // Set authToken for ProtectedRoute
+        localStorage.setItem("authToken", "temporary_token_123");
 
-      if (!response.ok) {
-        alert(data.message || 'Login failed. Please check your credentials.');
-      } else {
-        // Store the token (adjust if you use cookies instead of bearer token)
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        // Redirect to dashboard
+        navigate("/dashboard");
+        } else {
+        setShowError(true);
+        }
+    };
 
-        alert('Login successful!');
-        navigate('/'); // Change route as needed
-      }
-    } catch (error) {
-      alert('Something went wrong. Please try again.');
-    } finally {
-      setLoading(false);
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-white to-white flex items-center justify-center p-4">
+        <div className="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <div className="flex flex-col md:flex-row min-h-[600px]">
+
+            {/* Left Side Image */}
+            <div
+                className="w-full md:w-1/2 bg-cover bg-center flex items-center justify-center"
+                style={{
+                backgroundImage:
+                    'url("https://img.freepik.com/premium-vector/two-male-workers-hardware-store-with-tools-paint-supplies-smiling-young-employee-assisting_169479-4012.jpg")',
+                }}
+            ></div>
+
+            {/* Right Side - Neumorphism Card */}
+            <div
+                className="w-full md:w-1/2 p-8 md:p-12 flex items-center justify-center"
+                style={{
+                background: "#ffffff",
+                boxShadow:
+                    "8px 8px 16px rgba(0,0,0,0.15), -8px -8px 16px rgba(255,255,255,1)",
+                }}
+            >
+                <div className="w-full max-w-md">
+
+                {/* Logo */}
+                <div className="flex items-center justify-center mb-6">
+                    <img
+                    src="/construction.png"
+                    alt="Logo"
+                    className="w-20 h-20 mr-3 object-contain"
+                    />
+                </div>
+
+                {/* Error */}
+                {showError && (
+                    <div className="text-center mb-4">
+                    <p className="font-semibold" style={{ color: "#DC0E0E" }}>
+                        Wrong Username or Password!
+                    </p>
+                    </div>
+                )}
+
+                {/* Welcome */}
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl font-bold" style={{ color: "#DC0E0E" }}>
+                    WELCOME BACK
+                    </h1>
+                    <p className="text-gray-500">Give your best report today!</p>
+                </div>
+
+                {/* Form */}
+                <div className="space-y-6">
+
+                    {/* Username */}
+                    <div className="relative">
+                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                        <User className="w-5 h-5" style={{ color: "#DC0E0E" }} />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Username / Email"
+                        value={username}
+                        onChange={(e) => {
+                        setUsername(e.target.value);
+                        if (e.target.value) setShowError(false);
+                        }}
+                        className="w-full pl-12 pr-12 py-4 rounded-full bg-white outline-none border border-gray-200 text-gray-800 placeholder-gray-400"
+                        style={{
+                        boxShadow:
+                            "inset 6px 6px 12px rgba(0,0,0,0.10), inset -6px -6px 12px rgba(255,255,255,1)",
+                        }}
+                    />
+                    </div>
+
+                    {/* Password */}
+                    <div className="relative">
+                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                        <Lock className="w-5 h-5" style={{ color: "#DC0E0E" }} />
+                    </div>
+                    <input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full pl-12 pr-12 py-4 rounded-full bg-white outline-none border border-gray-200 text-gray-800 placeholder-gray-400"
+                        style={{
+                        boxShadow:
+                            "inset 6px 6px 12px rgba(0,0,0,0.10), inset -6px -6px 12px rgba(255,255,255,1)",
+                        }}
+                    />
+                    {/* Show/Hide Icon */}
+                    <div
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                        onClick={() => setShowPassword(!showPassword)}
+                    >
+                        {showPassword ? (
+                        <EyeOff className="w-5 h-5" style={{ color: "#DC0E0E" }} />
+                        ) : (
+                        <Eye className="w-5 h-5" style={{ color: "#DC0E0E" }} />
+                        )}
+                    </div>
+                    </div>
+
+                    {/* Login Button */}
+                    <button
+                    onClick={handleLogin}
+                    className="w-full py-4 rounded-full font-semibold transition-all duration-300 flex items-center justify-center space-x-2"
+                    style={{
+                        background: "#ffffff",
+                        color: "#DC0E0E",
+                        boxShadow:
+                        "8px 8px 16px rgba(0,0,0,0.15), -8px -8px 16px rgba(255,255,255,1)",
+                    }}
+                    >
+                    <LogIn className="w-5 h-5" style={{ color: "#DC0E0E" }} />
+                    <span>Login</span>
+                    </button>
+                </div>
+
+                {/* Forgot Password */}
+                <div className="mt-6 text-center">
+                    <a
+                    href="#"
+                    className="text-sm hover:underline"
+                    style={{ color: "#DC0E0E" }}
+                    >
+                    Forgot Password?
+                    </a>
+                </div>
+
+                </div>
+            </div>
+
+            </div>
+        </div>
+        </div>
+    );
     }
-  };
-
-  return (
-    <div className="max-w-md mx-auto mt-10 p-6 border rounded shadow">
-      <h2 className="text-center text-2xl font-bold text-black mb-6">
-        Sign in to your account
-      </h2>
-
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            className="input w-full border px-3 py-2 rounded"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            disabled={loading}
-          />
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="password" className="block text-sm font-medium text-black  mb-2">
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            className="input w-full border px-3 py-2 rounded"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            disabled={loading}
-          />
-        </div>
-
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <input
-              id="rememberMe"
-              name="rememberMe"
-              type="checkbox"
-              className="h-4 w-4 text-black focus:ring-primary-500 border-gray-300 rounded"
-              checked={formData.rememberMe}
-              onChange={handleChange}
-              disabled={loading}
-            />
-            <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700">
-              Remember me
-            </label>
-          </div>
-
-          <div className="text-sm">
-            <a href="#" className="text-black hover:text-primary-800">
-              Forgot your password?
-            </a>
-          </div>
-        </div>
-
-        <div className="mb-6">
-          <button
-            type="submit"
-            className="btn btn-primary w-full py-2.5 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-            disabled={loading}
-          >
-            {loading ? 'Signing in...' : 'Sign in'}
-          </button>
-        </div>
-      </form>
-
-      <div className="text-center">
-        <p className="text-sm text-black">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-black hover:text-primary-800 font-medium">
-            Create an account
-          </Link>
-        </p>
-      </div>
-    </div>
-  );
-};
-
-export default Login;

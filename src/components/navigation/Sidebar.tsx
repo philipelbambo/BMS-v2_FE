@@ -35,7 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
         {/* Navigation */}
         <nav className="flex flex-col mt-4 space-y-2">
           {[
-            { to: "/", label: "Dashboard", icon: LayoutDashboard },
+            { to: "/Dashboard", label: "Dashboard", icon: LayoutDashboard },
             { to: "/inventory", label: "Inventory", icon: Package },
             { to: "/pos", label: "POS", icon: ShoppingBag },
             { to: "/report", label: "Report", icon: BarChart3 },
