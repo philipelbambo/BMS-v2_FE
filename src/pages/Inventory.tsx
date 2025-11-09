@@ -19,7 +19,8 @@
     }
 
     const InventoryPOS: React.FC = () => {
-    const categories: Category[] = [
+    // ✅ Convert categories to state for dynamic addition
+    const [categories, setCategories] = useState<Category[]>([
         { 
         id: 1, 
         name: 'Cement', 
@@ -60,7 +61,7 @@
         name: 'Hardware', 
         icon: <Settings size={20} />
         }
-    ];
+    ]);
 
     // 🔥 Updated initial products: added `damagedQuantity`
     const [products, setProducts] = useState<Product[]>([
@@ -98,13 +99,15 @@
     const [selectedCategory, setSelectedCategory] = useState<string>('Cement');
     const [showAddForm, setShowAddForm] = useState<boolean>(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-    
+    const [showAddCategoryForm, setShowAddCategoryForm] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
+
     // 🔥 Updated form state: added `damagedQuantity`
     const [formData, setFormData] = useState({
         name: '',
         price: '',
         quantity: '',
-        damagedQuantity: '', // ✅ NEW field
+        damagedQuantity: '',
         imageUrl: ''
     });
 
@@ -155,14 +158,12 @@
         const parsedQuantity = parseInt(quantity);
         const parsedDamaged = parseInt(damagedQuantity || '0');
 
-        if (parsedDamaged < 0) {
-        alert('Damaged quantity cannot be negative.');
+        if (isNaN(parsedQuantity) || parsedQuantity < 0) {
+        alert('Usable quantity must be a non-negative number.');
         return;
         }
-
-        // ✅ Ensure usable quantity is non-negative
-        if (parsedQuantity < 0) {
-        alert('Usable quantity cannot be negative.');
+        if (isNaN(parsedDamaged) || parsedDamaged < 0) {
+        alert('Damaged quantity cannot be negative.');
         return;
         }
 
@@ -187,7 +188,7 @@
         name: product.name,
         price: product.price.toString(),
         quantity: product.quantity.toString(),
-        damagedQuantity: product.damagedQuantity.toString(), // ✅ prefill damaged quantity
+        damagedQuantity: product.damagedQuantity.toString(),
         imageUrl: product.imageUrl
         });
         setShowAddForm(false);
@@ -200,18 +201,14 @@
         const newQuantity = parseInt(quantity);
         const newDamaged = parseInt(damagedQuantity || '0');
 
-        if (newQuantity < 0) {
-        alert('Usable quantity cannot be negative.');
+        if (isNaN(newQuantity) || newQuantity < 0) {
+        alert('Usable quantity must be a non-negative number.');
         return;
         }
-        if (newDamaged < 0) {
+        if (isNaN(newDamaged) || newDamaged < 0) {
         alert('Damaged quantity cannot be negative.');
         return;
         }
-
-        // 🔒 Prevent logic error: usable + damaged should reflect reality.
-        // But we allow editing both freely — no auto-correction, just validation.
-        // (In real-world, you’d have a "Report Damage" action separately.)
 
         const updatedProducts = products.map(p => 
         p.id === editingProduct.id 
@@ -234,32 +231,6 @@
     const handleCancelEdit = () => {
         setEditingProduct(null);
         resetForm();
-    };
-
-    // 🔥 NEW: Dedicated function to report damage (optional — future-ready)
-    // For now, editing is the main way, but this shows how to do it safely:
-    // Example usage: you could add a "Report Damage" button per product later.
-    const reportDamage = (productId: number, damagedAmount: number) => {
-        if (damagedAmount <= 0) return;
-
-        setProducts(products.map(p => {
-        if (p.id === productId) {
-            const newDamaged = p.damagedQuantity + damagedAmount;
-            const newUsable = p.quantity - damagedAmount;
-
-            if (newUsable < 0) {
-            alert(`Cannot damage ${damagedAmount} units — only ${p.quantity} usable available.`);
-            return p;
-            }
-
-            return {
-            ...p,
-            quantity: newUsable,
-            damagedQuantity: newDamaged
-            };
-        }
-        return p;
-        }));
     };
 
     return (
@@ -298,6 +269,64 @@
                         <span>{category.name}</span>
                     </button>
                     ))}
+
+                    {/* ✅ Add Category Button & Inline Form */}
+                    {!showAddCategoryForm ? (
+                    <button
+                        onClick={() => setShowAddCategoryForm(true)}
+                        className="w-full flex items-center justify-center space-x-2 px-4 py-3 text-sm text-gray-600 hover:bg-gray-100 rounded-lg font-medium"
+                    >
+                        <Plus size={16} />
+                        <span>Add Category</span>
+                    </button>
+                    ) : (
+                    <div className="mt-2">
+                        <div className="flex space-x-2">
+                        <input
+                            type="text"
+                            value={newCategoryName}
+                            onChange={(e) => setNewCategoryName(e.target.value)}
+                            placeholder="Category name"
+                            className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#DC0E0E] focus:border-transparent"
+                            autoFocus
+                        />
+                        <button
+                            onClick={() => {
+                            const name = newCategoryName.trim();
+                            if (!name) {
+                                alert('Category name cannot be empty.');
+                                return;
+                            }
+                            if (categories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
+                                alert('Category already exists!');
+                                return;
+                            }
+                            const newCategory: Category = {
+                                id: Math.max(...categories.map(c => c.id), 0) + 1,
+                                name: name,
+                                icon: <Package size={20} />
+                            };
+                            setCategories([...categories, newCategory]);
+                            handleCategoryClick(name); // auto-select
+                            setNewCategoryName('');
+                            setShowAddCategoryForm(false);
+                            }}
+                            className="px-3 py-2 bg-[#DC0E0E] text-white rounded hover:bg-[#B80C0C] text-sm"
+                        >
+                            Add
+                        </button>
+                        <button
+                            onClick={() => {
+                            setShowAddCategoryForm(false);
+                            setNewCategoryName('');
+                            }}
+                            className="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
+                        >
+                            ✕
+                        </button>
+                        </div>
+                    </div>
+                    )}
                 </nav>
                 </div>
             </aside>
@@ -321,7 +350,7 @@
                 </button>
                 </div>
 
-                {/* Add Product Form — ✅ with damagedQuantity */}
+                {/* Add Product Form */}
                 {showAddForm && (
                 <div className="bg-gray-50 rounded-lg shadow-md p-6 mb-6 border-2 border-[#DC0E0E]">
                     <h3 className="text-xl font-bold text-gray-800 mb-4">Add New Product to {selectedCategory}</h3>
@@ -391,7 +420,7 @@
                         />
                         </div>
                     </div>
-                    {/* 🔥 NEW: Damaged Quantity Input */}
+                    {/* 🔥 Damaged Quantity Input */}
                     <div>
                         <label className="block text-gray-700 font-medium mb-2">Damaged Quantity (optional)</label>
                         <input
@@ -426,7 +455,7 @@
                 </div>
                 )}
 
-                {/* Edit Product Form — ✅ with damagedQuantity */}
+                {/* Edit Product Form */}
                 {editingProduct && (
                 <div className="bg-yellow-50 rounded-lg shadow-md p-6 mb-6 border-2 border-yellow-400">
                     <h3 className="text-xl font-bold text-gray-800 mb-4">Edit Product</h3>
@@ -450,7 +479,6 @@
                             value={formData.imageUrl}
                             onChange={handleInputChange}
                             className="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
-                            placeholder="Click icon to upload image"
                             readOnly
                         />
                         <label className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#DC0E0E] text-white p-2 rounded-lg cursor-pointer hover:bg-[#B80C0C] transition-colors">
@@ -493,7 +521,7 @@
                         />
                         </div>
                     </div>
-                    {/* 🔥 NEW: Damaged Quantity in Edit */}
+                    {/* Damaged Quantity in Edit */}
                     <div>
                         <label className="block text-gray-700 font-medium mb-2">Damaged Quantity</label>
                         <input
@@ -526,7 +554,7 @@
                 </div>
                 )}
 
-                {/* Products Grid — ✅ Show damaged status */}
+                {/* Products Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredProducts.map(product => (
                     <div

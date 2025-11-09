@@ -14,7 +14,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
   return (
     <div 
-      className={`bg-white border-r border-transparent transition-all duration-300 flex flex-col ${isOpen ? 'w-64' : 'w-20'}`}
+      className={`bg-white border-r border-transparent transition-all duration-300 flex flex-col ${isOpen ? 'w-60' : 'w-20'}`}
     >
       {/* Header with your custom logo */}
       <div className="p-4 border-b border-red-400 flex items-center justify-center bg-white ">

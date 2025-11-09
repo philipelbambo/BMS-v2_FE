@@ -1,5 +1,5 @@
     import React, { useState, useMemo, useRef } from 'react';
-    import { Search, ShoppingCart, Trash2, Plus, Minus, Printer } from 'lucide-react';
+    import { Search, ShoppingCart, Trash2, Plus, Minus, Printer, Receipt } from 'lucide-react';
 
     // Define the Product type for TypeScript
     interface Product {
@@ -7,6 +7,7 @@
     name: string;
     price: number;
     category: string;
+    image: string;
     }
 
     // Define the CartItem type
@@ -16,34 +17,37 @@
 
     // Dummy product data for hardware store
     const products: Product[] = [
-    { id: 1, name: 'Portland Cement 40kg', price: 245.00, category: 'Cement' },
-    { id: 2, name: 'Marine Plywood 4x8', price: 1350.00, category: 'Wood' },
-    { id: 3, name: 'Common Wire Nails 2"', price: 85.00, category: 'Hardware' },
-    { id: 4, name: 'Hollow Blocks 4"', price: 12.50, category: 'Blocks' },
-    { id: 5, name: 'Deformed Steel Bar 10mm', price: 380.00, category: 'Steel' },
-    { id: 6, name: 'Roofing Nails 3"', price: 95.00, category: 'Hardware' },
-    { id: 7, name: 'Ordinary Plywood 4x8', price: 850.00, category: 'Wood' },
-    { id: 8, name: 'Masonry Cement 40kg', price: 215.00, category: 'Cement' },
-    { id: 9, name: 'G.I. Sheet #26', price: 650.00, category: 'Roofing' },
-    { id: 10, name: 'PVC Pipes 1/2"', price: 145.00, category: 'Plumbing' },
-    { id: 11, name: 'Sand (per bag)', price: 45.00, category: 'Aggregates' },
-    { id: 12, name: 'Gravel (per bag)', price: 55.00, category: 'Aggregates' },
+    { id: 1, name: 'Portland Cement 40kg', price: 245.0, category: 'Cement', image: 'https://images.unsplash.com/photo-1588856842195-8863c19e4c84?w=400&h=300&fit=crop' },
+    { id: 2, name: 'Marine Plywood 4x8', price: 1350.0, category: 'Wood', image: 'https://images.unsplash.com/photo-1585208798174-6cedd86e019a?w=400&h=300&fit=crop' },
+    { id: 3, name: 'Common Wire Nails 2"', price: 85.0, category: 'Hardware', image: 'https://images.unsplash.com/photo-1625519838416-2adc4d00a370?w=400&h=300&fit=crop' },
+    { id: 4, name: 'Hollow Blocks 4"', price: 12.5, category: 'Blocks', image: 'https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=400&h=300&fit=crop' },
+    { id: 5, name: 'Deformed Steel Bar 10mm', price: 380.0, category: 'Steel', image: 'https://images.unsplash.com/photo-1565984640994-675b1d23ef3f?w=400&h=300&fit=crop' },
+    { id: 6, name: 'Roofing Nails 3"', price: 95.0, category: 'Hardware', image: 'https://images.unsplash.com/photo-1622207055775-07c4e5c57c19?w=400&h=300&fit=crop' },
+    { id: 7, name: 'Ordinary Plywood 4x8', price: 850.0, category: 'Wood', image: 'https://images.unsplash.com/photo-1624623278313-a930126a11c3?w=400&h=300&fit=crop' },
+    { id: 8, name: 'Masonry Cement 40kg', price: 215.0, category: 'Cement', image: 'https://images.unsplash.com/photo-1606744837616-56c7e5d53b23?w=400&h=300&fit=crop' },
+    { id: 9, name: 'G.I. Sheet #26', price: 650.0, category: 'Roofing', image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=300&fit=crop' },
+    { id: 10, name: 'PVC Pipes 1/2"', price: 145.0, category: 'Plumbing', image: 'https://images.unsplash.com/photo-1607400201889-565b1ee75f8e?w=400&h=300&fit=crop' },
+    { id: 11, name: 'Sand (per bag)', price: 45.0, category: 'Aggregates', image: 'https://images.unsplash.com/photo-1509130298739-651801c76e96?w=400&h=300&fit=crop' },
+    { id: 12, name: 'Gravel (per bag)', price: 55.0, category: 'Aggregates', image: 'https://images.unsplash.com/photo-1611348586755-53860f7ae57a?w=400&h=300&fit=crop' },
     ];
 
     export default function POSSystem() {
-    // State for search query
     const [searchQuery, setSearchQuery] = useState('');
-    
-    // State for shopping cart
     const [cart, setCart] = useState<CartItem[]>([]);
-    
-    // State for cash payment input
     const [cashAmount, setCashAmount] = useState('');
 
-    // Ref for receipt content
+    // 🔹 Discount states
+    const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage');
+    const [discountValue, setDiscountValue] = useState<string>('');
+
+    // 🔹 Modal states
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [showPrintOption, setShowPrintOption] = useState(false);
+    const [transactionReceipt, setTransactionReceipt] = useState<string | null>(null);
+
     const receiptRef = useRef<HTMLDivElement>(null);
 
-    // Filter products based on search query
+    // Filter products
     const filteredProducts = useMemo(() => {
         return products.filter(product =>
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -51,149 +55,146 @@
         );
     }, [searchQuery]);
 
-    // Calculate subtotal of all items in cart
+    // 🔹 Calculate discount amount and discounted subtotal
+    const { discountedSubtotal, discountAmount } = useMemo(() => {
+        const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        let discountAmt = 0;
+
+        const value = parseFloat(discountValue) || 0;
+
+        if (discountType === 'percentage' && value > 0) {
+        discountAmt = (value / 100) * subtotal;
+        } else if (discountType === 'fixed' && value > 0) {
+        discountAmt = Math.min(value, subtotal); // Can't discount more than subtotal
+        }
+
+        const discounted = subtotal - discountAmt;
+        return {
+        discountedSubtotal: Math.max(0, discounted),
+        discountAmount: discountAmt,
+        };
+    }, [cart, discountType, discountValue]);
+
     const subtotal = useMemo(() => {
-        return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     }, [cart]);
 
-    // Calculate change (cash - subtotal)
     const change = useMemo(() => {
         const cash = parseFloat(cashAmount) || 0;
-        return cash - subtotal;
-    }, [cashAmount, subtotal]);
+        return cash - discountedSubtotal;
+    }, [cashAmount, discountedSubtotal]);
 
-    // Add product to cart or increase quantity if already exists
+    // Cart functions (same as before, but cleaned)
     const addToCart = (product: Product) => {
         setCart(prevCart => {
         const existingItem = prevCart.find(item => item.id === product.id);
-        
         if (existingItem) {
-            // If item exists, increase quantity
             return prevCart.map(item =>
-            item.id === product.id
-                ? { ...item, quantity: item.quantity + 1 }
-                : item
+            item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
             );
         } else {
-            // If new item, add with quantity 1
             return [...prevCart, { ...product, quantity: 1 }];
         }
         });
     };
 
-    // Update quantity of item in cart
-    const updateQuantity = (id: number, newQuantity: number) => {
-        if (newQuantity <= 0) {
+    const updateQuantity = (id: number, newQty: number) => {
+        if (newQty <= 0) {
         removeFromCart(id);
         return;
         }
-        
-        setCart(prevCart =>
-        prevCart.map(item =>
-            item.id === id ? { ...item, quantity: newQuantity } : item
-        )
-        );
+        setCart(prev => prev.map(item => (item.id === id ? { ...item, quantity: newQty } : item)));
     };
 
-    // Remove item from cart
     const removeFromCart = (id: number) => {
-        setCart(prevCart => prevCart.filter(item => item.id !== id));
+        setCart(prev => prev.filter(item => item.id !== id));
     };
 
-    // Clear entire cart
     const clearCart = () => {
         setCart([]);
         setCashAmount('');
+        setDiscountValue('');
     };
 
-    // Print receipt function
-    const printReceipt = () => {
+    // 🔹 STEP 1: Initiate checkout
+    const handleCheckout = () => {
         if (cart.length === 0) return;
-        
-        const printWindow = window.open('', '', 'width=800,height=600');
-        if (!printWindow) return;
+        if (parseFloat(cashAmount) < discountedSubtotal) {
+        alert('⚠️ Insufficient cash!');
+        return;
+        }
+        setShowConfirmation(true);
+    };
 
-        const receiptContent = `
+    // 🔹 STEP 2: Confirm & finalize sale (no print yet)
+    const finalizeSale = () => {
+        setShowConfirmation(false);
+
+        // 🎯 SALE IS NOW FINALIZED
+        // Here you'd typically: call API, log sale, etc.
+        // For demo: reset cart & prepare receipt content
+        
+        const receiptData = generateReceiptContent();
+        setTransactionReceipt(receiptData);
+        
+        // Reset form
+        clearCart();
+        
+        // 🖨️ Now ask: want to print?
+        setShowPrintOption(true);
+    };
+
+    const cancelSale = () => {
+        setShowConfirmation(false);
+    };
+
+    // 🔹 Generate receipt HTML (for later printing)
+    const generateReceiptContent = (): string => {
+        const now = new Date();
+        const transactionId = 'TXN' + Math.random().toString(36).substr(2, 8).toUpperCase();
+
+        const itemsHtml = cart.map(item => `
+        <tr>
+            <td class="item-name">${item.name}</td>
+            <td class="text-right">${item.quantity}</td>
+            <td class="text-right">₱${item.price.toFixed(2)}</td>
+            <td class="text-right">₱${(item.price * item.quantity).toFixed(2)}</td>
+        </tr>
+        `).join('');
+
+        let discountsHtml = '';
+        if (discountAmount > 0) {
+        discountsHtml = `
+            <div class="total-row">
+            <span>Discount (${discountType === 'percentage' ? `${discountValue}%` : `₱${parseFloat(discountValue).toFixed(2)}`}):</span>
+            <span class="text-red-600">-₱${discountAmount.toFixed(2)}</span>
+            </div>
+        `;
+        }
+
+        return `
         <!DOCTYPE html>
         <html>
         <head>
             <title>Receipt</title>
             <style>
-            body {
-                font-family: 'Courier New', monospace;
-                max-width: 400px;
-                margin: 20px auto;
-                padding: 20px;
-            }
-            .receipt-header {
-                text-align: center;
-                border-bottom: 2px dashed #000;
-                padding-bottom: 10px;
-                margin-bottom: 15px;
-            }
-            .receipt-header h1 {
-                margin: 0;
-                font-size: 24px;
-            }
-            .receipt-header p {
-                margin: 5px 0;
-                font-size: 12px;
-            }
-            .receipt-info {
-                margin-bottom: 15px;
-                font-size: 12px;
-            }
-            .items-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 15px;
-            }
-            .items-table th {
-                text-align: left;
-                border-bottom: 1px solid #000;
-                padding: 5px 0;
-                font-size: 12px;
-            }
-            .items-table td {
-                padding: 5px 0;
-                font-size: 12px;
-            }
-            .item-name {
-                max-width: 200px;
-            }
-            .text-right {
-                text-align: right;
-            }
-            .totals {
-                border-top: 2px solid #000;
-                padding-top: 10px;
-                margin-top: 10px;
-            }
-            .total-row {
-                display: flex;
-                justify-content: space-between;
-                padding: 5px 0;
-                font-size: 14px;
-            }
-            .total-row.grand-total {
-                font-weight: bold;
-                font-size: 18px;
-                border-top: 1px solid #000;
-                padding-top: 10px;
-                margin-top: 5px;
-            }
-            .receipt-footer {
-                text-align: center;
-                margin-top: 20px;
-                padding-top: 15px;
-                border-top: 2px dashed #000;
-                font-size: 12px;
-            }
+            body { font-family: 'Courier New', monospace; max-width: 400px; margin: 20px auto; padding: 20px; }
+            .receipt-header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 15px; }
+            .receipt-header h1 { margin: 0; font-size: 24px; }
+            .receipt-header p { margin: 5px 0; font-size: 12px; }
+            .receipt-info { margin-bottom: 15px; font-size: 12px; }
+            .items-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+            .items-table th { text-align: left; border-bottom: 1px solid #000; padding: 5px 0; font-size: 12px; }
+            .items-table td { padding: 5px 0; font-size: 12px; }
+            .item-name { max-width: 200px; word-wrap: break-word; }
+            .text-right { text-align: right; }
+            .totals { border-top: 2px solid #000; padding-top: 10px; margin-top: 10px; }
+            .total-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 14px; }
+            .total-row.grand-total { font-weight: bold; font-size: 18px; border-top: 1px solid #000; padding-top: 10px; margin-top: 5px; }
+            .receipt-footer { text-align: center; margin-top: 20px; padding-top: 15px; border-top: 2px dashed #000; font-size: 12px; }
             @media print {
-                body {
-                margin: 0;
-                padding: 10px;
-                }
+                body { margin: 0; padding: 10px; }
+                @page { margin: 0.5cm; }
             }
             </style>
         </head>
@@ -206,13 +207,9 @@
             </div>
 
             <div class="receipt-info">
-            <p>Date: ${new Date().toLocaleDateString('en-PH', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            })}</p>
-            <p>Time: ${new Date().toLocaleTimeString('en-PH')}</p>
-            <p>Transaction #: ${Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
+            <p>Date: ${now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p>Time: ${now.toLocaleTimeString('en-PH')}</p>
+            <p>Transaction #: ${transactionId}</p>
             </div>
 
             <table class="items-table">
@@ -225,14 +222,7 @@
                 </tr>
             </thead>
             <tbody>
-                ${cart.map(item => `
-                <tr>
-                    <td class="item-name">${item.name}</td>
-                    <td class="text-right">${item.quantity}</td>
-                    <td class="text-right">₱${item.price.toFixed(2)}</td>
-                    <td class="text-right">₱${(item.price * item.quantity).toFixed(2)}</td>
-                </tr>
-                `).join('')}
+                ${itemsHtml}
             </tbody>
             </table>
 
@@ -241,20 +231,19 @@
                 <span>Subtotal:</span>
                 <span>₱${subtotal.toFixed(2)}</span>
             </div>
+            ${discountsHtml}
             <div class="total-row grand-total">
                 <span>TOTAL:</span>
-                <span>₱${subtotal.toFixed(2)}</span>
+                <span>₱${discountedSubtotal.toFixed(2)}</span>
             </div>
-            ${cashAmount ? `
-                <div class="total-row">
+            <div class="total-row">
                 <span>Cash:</span>
-                <span>₱${parseFloat(cashAmount).toFixed(2)}</span>
-                </div>
-                <div class="total-row">
+                <span>₱${parseFloat(cashAmount || '0').toFixed(2)}</span>
+            </div>
+            <div class="total-row">
                 <span>Change:</span>
-                <span>₱${change.toFixed(2)}</span>
-                </div>
-            ` : ''}
+                <span class="${change >= 0 ? 'text-green-600' : 'text-red-600'}">₱${change.toFixed(2)}</span>
+            </div>
             </div>
 
             <div class="receipt-footer">
@@ -265,218 +254,336 @@
         </body>
         </html>
         `;
+    };
 
-        printWindow.document.write(receiptContent);
+    // 🔹 Print receipt (only if user chooses)
+    const printReceipt = () => {
+        if (!transactionReceipt) return;
+
+        const printWindow = window.open('', '_blank', 'width=800,height=600');
+        if (!printWindow) {
+        alert('Pop-up blocked. Please allow pop-ups to print.');
+        return;
+        }
+
+        printWindow.document.write(transactionReceipt);
         printWindow.document.close();
-        
-        // Wait for content to load before printing
+
         printWindow.onload = () => {
         printWindow.print();
-        printWindow.onafterprint = () => {
-            printWindow.close();
-        };
+        printWindow.onafterprint = () => printWindow.close();
+        setShowPrintOption(false);
         };
     };
 
+    const skipPrint = () => {
+        setShowPrintOption(false);
+        setTransactionReceipt(null);
+    };
+
     return (
-        <div className="min-h-screen bg-white p-6">
+        <div className="min-h-screen bg-white p-4 md:p-6">
         <div className="w-full min-h-screen">
+
             {/* Header */}
-            <div className="mb-8">
-            <h1 className="text-3xl font-bold text-red-700 mb-2">
-                Point of Sale System
-            </h1>
+            <div className="mb-6 md:mb-8">
+            <h1 className="text-2xl md:text-3xl font-bold text-red-700">Point of Sale System</h1>
             </div>
 
-            {/* Main POS Layout - Split into two columns */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            {/* LEFT SECTION: Product List (2/3 width) */}
-            <div className="lg:col-span-2 bg-white rounded-lg shadow-lg p-6">
-                {/* Search Bar */}
-                <div className="mb-6">
+            {/* Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 md:gap-6">
+            {/* LEFT: Products */}
+            <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-4 md:p-6">
+                {/* Search */}
+                <div className="mb-5">
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                     <input
                     type="text"
-                    placeholder="Search products..."
+                    placeholder="Search products or category..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     />
                 </div>
                 </div>
 
-                {/* Product Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto pr-2">
+                {/* Products */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 max-h-[70vh] overflow-y-auto pr-1">
                 {filteredProducts.map(product => (
                     <div
                     key={product.id}
-                    className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow"
+                    className="bg-gray-50 rounded-lg border border-gray-200 hover:shadow-sm transition-shadow cursor-pointer overflow-hidden"
+                    onClick={() => addToCart(product)}
                     >
-                    <div className="mb-3">
-                        <span className="text-xs font-semibold text-gray-500 uppercase">
-                        {product.category}
-                        </span>
-                        <h3 className="text-lg font-semibold text-gray-800 mt-1">
-                        {product.name}
-                        </h3>
+                    {/* Product Image */}
+                    <div className="w-full h-47 bg-gray-200 overflow-hidden">
+                        <img 
+                        src={product.image} 
+                        alt={product.name}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform"
+                        />
                     </div>
                     
-                    <div className="flex items-center justify-between">
-                        <span className="text-2xl font-bold text-gray-900">
-                        ₱{product.price.toFixed(2)}
-                        </span>
-                        <button
-                        onClick={() => addToCart(product)}
-                        className="bg-[#DC0E0E] hover:bg-[#B00B0B] text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2"
-                        >
-                        <Plus size={16} />
-                        Add
+                    {/* Product Info */}
+                    <div className="p-3">
+                        <span className="text-xs font-semibold text-gray-500 uppercase">{product.category}</span>
+                        <h3 className="font-medium text-gray-800 mt-1 text-sm md:text-base truncate">{product.name}</h3>
+                        <div className="flex items-center justify-between mt-2">
+                        <span className="text-lg font-bold text-gray-900">₱{product.price.toFixed(2)}</span>
+                        <button className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-sm font-medium flex items-center gap-1">
+                            <Plus size={14} /> Add
                         </button>
+                        </div>
                     </div>
                     </div>
                 ))}
                 </div>
 
-                {/* No results message */}
                 {filteredProducts.length === 0 && (
-                <div className="text-center py-12 text-gray-500">
-                    <p>No products found matching "{searchQuery}"</p>
-                </div>
+                <div className="text-center py-10 text-gray-500">No products found for "{searchQuery}"</div>
                 )}
             </div>
 
-            {/* RIGHT SECTION: Shopping Cart (1/3 width) */}
-            <div className="lg:col-span-1 bg-white rounded-lg shadow-lg p-6 h-fit sticky top-6">
+            {/* RIGHT: Cart & Checkout */}
+            <div className="lg:col-span-1">
+                <div className="bg-white rounded-lg shadow-md p-4 md:p-6 sticky top-4">
                 {/* Cart Header */}
-                <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
-                    <ShoppingCart className="text-[#DC0E0E]" size={24} />
-                    <h2 className="text-xl font-bold text-gray-800">Cart</h2>
-                    <span className="bg-[#DC0E0E] text-white text-xs font-bold px-2 py-1 rounded-full">
-                    {cart.length}
-                    </span>
-                </div>
-                
-                {cart.length > 0 && (
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                    <ShoppingCart className="text-red-600" size={22} />
+                    <h2 className="text-lg md:text-xl font-bold text-gray-800">Cart ({cart.length})</h2>
+                    </div>
+                    {cart.length > 0 && (
                     <button
-                    onClick={clearCart}
-                    className="text-gray-500 hover:text-red-600 transition-colors"
-                    title="Clear cart"
+                        onClick={clearCart}
+                        className="text-gray-500 hover:text-red-600"
+                        title="Clear cart"
                     >
-                    <Trash2 size={20} />
+                        <Trash2 size={18} />
                     </button>
-                )}
+                    )}
                 </div>
 
                 {/* Cart Items */}
-                <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto">
-                {cart.length === 0 ? (
-                    <div className="text-center py-8 text-gray-400">
-                    <ShoppingCart size={48} className="mx-auto mb-3 opacity-50" />
-                    <p>Cart is empty</p>
-                    </div>
-                ) : (
-                    cart.map(item => (
-                    <div
-                        key={item.id}
-                        className="bg-gray-50 rounded-lg p-3 border border-gray-200"
-                    >
-                        <div className="flex justify-between items-start mb-2">
+                <div className="space-y-3 mb-5 max-h-[250px] overflow-y-auto pr-1">
+                    {cart.map(item => (
+                    <div key={item.id} className="bg-gray-50 rounded p-3 border">
+                        <div className="flex justify-between items-start">
                         <div className="flex-1">
-                            <h4 className="font-semibold text-gray-800 text-sm">
-                            {item.name}
-                            </h4>
-                            <p className="text-gray-600 text-sm">
-                            ₱{item.price.toFixed(2)} each
-                            </p>
+                            <h4 className="font-medium text-gray-800 text-sm truncate">{item.name}</h4>
+                            <p className="text-gray-600 text-xs">₱{item.price.toFixed(2)} × {item.quantity}</p>
                         </div>
-                        <button
-                            onClick={() => removeFromCart(item.id)}
-                            className="text-gray-400 hover:text-red-600 transition-colors"
-                        >
-                            <Trash2 size={16} />
+                        <button onClick={() => removeFromCart(item.id)} className="text-gray-400 hover:text-red-500">
+                            <Trash2 size={14} />
                         </button>
                         </div>
-                        
-                        <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center gap-1">
                             <button
                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className="bg-gray-200 hover:bg-gray-300 text-gray-700 w-7 h-7 rounded flex items-center justify-center transition-colors"
+                            className="bg-gray-200 w-6 h-6 rounded flex items-center justify-center"
                             >
-                            <Minus size={14} />
+                            <Minus size={12} />
                             </button>
-                            <span className="font-semibold text-gray-800 w-8 text-center">
-                            {item.quantity}
-                            </span>
+                            <span className="font-medium w-6 text-center">{item.quantity}</span>
                             <button
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="bg-gray-200 hover:bg-gray-300 text-gray-700 w-7 h-7 rounded flex items-center justify-center transition-colors"
+                            className="bg-gray-200 w-6 h-6 rounded flex items-center justify-center"
                             >
-                            <Plus size={14} />
+                            <Plus size={12} />
                             </button>
                         </div>
-                        <span className="font-bold text-gray-900">
-                            ₱{(item.price * item.quantity).toFixed(2)}
-                        </span>
+                        <span className="font-bold">₱{(item.price * item.quantity).toFixed(2)}</span>
                         </div>
                     </div>
-                    ))
-                )}
+                    ))}
+                    {cart.length === 0 && (
+                    <div className="text-center py-6 text-gray-400">
+                        <ShoppingCart size={36} className="mx-auto opacity-50 mb-2" />
+                        <p>Add items to cart</p>
+                    </div>
+                    )}
                 </div>
 
-                {/* Totals Section */}
-                <div className="border-t border-gray-200 pt-4 space-y-3">
-                <div className="flex justify-between text-gray-700">
-                    <span className="font-semibold">Subtotal:</span>
-                    <span className="font-bold text-lg">₱{subtotal.toFixed(2)}</span>
-                </div>
-
-                {/* Cash Input */}
-                <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Cash Amount:
-                    </label>
+                {/* Discount Section */}
+                <div className="mb-5 p-3 bg-gray-50 rounded-lg border">
+                    <h3 className="font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                    <Receipt size={16} /> Discount
+                    </h3>
+                    <div className="flex gap-2 mb-2">
+                    <button
+                        onClick={() => setDiscountType('percentage')}
+                        className={`flex-1 py-1.5 rounded text-sm font-medium ${
+                        discountType === 'percentage'
+                            ? 'bg-red-600 text-white'
+                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
+                    >
+                        %
+                    </button>
+                    <button
+                        onClick={() => setDiscountType('fixed')}
+                        className={`flex-1 py-1.5 rounded text-sm font-medium ${
+                        discountType === 'fixed'
+                            ? 'bg-red-600 text-white'
+                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
+                    >
+                        ₱
+                    </button>
+                    </div>
                     <input
                     type="number"
-                    placeholder="0.00"
-                    value={cashAmount}
-                    onChange={(e) => setCashAmount(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DC0E0E] focus:border-transparent"
-                    step="0.01"
+                    placeholder={discountType === 'percentage' ? 'e.g. 10 for 10%' : 'e.g. 200'}
+                    value={discountValue}
+                    onChange={(e) => setDiscountValue(e.target.value)}
+                    className="w-full px-3 py-1.5 border rounded focus:ring-1 focus:ring-red-500"
                     min="0"
+                    step={discountType === 'percentage' ? '0.1' : '1'}
                     />
+                    {discountAmount > 0 && (
+                    <p className="text-green-600 text-sm mt-1">
+                        Discount: -₱{discountAmount.toFixed(2)}
+                    </p>
+                    )}
                 </div>
 
-                {/* Change Display */}
-                {cashAmount && (
-                    <div className={`flex justify-between text-lg font-bold ${
-                    change >= 0 ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                    <span>Change:</span>
-                    <span>₱{change.toFixed(2)}</span>
+                {/* Totals */}
+                <div className="space-y-3 mb-5">
+                    <div className="flex justify-between">
+                    <span className="text-gray-600">Subtotal:</span>
+                    <span>₱{subtotal.toFixed(2)}</span>
                     </div>
-                )}
+                    {discountAmount > 0 && (
+                    <div className="flex justify-between text-green-600 font-medium">
+                        <span>Discount:</span>
+                        <span>-₱{discountAmount.toFixed(2)}</span>
+                    </div>
+                    )}
+                    <div className="flex justify-between text-lg font-bold text-gray-800 pt-1 border-t">
+                    <span>Total:</span>
+                    <span>₱{discountedSubtotal.toFixed(2)}</span>
+                    </div>
+
+                    {/* Cash Input */}
+                    <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Cash Received</label>
+                    <input
+                        type="number"
+                        value={cashAmount}
+                        onChange={(e) => setCashAmount(e.target.value)}
+                        placeholder="0.00"
+                        className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500"
+                        step="0.01"
+                        min="0"
+                    />
+                    </div>
+
+                    {cashAmount && (
+                    <div className={`flex justify-between text-lg font-bold ${
+                        change >= 0 ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                        <span>Change:</span>
+                        <span>₱{change.toFixed(2)}</span>
+                    </div>
+                    )}
+                </div>
 
                 {/* Checkout Button */}
                 <button
-                    disabled={cart.length === 0}
-                    onClick={printReceipt}
-                    className={`w-full py-3 rounded-lg font-bold text-white transition-colors flex items-center justify-center gap-2 ${
-                    cart.length === 0
+                    onClick={handleCheckout}
+                    disabled={cart.length === 0 || discountedSubtotal === 0}
+                    className={`w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2 ${
+                    cart.length === 0 || discountedSubtotal === 0
                         ? 'bg-gray-300 cursor-not-allowed'
-                        : 'bg-[#DC0E0E] hover:bg-[#B00B0B]'
+                        : 'bg-red-600 hover:bg-red-700'
                     }`}
                 >
-                    <Printer size={20} />
-                    Print Receipt
+                    <Receipt size={20} /> Checkout & Sell
                 </button>
                 </div>
             </div>
             </div>
         </div>
+
+        {/* 🔹 Confirmation Modal */}
+        {showConfirmation && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg w-full max-w-md p-5">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Confirm Sale</h3>
+                <div className="space-y-2 text-gray-700">
+                <div className="flex justify-between">
+                    <span>Items:</span>
+                    <span>{cart.length}</span>
+                </div>
+                <div className="flex justify-between">
+                    <span>Subtotal:</span>
+                    <span>₱{subtotal.toFixed(2)}</span>
+                </div>
+                {discountAmount > 0 && (
+                    <div className="flex justify-between text-green-600">
+                    <span>Discount:</span>
+                    <span>-₱{discountAmount.toFixed(2)}</span>
+                    </div>
+                )}
+                <div className="flex justify-between font-bold text-lg pt-2 border-t">
+                    <span>Total:</span>
+                    <span>₱{discountedSubtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between font-bold text-lg">
+                    <span>Cash:</span>
+                    <span>₱{parseFloat(cashAmount || '0').toFixed(2)}</span>
+                </div>
+                <div className={`flex justify-between font-bold text-lg ${
+                    change >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}>
+                    <span>Change:</span>
+                    <span>₱{change.toFixed(2)}</span>
+                </div>
+                </div>
+                <div className="flex gap-3 mt-6">
+                <button
+                    onClick={finalizeSale}
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded font-medium"
+                >
+                    ✅ Confirm & Sell
+                </button>
+                <button
+                    onClick={cancelSale}
+                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded font-medium"
+                >
+                    ❌ Cancel
+                </button>
+                </div>
+            </div>
+            </div>
+        )}
+
+        {/* 🔹 Print Option Modal */}
+        {showPrintOption && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg w-full max-w-md p-5 text-center">
+                <Receipt className="mx-auto text-4xl text-gray-600 mb-3" />
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Sale Completed!</h3>
+                <p className="text-gray-600 mb-5">Would you like to print the receipt?</p>
+                <div className="flex gap-3">
+                <button
+                    onClick={printReceipt}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded font-medium flex items-center justify-center gap-2"
+                >
+                    <Printer size={18} /> Print Receipt
+                </button>
+                <button
+                    onClick={skipPrint}
+                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2.5 rounded font-medium"
+                >
+                    Skip
+                </button>
+                </div>
+            </div>
+            </div>
+        )}
         </div>
     );
     }
