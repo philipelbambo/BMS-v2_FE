@@ -1,10 +1,10 @@
 {
-  "name": "Cocolumber",
+  "name": "Apartment-System",
   "private": true,
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "Movement": "vite",
+    "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -14,10 +14,11 @@
     "axios": "^1.9.0",
     "chart.js": "^4.4.1",
     "framer-motion": "^11.1.12",
-    "lucide-react": "^0.344.0",
+    "lucide-react": "^0.555.0",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
+    "react-hot-toast": "^2.6.0",
     "react-router-dom": "^6.23.1",
     "react-toastify": "^10.0.4",
     "recharts": "^3.3.0"

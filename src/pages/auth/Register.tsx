@@ -1,189 +1,264 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import axios, { AxiosError } from 'axios';
+import { useNavigate } from 'react-router-dom';
+
+interface FormData {
+  name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+}
+
+interface ApiError {
+  [key: string]: string[];
+}
 
 const Register: React.FC = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    agreeTerms: false,
+    password_confirmation: '',
   });
 
-  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Partial<FormData> & { form?: string }>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    // Go back if possible, otherwise go to home
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate('/'); // fallback
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (errors[name as keyof FormData]) {
+      setErrors((prev) => {
+        const updated = { ...prev };
+        delete updated[name as keyof FormData];
+        return updated;
+      });
+    }
+  };
+
+  const validateForm = (): Partial<FormData> => {
+    const newErrors: Partial<FormData> = {};
+    if (!formData.name.trim()) newErrors.name = 'Full name is required';
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    }
+    if (formData.password !== formData.password_confirmation) {
+      newErrors.password_confirmation = 'Passwords do not match';
+    }
+    return newErrors;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
-    if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      setIsSubmitting(false);
       return;
     }
-
-    if (!formData.agreeTerms) {
-      alert('You must agree to the Terms and Conditions');
-      return;
-    }
-
-    setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          password_confirmation: formData.confirmPassword,
-        }),
+      await axios.post('/api/register', formData);
+      navigate('/', {
+        state: { message: 'Registration successful! Please log in.', type: 'success' },
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        // You can handle validation errors here
-        alert('Error: ' + JSON.stringify(data));
-      } else {
-        alert('Registration successful! Please login.');
-        // Optional: redirect to login page or reset form
-        setFormData({
-          name: '',
-          email: '',
-          password: '',
-          confirmPassword: '',
-          agreeTerms: false,
+    } catch (err) {
+      const error = err as AxiosError<{ errors?: ApiError }>;
+      if (error.response?.data?. errors) {
+        const backendErrors: Partial<FormData> = {};
+        Object.entries(error.response.data.errors).forEach(([key, messages]) => {
+          if (key in formData) {
+            backendErrors[key as keyof FormData] = messages[0];
+          }
         });
+        setErrors(backendErrors);
+      } else {
+        setErrors({ form: 'Registration failed. Please try again later.' });
       }
-    } catch (error) {
-      alert('Something went wrong. Please try again.');
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 border rounded shadow">
-      <h2 className="text-center text-2xl font-bold text-gray-800 mb-6">
-        Create an account
-      </h2>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-lg bg-white rounded-xl shadow-md p-8 md:p-10 space-y-6 relative">
+        {/* Back Button - Top Left */}
+        <button
+          type="button"
+          onClick={handleBack}
+          className="absolute -top-2 -left-2 w-10 h-10 rounded-full bg-white border border-gray-300 flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors"
+          aria-label="Go back"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 text-[#ED3F27]"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+        </button>
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-            Full Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            className="input w-full border px-3 py-2 rounded"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            disabled={loading}
-          />
+        {/* Top accent bar */}
+        <div className="h-1.5 bg-[#ED3F27] rounded-t-xl -mx-8 -mt-8 mb-5"></div>
+
+        {/* Logo (now centered since back button is separate) */}
+        <div className="flex justify-center items-center space-x-3 pt-2">
+          <div className="w-9 h-9 rounded-full bg-[#ED3F27]"></div>
+          <h1 className="text-xl font-bold text-[#ED3F27]">BoardingHouse</h1>
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            className="input w-full border px-3 py-2 rounded"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            disabled={loading}
-          />
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            className="input w-full border px-3 py-2 rounded"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            minLength={8}
-            disabled={loading}
-          />
-          <p className="mt-1 text-xs text-gray-500">
-            Password must be at least 8 characters long
+        <div className="text-center">
+          <h2 className="text-2xl md:text-3xl font-semibold text-gray-800">Create Your Account</h2>
+          <p className="text-gray-500 mt-2">
+            Join our boarding community — secure, simple, and tenant-focused.
           </p>
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-            Confirm Password
-          </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            className="input w-full border px-3 py-2 rounded"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-            disabled={loading}
-          />
-        </div>
+        {errors.form && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+            {errors.form}
+          </div>
+        )}
 
-        <div className="flex items-center mb-6">
-          <input
-            id="agreeTerms"
-            name="agreeTerms"
-            type="checkbox"
-            className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-            checked={formData.agreeTerms}
-            onChange={handleChange}
-            required
-            disabled={loading}
-          />
-          <label htmlFor="agreeTerms" className="ml-2 block text-sm text-gray-700">
-            I agree to the{' '}
-            <a href="#" className="text-primary-600 hover:text-primary-800">
-              Terms and Conditions
-            </a>
-          </label>
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Name */}
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1.5">
+              Full Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:outline-none transition ${
+                errors.name
+                  ? 'border-red-400 focus:ring-red-200'
+                  : 'border-gray-300 focus:ring-[#ED3F27]/20 focus:border-[#ED3F27]'
+              }`}
+              placeholder="Enter your full name"
+            />
+            {errors.name && <p className="mt-1.5 text-sm text-red-600">{errors.name}</p>}
+          </div>
 
-        <div className="mb-6">
+          {/* Email */}
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
+              Email Address
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:outline-none transition ${
+                errors.email
+                  ? 'border-red-400 focus:ring-red-200'
+                  : 'border-gray-300 focus:ring-[#ED3F27]/20 focus:border-[#ED3F27]'
+              }`}
+              placeholder="your@email.com"
+            />
+            {errors.email && <p className="mt-1.5 text-sm text-red-600">{errors.email}</p>}
+          </div>
+
+          {/* Password */}
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1.5">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:outline-none transition ${
+                errors.password
+                  ? 'border-red-400 focus:ring-red-200'
+                  : 'border-gray-300 focus:ring-[#ED3F27]/20 focus:border-[#ED3F27]'
+              }`}
+              placeholder="Create a strong password (min. 8 characters)"
+            />
+            {errors.password && <p className="mt-1.5 text-sm text-red-600">{errors.password}</p>}
+          </div>
+
+          {/* Confirm Password */}
+          <div>
+            <label
+              htmlFor="password_confirmation"
+              className="block text-sm font-medium text-gray-700 mb-1.5"
+            >
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              id="password_confirmation"
+              name="password_confirmation"
+              value={formData.password_confirmation}
+              onChange={handleChange}
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:outline-none transition ${
+                errors.password_confirmation
+                  ? 'border-red-400 focus:ring-red-200'
+                  : 'border-gray-300 focus:ring-[#ED3F27]/20 focus:border-[#ED3F27]'
+              }`}
+              placeholder="Re-enter your password"
+            />
+            {errors.password_confirmation && (
+              <p className="mt-1.5 text-sm text-red-600">{errors.password_confirmation}</p>
+            )}
+          </div>
+
+          {/* Submit Button */}
           <button
             type="submit"
-            className="btn btn-primary w-full py-2.5 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-            disabled={!formData.agreeTerms || loading}
+            disabled={isSubmitting}
+            className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition ${
+              isSubmitting
+                ? 'bg-[#ED3F27]/70 cursor-not-allowed'
+                : 'bg-[#ED3F27] hover:bg-[#d43822] active:bg-[#c0321f] shadow-sm'
+            }`}
           >
-            {loading ? 'Registering...' : 'Create Account'}
+            {isSubmitting ? 'Creating Account...' : 'Create Account'}
           </button>
-        </div>
-      </form>
+        </form>
 
-      <div className="text-center">
-        <p className="text-sm text-gray-600">
+        {/* Login link */}
+        <div className="text-center text-gray-600 mt-4">
           Already have an account?{' '}
-          <Link to="/login" className="text-primary-600 hover:text-primary-800 font-medium">
-            Sign in
-          </Link>
-        </p>
+          <a href="/login" className="font-medium text-[#ED3F27] hover:underline">
+            Log in
+          </a>
+        </div>
       </div>
     </div>
   );

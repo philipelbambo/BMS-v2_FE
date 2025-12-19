@@ -71,6 +71,37 @@ body {
   @apply bg-primary-400;
 }
 
+/* Dark mode overrides */
+.dark {
+  --tw-bg-opacity: 1;
+  background-color: rgba(17, 24, 39, var(--tw-bg-opacity));
+  color: rgba(229, 231, 235, var(--tw-text-opacity));
+}
+
+.dark body {
+  @apply bg-gray-900 text-gray-100;
+}
+
+.dark .card {
+  @apply bg-gray-800;
+}
+
+.dark .input {
+  @apply bg-gray-700 border-gray-600 text-white;
+}
+
+.dark .btn-outline {
+  @apply border-gray-400 text-gray-200 hover:bg-gray-700;
+}
+
+.dark .sidebar-icon {
+  @apply text-gray-200 hover:bg-gray-700;
+}
+
+.dark .sidebar-icon.active {
+  @apply bg-primary-600 text-white;
+}
+
 /* Animations */
 .fade-in {
   animation: fadeIn 0.3s ease-in-out;
