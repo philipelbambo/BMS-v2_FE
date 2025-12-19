@@ -24,14 +24,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
     <div
       className={`h-screen transition-all duration-300 flex flex-col ${
         isOpen ? "w-64" : "w-20"
-      } ${darkMode ? "bg-[#1a1a1a] border-white/10" : "bg-white border-gray-200"} 
-      border-r shadow-[4px_0_10px_rgba(0,0,0,0.2)]`}
+      } text-white border-r shadow-[4px_0_10px_rgba(0,0,0,0.2)]`}
+      style={{ backgroundColor: '#001F3D' }}
     >
       <div className="flex flex-col h-full justify-between">
         {/* TOP */}
         <div className="flex flex-col items-start">
           {/* Logo Container */}
-          <div className="w-full flex items-center justify-center px-4 py-4 border-b border-[#ED3F27] mb-4">
+          <div className="w-full flex items-center justify-center px-4 py-4 border-b border-white/20 mb-4">
             <img
               src="/ADMIN.png"
               alt="Logo"
@@ -43,7 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
           <nav className="flex flex-col w-full space-y-3 items-start">
             {[
               { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-              { to: "/tenants", label: "Tenants", icon: Users },
+              { to: "/rooms", label: "Room", icon: Users },
               { to: "/requested-changes", label: "Requested", icon: ClipboardList },
               { to: "/apartments", label: "Apartments", icon: Home },
               { to: "/rent-payments", label: "Rent & Payments", icon: CreditCard },
@@ -54,8 +54,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                 key={to}
                 to={to}
                 end
-                className={`flex items-center gap-3 py-3 transition-all w-[90%] bg-[#ED3F27] text-white rounded-r-xl shadow-[3px_3px_6px_rgba(0,0,0,0.4)]
-                  ${darkMode ? 'hover:bg-[#d63a20]' : 'hover:bg-[#c4351c]'}`}
+                className={`flex items-center gap-3 py-3 transition-all w-[90%] bg-white/10 hover:bg-white/20 text-white rounded-r-xl shadow-[3px_3px_6px_rgba(0,0,0,0.4)]`}
                 style={({ isActive }) => ({
                   // REMOVED OPACITY (No more halap/faded look)
                   width: isOpen ? "90%" : "100%",
@@ -67,7 +66,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                   paddingLeft: isOpen ? "1.5rem" : "0px",
                   // Makes the active one look even sharper
                   transform: isActive ? "scale(1.02)" : "scale(1)",
-                  fontWeight: isActive ? "700" : "400"
+                  fontWeight: isActive ? "700" : "400",
+                  backgroundColor: isActive ? "rgba(255, 255, 255, 0.25)" : "rgba(255, 255, 255, 0.1)"
                 })}
               >
                 <Icon className="h-6 w-6 text-white" />

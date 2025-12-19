@@ -87,7 +87,7 @@
             >
             <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-[#ED3F27]"
+                className="h-5 w-5 text-[#001F3D]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -97,12 +97,12 @@
             </button>
 
             {/* Accent bar */}
-            <div className="h-1.5 bg-[#ED3F27] rounded-t-xl -mx-8 -mt-8 mb-5"></div>
+            <div className="h-1.5 bg-[#001F3D] rounded-t-xl -mx-8 -mt-8 mb-5"></div>
 
             {/* Logo */}
             <div className="flex justify-center items-center space-x-3 pt-2">
-            <div className="w-9 h-9 rounded-full bg-[#ED3F27]"></div>
-            <h1 className="text-xl font-bold text-[#ED3F27]">BoardingHouse</h1>
+            <div className="w-9 h-9 rounded-full bg-[#001F3D]"></div>
+            <h1 className="text-xl font-bold text-[#001F3D]">BoardingHouse</h1>
             </div>
 
             <div className="text-center">
@@ -128,7 +128,7 @@
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:outline-none transition border-gray-300 focus:ring-[#ED3F27]/20 focus:border-[#ED3F27]`}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:outline-none transition border-gray-300 focus:ring-[#001F3D]/20 focus:border-[#001F3D]`}
                 placeholder="your@email.com"
                 />
             </div>
@@ -144,12 +144,12 @@
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:outline-none transition border-gray-300 focus:ring-[#ED3F27]/20 focus:border-[#ED3F27]`}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:outline-none transition border-gray-300 focus:ring-[#001F3D]/20 focus:border-[#001F3D]`}
                 placeholder="Enter your password"
                 />
 
                 <div className="mt-2 text-right">
-                <a href="/forgot-password" className="text-sm text-[#ED3F27] hover:underline font-medium">
+                <a href="/forgot-password" className="text-sm text-[#001F3D] hover:underline font-medium">
                     Forgot password?
                 </a>
                 </div>
@@ -161,8 +161,8 @@
                 disabled={isSubmitting}
                 className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition ${
                 isSubmitting
-                    ? 'bg-[#ED3F27]/70 cursor-not-allowed'
-                    : 'bg-[#ED3F27] hover:bg-[#d43822] active:bg-[#c0321f] shadow-sm'
+                    ? 'bg-[#001F3D]/70 cursor-not-allowed'
+                    : 'bg-[#001F3D] hover:bg-[#003566] active:bg-[#002a57] shadow-sm'
                 }`}
             >
                 {isSubmitting ? 'Signing in...' : 'Sign In'}
@@ -171,8 +171,8 @@
 
             {/* Register link */}
             <div className="text-center text-gray-600 mt-4">
-            Don’t have an account?{' '}
-            <a href="/register" className="font-medium text-[#ED3F27] hover:underline">
+            Don't have an account?{' '}
+            <a href="/register" className="font-medium text-[#001F3D] hover:underline">
                 Create one
             </a>
             </div>

@@ -111,7 +111,7 @@ export default function BoardinghouseLanding() {
       <div className="max-w-[1440px] mx-auto px-6 sm:px-10">
         <div className="flex justify-between items-center h-20">
           <div className="flex items-center space-x-3">
-            <div className="bg-[#ED3F27] p-2 rounded-lg">
+            <div className="bg-[#001F3D] p-2 rounded-lg">
               <Home className="w-7 h-7 text-white" />
             </div>
             <span className="text-2xl font-black text-gray-900 tracking-tight">BoardingHub</span>
@@ -120,9 +120,9 @@ export default function BoardinghouseLanding() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-10">
             <div className="flex space-x-8">
-              <a href="#features" className="text-gray-600 font-bold hover:text-[#ED3F27] transition-colors">Features</a>
-              <a href="#benefits" className="text-gray-600 font-bold hover:text-[#ED3F27] transition-colors">Benefits</a>
-              <a href="#rooms" className="text-gray-600 font-bold hover:text-[#ED3F27] transition-colors">Rooms</a>
+              <a href="#features" className="text-gray-600 font-bold hover:text-[#001F3D] transition-colors">Features</a>
+              <a href="#benefits" className="text-gray-600 font-bold hover:text-[#001F3D] transition-colors">Benefits</a>
+              <a href="#rooms" className="text-gray-600 font-bold hover:text-[#001F3D] transition-colors">Rooms</a>
             </div>
             
             <div className="h-8 w-[1px] bg-gray-200"></div>
@@ -130,13 +130,13 @@ export default function BoardinghouseLanding() {
             <div className="flex items-center space-x-4">
               <a 
                 href="login-tenant" 
-                className="px-7 py-2.5 text-[#ED3F27] font-bold hover:bg-[#ED3F27]/5 rounded-lg transition-all text-center"
+                className="px-7 py-2.5 text-[#001F3D] font-bold hover:bg-[#001F3D]/5 rounded-lg transition-all text-center"
               >
                 Login
               </a>
               <a 
                 href="register" 
-                className="px-7 py-2.5 bg-[#ED3F27] text-white rounded-lg hover:bg-[#c53420] transition-all font-bold shadow-lg shadow-[#ED3F27]/20 text-center"
+                className="px-7 py-2.5 bg-[#001F3D] text-white rounded-lg hover:bg-[#003566] transition-all font-bold shadow-lg shadow-[#001F3D]/20 text-center"
               >
                 Register
               </a>
@@ -163,14 +163,14 @@ export default function BoardinghouseLanding() {
             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
               <a 
                 href="#login" 
-                className="w-full px-6 py-4 text-[#ED3F27] border-2 border-[#ED3F27] rounded-2xl font-bold text-center"
+                className="w-full px-6 py-4 text-[#001F3D] border-2 border-[#001F3D] rounded-2xl font-bold text-center"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Login
               </a>
               <a 
                 href="#register" 
-                className="w-full px-6 py-4 bg-[#ED3F27] text-white rounded-2xl font-bold shadow-lg text-center"
+                className="w-full px-6 py-4 bg-[#001F3D] text-white rounded-2xl font-bold shadow-lg text-center"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Register
@@ -186,7 +186,7 @@ export default function BoardinghouseLanding() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-6">
-              Welcome to <span className="text-[#ED3F27]">BoardingHub</span>
+              Welcome to <span className="text-[#001F3D]">BoardingHub</span>
             </h1>
             <p className="text-xl sm:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
               Your Modern Solution for Seamless Boardinghouse Management and Real-Time Booking
@@ -264,13 +264,13 @@ export default function BoardinghouseLanding() {
             {/* Navigation Arrows - Gi-move gamay sa gawas (left-6/right-6) */}
             <button
               onClick={prevSlide}
-              className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-[#ED3F27] text-gray-900 hover:text-white p-4 rounded-full shadow-xl transition-all z-10"
+              className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-[#001F3D] text-gray-900 hover:text-white p-4 rounded-full shadow-xl transition-all z-10"
             >
               <ChevronLeft className="w-8 h-8" />
             </button>
             <button
               onClick={nextSlide}
-              className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-[#ED3F27] text-gray-900 hover:text-white p-4 rounded-full shadow-xl transition-all z-10"
+              className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-[#001F3D] text-gray-900 hover:text-white p-4 rounded-full shadow-xl transition-all z-10"
             >
               <ChevronRight className="w-8 h-8" />
             </button>
@@ -283,7 +283,7 @@ export default function BoardinghouseLanding() {
                 key={index}
                 onClick={() => setCurrentSlide(index)}
                 className={`flex-shrink-0 w-44 h-28 rounded-lg overflow-hidden cursor-pointer transition-all duration-300 ${
-                  currentSlide === index ? 'ring-4 ring-[#ED3F27] scale-105 shadow-lg' : 'opacity-50 hover:opacity-100'
+                  currentSlide === index ? 'ring-4 ring-[#001F3D] scale-105 shadow-lg' : 'opacity-50 hover:opacity-100'
                 }`}
               >
                 <img
@@ -310,7 +310,7 @@ export default function BoardinghouseLanding() {
     <div className="max-w-[1800px] mx-auto">
       <div className="text-center mb-20">
         <h2 className="text-5xl sm:text-7xl font-black text-gray-900 mb-8 tracking-tight">
-          Powerful <span className="text-[#ED3F27]">Features</span>
+          Powerful <span className="text-[#001F3D]">Features</span>
         </h2>
         <p className="text-2xl text-gray-500 max-w-4xl mx-auto leading-relaxed">
           Everything you need to manage and book boardinghouse accommodations efficiently.
@@ -324,16 +324,16 @@ export default function BoardinghouseLanding() {
             /* Shadow-xl: Naghatag og klaro nga outer shadow base.
               hover:shadow-2xl: Mas mo-lawom ang shadow inig hover para naay "lifting" effect.
             */
-            className="bg-white p-12 rounded-lg border border-gray-100 shadow-xl shadow-gray-200/60 hover:shadow-2xl hover:shadow-[#ED3F27]/10 transition-all duration-500 group flex flex-col items-start hover:-translate-y-2"
+            className="bg-white p-12 rounded-lg border border-gray-100 shadow-xl shadow-gray-200/60 hover:shadow-2xl hover:shadow-[#001F3D]/10 transition-all duration-500 group flex flex-col items-start hover:-translate-y-2"
           >
             {/* Icon Container */}
-            <div className="bg-white p-6 rounded-3xl text-[#ED3F27] mb-8 group-hover:bg-[#ED3F27] group-hover:text-white transition-all duration-500 shadow-md border border-gray-50">
+            <div className="bg-white p-6 rounded-3xl text-[#001F3D] mb-8 group-hover:bg-[#001F3D] group-hover:text-white transition-all duration-500 shadow-md border border-gray-50">
               <div className="w-10 h-10 flex items-center justify-center">
                 {React.cloneElement(feature.icon, { size: 40 })}
               </div>
             </div>
             
-            <h3 className="text-3xl font-black text-gray-900 mb-5 group-hover:text-[#ED3F27] transition-colors">
+            <h3 className="text-3xl font-black text-gray-900 mb-5 group-hover:text-[#001F3D] transition-colors">
               {feature.title}
             </h3>
             
@@ -341,7 +341,7 @@ export default function BoardinghouseLanding() {
               {feature.description}
             </p>
             
-            <div className="mt-auto pt-4 text-[#ED3F27] font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+            <div className="mt-auto pt-4 text-[#001F3D] font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
               Explore Details <span>→</span>
             </div>
           </div>
@@ -369,7 +369,7 @@ export default function BoardinghouseLanding() {
         key={index}
         className="bg-white p-8 rounded-lg border border-gray-100 shadow-md hover:shadow-2xl transition-all flex flex-col space-y-4"
       >
-        <div className="text-[#ED3F27] bg-[#ED3F27]/10 w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
+        <div className="text-[#001F3D] bg-[#001F3D]/10 w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
           {benefit.icon}
         </div>
         <div>
@@ -385,7 +385,7 @@ export default function BoardinghouseLanding() {
   </div>
 
   {/* Real-Time Updates banner with outer shadow */}
-  <div className="max-w-[1440px] mx-auto bg-[#ED3F27] rounded-lg p-10 sm:p-20 text-center text-white shadow-md hover:shadow-2xl transition-all">
+  <div className="max-w-[1440px] mx-auto bg-[#001F3D] rounded-lg p-10 sm:p-20 text-center text-white shadow-md hover:shadow-2xl transition-all">
     <h3 className="text-3xl sm:text-5xl font-black mb-6">
       Real-Time Updates You Can Trust
     </h3>
@@ -414,7 +414,7 @@ export default function BoardinghouseLanding() {
     <section className="py-28 px-6 bg-white">
       <div className="max-w-[1200px] mx-auto text-center">
         <h2 className="text-5xl sm:text-7xl font-black text-gray-900 mb-8 tracking-tight">
-          Ready to Get <span className="text-[#ED3F27]">Started?</span>
+          Ready to Get <span className="text-[#001F3D]">Started?</span>
         </h2>
       </div>
     </section>
@@ -427,7 +427,7 @@ export default function BoardinghouseLanding() {
           {/* Brand Column - Occupies 4 columns on large screens */}
           <div className="lg:col-span-4">
             <div className="flex items-center space-x-3 mb-6">
-              <div className="bg-[#ED3F27] p-2 rounded-lg">
+              <div className="bg-[#001F3D] p-2 rounded-lg">
                 <Home className="w-6 h-6 text-white" />
               </div>
               <span className="text-2xl font-black tracking-tight">BoardingHub</span>
@@ -441,10 +441,10 @@ export default function BoardinghouseLanding() {
           <div className="lg:col-span-2">
             <h4 className="font-bold text-xl mb-6 text-white">Quick Links</h4>
             <ul className="space-y-4 text-gray-400">
-              <li><a href="#features" className="hover:text-[#ED3F27] transition-colors">Features</a></li>
-              <li><a href="#benefits" className="hover:text-[#ED3F27] transition-colors">Benefits</a></li>
-              <li><a href="#rooms" className="hover:text-[#ED3F27] transition-colors">Rooms</a></li>
-              <li><a href="#" className="hover:text-[#ED3F27] transition-colors">Privacy Policy</a></li>
+              <li><a href="#features" className="hover:text-[#001F3D] transition-colors">Features</a></li>
+              <li><a href="#benefits" className="hover:text-[#001F3D] transition-colors">Benefits</a></li>
+              <li><a href="#rooms" className="hover:text-[#001F3D] transition-colors">Rooms</a></li>
+              <li><a href="#" className="hover:text-[#001F3D] transition-colors">Privacy Policy</a></li>
             </ul>
           </div>
 
@@ -453,15 +453,15 @@ export default function BoardinghouseLanding() {
             <h4 className="font-bold text-xl mb-6 text-white">Contact Us</h4>
             <ul className="space-y-4 text-gray-400">
               <li className="flex items-start space-x-3">
-                <Mail className="w-6 h-6 text-[#ED3F27] shrink-0" />
+                <Mail className="w-6 h-6 text-[#001F3D] shrink-0" />
                 <span className="break-all">info@boardinghub.com</span>
               </li>
               <li className="flex items-start space-x-3">
-                <Phone className="w-6 h-6 text-[#ED3F27] shrink-0" />
+                <Phone className="w-6 h-6 text-[#001F3D] shrink-0" />
                 <span>+63 123 456 7890</span>
               </li>
               <li className="flex items-start space-x-3">
-                <MapPin className="w-6 h-6 text-[#ED3F27] shrink-0" />
+                <MapPin className="w-6 h-6 text-[#001F3D] shrink-0" />
                 <span>Tagoloan, Misamis Oriental, Philippines</span>
               </li>
             </ul>
@@ -470,25 +470,25 @@ export default function BoardinghouseLanding() {
           {/* Meet the Owner - Occupies 3 columns */}
           <div className="lg:col-span-3">
             <h4 className="font-bold text-xl mb-6 text-white">Meet the Owner</h4>
-            <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800 hover:border-[#ED3F27]/50 transition-all shadow-xl">
+            <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800 hover:border-[#001F3D]/50 transition-all shadow-xl">
               <div className="flex items-center space-x-4 mb-4">
                 <img
                   src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&h=300&fit=crop"
                   alt="Owner"
-                  className="w-16 h-16 rounded-xl border-2 border-[#ED3F27] object-cover"
+                  className="w-16 h-16 rounded-xl border-2 border-[#001F3D] object-cover"
                 />
                 <div>
                   <h5 className="font-bold text-white text-lg leading-tight">Maria Santos</h5>
-                  <p className="text-sm text-[#ED3F27] font-medium">Owner & Manager</p>
+                  <p className="text-sm text-[#001F3D] font-medium">Owner & Manager</p>
                 </div>
               </div>
               <div className="pt-4 border-t border-gray-800 space-y-3">
                 <div className="flex items-center space-x-3 text-sm text-gray-400">
-                  <Phone className="w-4 h-4 text-[#ED3F27]" />
+                  <Phone className="w-4 h-4 text-[#001F3D]" />
                   <span>+63 917 123 4567</span>
                 </div>
                 <div className="flex items-center space-x-3 text-sm text-gray-400">
-                  <Mail className="w-4 h-4 text-[#ED3F27]" />
+                  <Mail className="w-4 h-4 text-[#001F3D]" />
                   <span>maria@boardinghub.com</span>
                 </div>
               </div>

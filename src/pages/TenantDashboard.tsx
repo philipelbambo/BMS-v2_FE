@@ -168,9 +168,9 @@
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-            { title: 'Current Room', value: roomData.number, subtitle: roomData.type, icon: <Bed className="text-[#ED3F27]" size={24} /> },
-            { title: 'Next Payment', value: '₱5,000', subtitle: 'Due in 3 days', icon: <CreditCard className="text-[#ED3F27]" size={24} /> },
-            { title: 'Pending Requests', value: '2', subtitle: 'Awaiting response', icon: <Clock className="text-[#ED3F27]" size={24} /> },
+            { title: 'Current Room', value: roomData.number, subtitle: roomData.type, icon: <Bed className="text-[#001F3D]" size={24} /> },
+            { title: 'Next Payment', value: '₱5,000', subtitle: 'Due in 3 days', icon: <CreditCard className="text-[#001F3D]" size={24} /> },
+            { title: 'Pending Requests', value: '2', subtitle: 'Awaiting response', icon: <Clock className="text-[#001F3D]" size={24} /> },
             ].map((item, idx) => (
             <div key={idx} className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-sm p-4`}>
                 <div className="flex items-center justify-between mb-3">
@@ -185,14 +185,14 @@
 
         <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-sm p-4 sm:p-6`}>
             <div className="flex items-center mb-4">
-            <Bell className="text-[#ED3F27] mr-2" size={20} />
+            <Bell className="text-[#001F3D] mr-2" size={20} />
             <h3 className="font-semibold">Important Notifications</h3>
             </div>
             <div className="space-y-3">
             {notifications.map((note, idx) => (
                 <div 
                 key={idx} 
-                className={`p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-red-50'} border-l-4 border-[#ED3F27]`}
+                className={`p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-blue-50'} border-l-4 border-[#001F3D]`}
                 >
                 <p className={`${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>{note}</p>
                 </div>
@@ -226,7 +226,7 @@
                 {roomData.amenities.map((amenity, idx) => (
                     <span 
                     key={idx} 
-                    className="px-3 py-1.5 bg-[#ED3F27] text-white text-xs sm:text-sm rounded-full whitespace-nowrap"
+                    className="px-3 py-1.5 bg-[#001F3D] text-white text-xs sm:text-sm rounded-full whitespace-nowrap"
                     >
                     {amenity}
                     </span>
@@ -236,7 +236,7 @@
             </div>
 
             <button 
-            className="mt-6 w-full sm:w-auto px-4 py-2.5 bg-[#ED3F27] text-white rounded-lg hover:bg-[#d63620] transition text-sm font-medium"
+            className="mt-6 w-full sm:w-auto px-4 py-2.5 bg-[#001F3D] text-white rounded-lg hover:bg-[#003566] transition text-sm font-medium"
             >
             Request Room Change
             </button>
@@ -249,7 +249,7 @@
         <div className={`${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} rounded-xl shadow-sm p-4 sm:p-6`}>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <h2 className="text-xl sm:text-2xl font-bold">Booking Requests</h2>
-            <button className="px-4 py-2 bg-[#ED3F27] text-white rounded-lg hover:bg-[#d63620] transition text-sm font-medium whitespace-nowrap">
+            <button className="px-4 py-2 bg-[#001F3D] text-white rounded-lg hover:bg-[#003566] transition text-sm font-medium whitespace-nowrap">
                 New Booking Request
             </button>
             </div>
@@ -306,11 +306,11 @@
                             aria-label="Download receipt"
                             className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition"
                         >
-                            <Download size={16} className="text-[#ED3F27]" />
+                            <Download size={16} className="text-[#001F3D]" />
                         </button>
                         )}
                         {payment.status === 'pending' && (
-                        <button className="px-3 py-1 bg-[#ED3F27] text-white text-sm rounded hover:bg-[#d63620] whitespace-nowrap">
+                        <button className="px-3 py-1 bg-[#001F3D] text-white text-sm rounded hover:bg-[#003566] whitespace-nowrap">
                             Pay Now
                         </button>
                         )}
@@ -329,7 +329,7 @@
         <div className={`${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} rounded-xl shadow-sm p-4 sm:p-6`}>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <h2 className="text-xl sm:text-2xl font-bold">Maintenance Requests</h2>
-            <button className="px-4 py-2 bg-[#ED3F27] text-white rounded-lg hover:bg-[#d63620] transition text-sm font-medium whitespace-nowrap">
+            <button className="px-4 py-2 bg-[#001F3D] text-white rounded-lg hover:bg-[#003566] transition text-sm font-medium whitespace-nowrap">
                 New Maintenance Request
             </button>
             </div>
@@ -351,7 +351,7 @@
                     </span>
                 </div>
                 {request.status === 'completed' && !request.rating && (
-                    <button className="mt-3 px-4 py-1.5 bg-[#ED3F27] text-white text-sm rounded hover:bg-[#d63620]">
+                    <button className="mt-3 px-4 py-1.5 bg-[#001F3D] text-white text-sm rounded hover:bg-[#003566]">
                     Rate Service
                     </button>
                 )}
@@ -373,7 +373,7 @@
         <div className={`${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} rounded-xl shadow-sm p-4 sm:p-6`}>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <h2 className="text-xl sm:text-2xl font-bold">Messages</h2>
-            <button className="px-4 py-2 bg-[#ED3F27] text-white rounded-lg hover:bg-[#d63620] transition text-sm font-medium whitespace-nowrap">
+            <button className="px-4 py-2 bg-[#001F3D] text-white rounded-lg hover:bg-[#003566] transition text-sm font-medium whitespace-nowrap">
                 New Message
             </button>
             </div>
@@ -433,7 +433,7 @@
 
             <div>
                 <h3 className="font-semibold mb-3">Security</h3>
-                <button className="px-4 py-2.5 bg-[#ED3F27] text-white rounded-lg hover:bg-[#d63620] transition">
+                <button className="px-4 py-2.5 bg-[#001F3D] text-white rounded-lg hover:bg-[#003566] transition">
                 Change Password
                 </button>
             </div>
@@ -447,7 +447,7 @@
                 }`}
                 >
                 <span>Dark Mode</span>
-                <div className={`relative w-12 h-6 rounded-full transition ${darkMode ? 'bg-[#ED3F27]' : 'bg-gray-300'}`}>
+                <div className={`relative w-12 h-6 rounded-full transition ${darkMode ? 'bg-[#001F3D]' : 'bg-gray-300'}`}>
                     <div 
                     className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
                         darkMode ? 'translate-x-6' : 'translate-x-0.5'
@@ -457,7 +457,7 @@
                 </div>
             </div>
 
-            <button className="w-full px-4 py-3 bg-[#ED3F27] text-white rounded-lg hover:bg-[#d63620] transition font-medium">
+            <button className="w-full px-4 py-3 bg-[#001F3D] text-white rounded-lg hover:bg-[#003566] transition font-medium">
                 Save Changes
             </button>
             </div>
@@ -508,10 +508,10 @@
                 }}
                 className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg mb-1 text-left transition ${
                     activeSection === item.id
-                    ? 'bg-[#ED3F27] text-white'
+                    ? 'bg-[#001F3D] text-white'
                     : darkMode 
-                        ? 'text-gray-300 hover:bg-gray-700' 
-                        : 'text-gray-700 hover:bg-gray-100'
+                    ? 'text-gray-300 hover:bg-gray-700' 
+                    : 'text-gray-700 hover:bg-gray-100'
                 }`}
                 >
                 {item.icon}
@@ -623,7 +623,7 @@
                     }}
                     className={`flex flex-col items-center justify-center p-2 rounded-full ${
                     activeSection === item.id 
-                        ? 'text-[#ED3F27]' 
+                        ? 'text-[#001F3D]' 
                         : darkMode ? 'text-gray-400' : 'text-gray-500'
                     }`}
                     aria-label={item.label}

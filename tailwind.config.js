@@ -39,6 +39,9 @@ export default {
           teal: '#38b2ac',
           purple: '#805ad5',
         },
+        custom: {
+          navy: '#001F3D',
+        },
       },
       fontFamily: {
         sans: ['Poppins', 'sans-serif'],

@@ -15,7 +15,7 @@ import LoginAdmin from "./pages/LoginAdmin";
 import LoginTenant from "./pages/auth/LoginTenant";
 import Register from "./pages/auth/Register";
 import Dashboard from "./pages/Dashboard";
-import TenantManagement from "./pages/Tenant";
+import RoomManagement from "./pages/RoomManagement";
 import TenantDashboard from "./pages/TenantDashboard"; // ✅ FIXED
 import RequestedChanges from "./pages/RequestedReservation";
 import ApartmentManagement from "./pages/Apartment";
@@ -52,7 +52,7 @@ function App() {
             }
           >
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/tenants" element={<TenantManagement />} />
+            <Route path="/rooms" element={<RoomManagement />} />
             <Route path="/requested-changes" element={<RequestedChanges />} />
             <Route path="/apartments" element={<ApartmentManagement />} />
             <Route path="/rent-payments" element={<RentPayment />} />

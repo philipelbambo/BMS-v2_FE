@@ -135,7 +135,7 @@ const AdminDashboard = () => {
     });
   };
 
-  const COLORS = ['#ED3F27', '#f5f5f5'];
+  const COLORS = ['#001F3D', '#f5f5f5'];
 
   const StatCard = ({ icon: Icon, title, value, subtitle }: { 
     icon: React.ElementType; 
@@ -145,8 +145,8 @@ const AdminDashboard = () => {
     accentColor?: string;
   }) => (
     <div className="rounded-lg p-4 hover:shadow-2xl transition-shadow" style={{ 
-      backgroundColor: '#ED3F27',
-      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 10px 25px -5px rgba(237, 63, 39, 0.3)'
+      backgroundColor: '#001F3D',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 10px 25px -5px rgba(0, 31, 61, 0.3)'
     }}>
       <div className="flex items-center justify-between mb-3">
         <div className="p-2 rounded-lg bg-white bg-opacity-20">
@@ -187,44 +187,39 @@ const AdminDashboard = () => {
             icon={Home}
             title="Total Rooms"
             value={dashboardData.summary.totalRooms}
-            accentColor="bg-[#ED3F27]"
           />
           <StatCard
             icon={Home}
             title="Available Rooms"
             value={dashboardData.summary.availableRooms}
             subtitle="Ready for occupancy"
-            accentColor="bg-gray-600"
           />
           <StatCard
             icon={Home}
             title="Occupied Rooms"
             value={dashboardData.summary.occupiedRooms}
             subtitle={`${Math.round((dashboardData.summary.occupiedRooms / dashboardData.summary.totalRooms) * 100)}% occupancy`}
-            accentColor="bg-[#ED3F27]"
           />
           <StatCard
             icon={Users}
             title="Total Tenants"
             value={dashboardData.summary.totalTenants}
             subtitle="Active residents"
-            accentColor="bg-gray-600"
           />
           <StatCard
             icon={DollarSign}
             title="Monthly Income"
             value={`₱${dashboardData.summary.monthlyIncome.toLocaleString()}`}
             subtitle="Current month"
-            accentColor="bg-[#ED3F27]"
           />
         </div>
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Monthly Income Chart */}
-          <div className="bg-white rounded-lg p-6 border border-gray-100" style={{ boxShadow: '0 4px 6px -1px rgba(196, 53, 28, 0.1), 0 2px 4px -1px rgba(196, 53, 28, 0.06)' }}>
+          <div className="bg-white rounded-lg p-6 border border-gray-100" style={{ boxShadow: '0 4px 6px -1px rgba(0, 31, 61, 0.1), 0 2px 4px -1px rgba(0, 31, 61, 0.06)' }}>
             <div className="flex items-center mb-6">
-              <TrendingUp className="w-5 h-5 text-[#ED3F27] mr-2" />
+              <TrendingUp className="w-5 h-5 text-[#001F3D] mr-2" />
               <h2 className="text-xl font-bold text-gray-900">Monthly Income Trends</h2>
             </div>
             <ResponsiveContainer width="100%" height={300}>
@@ -244,9 +239,9 @@ const AdminDashboard = () => {
                 <Line 
                   type="monotone" 
                   dataKey="income" 
-                  stroke="#ED3F27" 
+                  stroke="#001F3D" 
                   strokeWidth={3}
-                  dot={{ fill: '#ED3F27', r: 5 }}
+                  dot={{ fill: '#001F3D', r: 5 }}
                   activeDot={{ r: 7 }}
                   name="Income"
                 />
@@ -255,9 +250,9 @@ const AdminDashboard = () => {
           </div>
 
           {/* Payment Trends Chart */}
-          <div className="bg-white rounded-lg p-6 border border-gray-100" style={{ boxShadow: '0 4px 6px -1px rgba(196, 53, 28, 0.1), 0 2px 4px -1px rgba(196, 53, 28, 0.06)' }}>
+          <div className="bg-white rounded-lg p-6 border border-gray-100" style={{ boxShadow: '0 4px 6px -1px rgba(0, 31, 61, 0.1), 0 2px 4px -1px rgba(0, 31, 61, 0.06)' }}>
             <div className="flex items-center mb-6">
-              <DollarSign className="w-5 h-5 text-[#ED3F27] mr-2" />
+              <DollarSign className="w-5 h-5 text-[#001F3D] mr-2" />
               <h2 className="text-xl font-bold text-gray-900">Payment Status Trends</h2>
             </div>
             <ResponsiveContainer width="100%" height={300}>
@@ -273,7 +268,7 @@ const AdminDashboard = () => {
                   }}
                 />
                 <Legend />
-                <Bar dataKey="paid" fill="#ED3F27" name="Paid" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="paid" fill="#001F3D" name="Paid" radius={[8, 8, 0, 0]} />
                 <Bar dataKey="pending" fill="#fbbf24" name="Pending" radius={[8, 8, 0, 0]} />
                 <Bar dataKey="overdue" fill="#ef4444" name="Overdue" radius={[8, 8, 0, 0]} />
               </BarChart>
@@ -282,9 +277,9 @@ const AdminDashboard = () => {
         </div>
 
         {/* Occupancy Distribution Chart */}
-        <div className="bg-white rounded-lg p-6 border border-gray-100" style={{ boxShadow: '0 4px 6px -1px rgba(196, 53, 28, 0.1), 0 2px 4px -1px rgba(196, 53, 28, 0.06)' }}>
+        <div className="bg-white rounded-lg p-6 border border-gray-100" style={{ boxShadow: '0 4px 6px -1px rgba(0, 31, 61, 0.1), 0 2px 4px -1px rgba(0, 31, 61, 0.06)' }}>
           <div className="flex items-center mb-6">
-            <Home className="w-5 h-5 text-[#ED3F27] mr-2" />
+            <Home className="w-5 h-5 text-[#001F3D] mr-2" />
             <h2 className="text-xl font-bold text-gray-900">Room Occupancy Distribution</h2>
           </div>
           <div className="flex items-center justify-center">
@@ -318,7 +313,7 @@ const AdminDashboard = () => {
           <div className="grid grid-cols-2 gap-4 mt-6">
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <p className="text-gray-500 text-sm mb-1">Occupancy Rate</p>
-              <p className="text-2xl font-bold text-[#ED3F27]">
+              <p className="text-2xl font-bold text-[#001F3D]">
                 {Math.round((dashboardData.summary.occupiedRooms / dashboardData.summary.totalRooms) * 100)}%
               </p>
             </div>

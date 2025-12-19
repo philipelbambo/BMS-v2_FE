@@ -243,10 +243,10 @@
                 <div className="flex items-center justify-between">
                 <div>
                     <p className="text-sm text-gray-600 mb-1">Unverified Proofs</p>
-                    <p className="text-2xl font-bold text-orange-600">{unverifiedProofs}</p>
+                    <p className="text-2xl font-bold text-custom-navy">{unverifiedProofs}</p>
                 </div>
-                <div className="bg-orange-100 p-3 rounded-full">
-                    <Upload className="text-orange-600" size={24} />
+                <div className="bg-custom-navy p-3 rounded-full">
+                    <Upload className="text-white" size={24} />
                 </div>
                 </div>
             </div>
@@ -403,7 +403,7 @@
                                         View Proof: {payment.proofOfPayment.file}
                                         </button>
                                         {!payment.proofOfPayment.verified && (
-                                        <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">Pending Verification</span>
+                                        <span className="text-xs bg-custom-navy text-white px-2 py-1 rounded">Pending Verification</span>
                                         )}
                                         {payment.proofOfPayment.verified && (
                                         <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded flex items-center gap-1">

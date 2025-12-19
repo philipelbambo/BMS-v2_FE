@@ -110,7 +110,7 @@ const UnitsManagement = () => {
                                         onClick={() => setFilterStatus('vacant')}
                                         className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
                                             filterStatus === 'vacant' 
-                                                ? 'bg-orange-100 text-orange-700 font-medium' 
+                                                ? 'bg-custom-navy text-white font-medium'
                                                 : 'text-gray-600 hover:bg-gray-100'
                                         }`}
                                     >
@@ -155,7 +155,7 @@ const UnitsManagement = () => {
                                 <div className="text-gray-600 text-sm font-medium mb-1">Occupied</div>
                                 <div className="text-3xl font-bold text-gray-800">{occupiedCount}</div>
                             </div>
-                            <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-orange-500">
+                            <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-custom-navy">
                                 <div className="text-gray-600 text-sm font-medium mb-1">Vacant</div>
                                 <div className="text-3xl font-bold text-gray-800">{vacantCount}</div>
                             </div>
@@ -206,7 +206,7 @@ const UnitsManagement = () => {
                                     key={unit.id} 
                                     className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border-l-4 border-gray-500"
                                 >
-                                    <div className={`h-2 ${unit.status === 'occupied' ? 'bg-green-500' : 'bg-orange-500'}`}></div>
+                                    <div className={`h-2 ${unit.status === 'occupied' ? 'bg-green-500' : 'bg-custom-navy'}`}></div>
                                     <div className="p-6">
                                         <div className="flex justify-between items-start mb-4">
                                             <div>
@@ -220,7 +220,7 @@ const UnitsManagement = () => {
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                                                 unit.status === 'occupied' 
                                                     ? 'bg-green-100 text-green-800' 
-                                                    : 'bg-orange-100 text-orange-800'
+                                                    : 'bg-custom-navy text-white'
                                             }`}>
                                                 {unit.status === 'occupied' ? 'Occupied' : 'Vacant'}
                                             </span>

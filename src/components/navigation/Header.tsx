@@ -14,7 +14,7 @@ const FriesToggleIcon: React.FC<{
   size?: number;
   color?: string;
   isOpen?: boolean;
-}> = ({ size = 26, color = '#ED3F27', isOpen = false }) =>
+}> = ({ size = 26, color = '#001F3D', isOpen = false }) =>
   isOpen ? (
     // X icon (nipis)
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -64,7 +64,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
       {/* LOADING */}
       {isLoading && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/80 backdrop-blur-sm">
-          <div className="h-14 w-14 animate-spin rounded-full border-4 border-[#ED3F27] border-t-transparent" />
+          <div className="h-14 w-14 animate-spin rounded-full border-4 border-[#001F3D] border-t-transparent" />
         </div>
       )}
 
@@ -79,7 +79,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
             <div className="mt-5 flex justify-center gap-4">
               <button
                 onClick={confirmYes}
-                className="rounded-lg bg-[#ED3F27] px-5 py-2 text-white hover:bg-[#c8321d]"
+                className="rounded-lg bg-[#001F3D] px-5 py-2 text-white hover:bg-[#003566]"
               >
                 Yes
               </button>
@@ -104,7 +104,10 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
       >
         {/* LEFT */}
         <button onClick={handleToggleSidebar} className="focus:outline-none">
-          <FriesToggleIcon isOpen={isSidebarOpen} />
+          <FriesToggleIcon 
+            isOpen={isSidebarOpen} 
+            color={darkMode ? '#FFFFFF' : '#001F3D'} 
+          />
         </button>
 
         {/* RIGHT */}
@@ -133,14 +136,16 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="flex items-center gap-2"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#ED3F27] text-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#001F3D] text-white">
                 <User size={18} />
               </div>
               <div className="text-left">
                 <p className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-black'}`}>
                   User
                 </p>
-                <p className="text-xs text-black">Admin</p>
+                <p className={`text-xs ${darkMode ? 'text-gray-300' : 'text-black'}`}>
+                  Admin
+                </p>
               </div>
             </button>
 
@@ -152,14 +157,22 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
               >
                 <Link
                   to="/settings"
-                  className="block px-4 py-2 text-sm hover:bg-gray-100"
+                  className={`block px-4 py-2 text-sm ${
+                    darkMode 
+                      ? 'text-white hover:bg-gray-700' 
+                      : 'text-gray-800 hover:bg-gray-100'
+                  }`}
                 >
                   Settings
                 </Link>
 
                 <button
                   onClick={handleLogout}
-                  className="flex w-full items-center px-4 py-2 text-sm hover:bg-gray-100"
+                  className={`flex w-full items-center px-4 py-2 text-sm ${
+                    darkMode 
+                      ? 'text-white hover:bg-gray-700' 
+                      : 'text-gray-800 hover:bg-gray-100'
+                  }`}
                 >
                   <LogOut size={16} className="mr-2" />
                   Sign out

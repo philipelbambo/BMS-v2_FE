@@ -273,7 +273,7 @@
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-2">
                 <Wrench className="w-8 h-8 text-blue-600" />
-                <span className="text-sm font-medium text-orange-600">2 Pending</span>
+                <span className="text-sm font-medium text-custom-navy">2 Pending</span>
                 </div>
                 <h3 className="text-gray-600 text-sm font-medium">Maintenance</h3>
                 <p className="text-2xl font-bold text-gray-900">5 Requests</p>
@@ -384,7 +384,7 @@
                             className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
                             payment.status === 'Paid'
                                 ? 'bg-green-100 text-green-700'
-                                : 'bg-orange-100 text-orange-700'
+                                : 'bg-custom-navy text-white'
                             }`}
                         >
                             {payment.status}
