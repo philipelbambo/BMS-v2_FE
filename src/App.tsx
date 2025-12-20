@@ -1,4 +1,5 @@
 // App.tsx
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -16,14 +17,18 @@ import LoginTenant from "./pages/auth/LoginTenant";
 import Register from "./pages/auth/Register";
 import Dashboard from "./pages/Dashboard";
 import RoomManagement from "./pages/RoomManagement";
-import TenantDashboard from "./pages/TenantDashboard"; // ✅ FIXED
+import TenantDashboard from "./pages/TenantDashboard";
+import Tenant from "./pages/Tenant";
+import BookingRequestsAdmin from "./pages/BookingRequest";
+import PaymentBill from "./pages/PaymentBill";
 import RequestedChanges from "./pages/RequestedReservation";
 import ApartmentManagement from "./pages/Apartment";
 import RentPayment from "./pages/RentPayment";
 import Maintenance from "./pages/Maintenance";
 import StaffManagement from "./pages/StaffManagement";
-import ReportsDashboard from "./pages/Reports";
+import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import AdminNotifications from "./pages/NotificationsCenter"; // ✅ fixed
 import NotFound from "./pages/NotFound";
 
 // Protected Route
@@ -53,13 +58,17 @@ function App() {
           >
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/rooms" element={<RoomManagement />} />
+            <Route path="/tenant" element={<Tenant />} />
+            <Route path="/booking-requests" element={<BookingRequestsAdmin />} />
+            <Route path="/payment-bill" element={<PaymentBill />} />
             <Route path="/requested-changes" element={<RequestedChanges />} />
             <Route path="/apartments" element={<ApartmentManagement />} />
             <Route path="/rent-payments" element={<RentPayment />} />
             <Route path="/maintenance" element={<Maintenance />} />
             <Route path="/staff" element={<StaffManagement />} />
-            <Route path="/reports" element={<ReportsDashboard />} />
+            <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/notifications" element={<AdminNotifications />} />
           </Route>
 
           {/* 404 */}

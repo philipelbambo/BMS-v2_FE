@@ -180,7 +180,7 @@
     return (
         <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <div className="bg-[#001F3D] text-white p-6 shadow-lg rounded-lg">
+        <div className=" text-[#001F3D] p-6 rounded-lg">
             <div className="px-6">
             <div className="flex items-center gap-3 mb-2">
                 <Home size={32} />

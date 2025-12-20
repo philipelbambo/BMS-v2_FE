@@ -123,60 +123,13 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
           >
             {darkMode ? <Sun size={20} /> : <Moon size={20} />}
           </button>
-
-          {/* NOTIFICATION */}
-          <button className="relative text-gray-500 hover:text-gray-700">
-            <Bell size={20} />
-            <span className="absolute right-0 top-0 h-2 w-2 rounded-full bg-red-500" />
-          </button>
-
-          {/* USER */}
           <div className="relative">
-            <button
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-2"
-            >
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#001F3D] text-white">
-                <User size={18} />
-              </div>
-              <div className="text-left">
-                <p className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-black'}`}>
-                  User
-                </p>
-                <p className={`text-xs ${darkMode ? 'text-gray-300' : 'text-black'}`}>
-                  Admin
-                </p>
-              </div>
-            </button>
-
             {showUserMenu && (
               <div
                 className={`absolute right-0 mt-2 w-44 rounded-md py-1 shadow-lg ${
                   darkMode ? 'bg-gray-800' : 'bg-white'
                 }`}
               >
-                <Link
-                  to="/settings"
-                  className={`block px-4 py-2 text-sm ${
-                    darkMode 
-                      ? 'text-white hover:bg-gray-700' 
-                      : 'text-gray-800 hover:bg-gray-100'
-                  }`}
-                >
-                  Settings
-                </Link>
-
-                <button
-                  onClick={handleLogout}
-                  className={`flex w-full items-center px-4 py-2 text-sm ${
-                    darkMode 
-                      ? 'text-white hover:bg-gray-700' 
-                      : 'text-gray-800 hover:bg-gray-100'
-                  }`}
-                >
-                  <LogOut size={16} className="mr-2" />
-                  Sign out
-                </button>
               </div>
             )}
           </div>

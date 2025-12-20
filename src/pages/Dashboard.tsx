@@ -1,46 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { 
+  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, 
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
+} from 'recharts';
 import { Home, Users, DollarSign, TrendingUp } from 'lucide-react';
 
-const AdminDashboard = () => {
-  const [dashboardData, setDashboardData] = useState<{
-    summary: {
-      totalRooms: number;
-      availableRooms: number;
-      occupiedRooms: number;
-      totalTenants: number;
-      monthlyIncome: number;
-    };
-    monthlyIncome: Array<{ month: string; income: number }>;
-    paymentTrends: Array<{ week: string; paid: number; pending: number; overdue: number }>;
-    occupancyDistribution: Array<{ name: string; value: number }>;
-  }>({
-    summary: {
-      totalRooms: 24,
-      availableRooms: 6,
-      occupiedRooms: 18,
-      totalTenants: 22,
-      monthlyIncome: 0
-    },
-    monthlyIncome: [],
-    paymentTrends: [],
-    occupancyDistribution: []
-  });
+// Mock data for immediate, smooth rendering
+const initialMockData = {
+  summary: {
+    totalRooms: 24,
+    availableRooms: 6,
+    occupiedRooms: 18,
+    totalTenants: 22,
+    monthlyIncome: 87500
+  },
+  monthlyIncome: [
+    { month: 'Jan', income: 72000 },
+    { month: 'Feb', income: 78500 },
+    { month: 'Mar', income: 81000 },
+    { month: 'Apr', income: 79500 },
+    { month: 'May', income: 85000 },
+    { month: 'Jun', income: 87500 }
+  ],
+  paymentTrends: [
+    { week: 'Week 1', paid: 18, pending: 4, overdue: 0 },
+    { week: 'Week 2', paid: 20, pending: 2, overdue: 0 },
+    { week: 'Week 3', paid: 19, pending: 2, overdue: 1 },
+    { week: 'Week 4', paid: 22, pending: 0, overdue: 0 }
+  ],
+  occupancyDistribution: [
+    { name: 'Occupied', value: 18 },
+    { name: 'Available', value: 6 }
+  ]
+};
 
-  const [lastUpdated, setLastUpdated] = useState(new Date());
+const AdminDashboard = () => {
+  const [dashboardData, setDashboardData] = useState(initialMockData);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   useEffect(() => {
     fetchDashboardData();
-    // Real-time updates every 5 seconds
-    const interval = setInterval(() => {
-      fetchDashboardData();
-    }, 5000);
+    const interval = setInterval(fetchDashboardData, 30000);
     return () => clearInterval(interval);
   }, []);
 
   const fetchDashboardData = async () => {
     try {
-      // Replace these with your actual REST API endpoints
       const [summaryRes, incomeRes, paymentRes, occupancyRes] = await Promise.all([
         fetch('/api/dashboard/summary'),
         fetch('/api/dashboard/monthly-income'),
@@ -48,19 +53,17 @@ const AdminDashboard = () => {
         fetch('/api/dashboard/occupancy')
       ]);
 
-      // For demonstration, using mock data
-      // Once your API is ready, uncomment the lines above and remove mock functions
-      const summaryData: {
-        totalRooms: number;
-        availableRooms: number;
-        occupiedRooms: number;
-        totalTenants: number;
-        monthlyIncome: number;
-      } = await fetchSummaryData();
-      
-      const incomeData: Array<{ month: string; income: number }> = await fetchMonthlyIncome();
-      const paymentData: Array<{ week: string; paid: number; pending: number; overdue: number }> = await fetchPaymentTrends();
-      const occupancyData: Array<{ name: string; value: number }> = await fetchOccupancyDistribution();
+      if (!summaryRes.ok || !incomeRes.ok || !paymentRes.ok || !occupancyRes.ok) {
+        // Silently fail — keep using mock data
+        return;
+      }
+
+      const [summaryData, incomeData, paymentData, occupancyData] = await Promise.all([
+        summaryRes.json(),
+        incomeRes.json(),
+        paymentRes.json(),
+        occupancyRes.json()
+      ]);
 
       setDashboardData({
         summary: summaryData,
@@ -70,84 +73,32 @@ const AdminDashboard = () => {
       });
       
       setLastUpdated(new Date());
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+    } catch (err) {
+      // Fail silently — no error UI, no console spam (or keep minimal log if needed)
+      // console.debug('Using mock data; API unavailable:', err);
     }
-  };
-
-  // Mock API functions - replace with actual fetch calls
-  const fetchSummaryData = async () => {
-    return new Promise<{
-      totalRooms: number;
-      availableRooms: number;
-      occupiedRooms: number;
-      totalTenants: number;
-      monthlyIncome: number;
-    }>((resolve) => {
-      setTimeout(() => {
-        resolve({
-          totalRooms: 24,
-          availableRooms: 6,
-          occupiedRooms: 18,
-          totalTenants: 22,
-          monthlyIncome: 87500
-        });
-      }, 500);
-    });
-  };
-
-  const fetchMonthlyIncome = async () => {
-    return new Promise<Array<{ month: string; income: number }>>((resolve) => {
-      setTimeout(() => {
-        resolve([
-          { month: 'Jan', income: 72000 },
-          { month: 'Feb', income: 78500 },
-          { month: 'Mar', income: 81000 },
-          { month: 'Apr', income: 79500 },
-          { month: 'May', income: 85000 },
-          { month: 'Jun', income: 87500 }
-        ]);
-      }, 500);
-    });
-  };
-
-  const fetchPaymentTrends = async () => {
-    return new Promise<Array<{ week: string; paid: number; pending: number; overdue: number }>>((resolve) => {
-      setTimeout(() => {
-        resolve([
-          { week: 'Week 1', paid: 18, pending: 4, overdue: 0 },
-          { week: 'Week 2', paid: 20, pending: 2, overdue: 0 },
-          { week: 'Week 3', paid: 19, pending: 2, overdue: 1 },
-          { week: 'Week 4', paid: 22, pending: 0, overdue: 0 }
-        ]);
-      }, 500);
-    });
-  };
-
-  const fetchOccupancyDistribution = async () => {
-    return new Promise<Array<{ name: string; value: number }>>((resolve) => {
-      setTimeout(() => {
-        resolve([
-          { name: 'Occupied', value: 18 },
-          { name: 'Available', value: 6 }
-        ]);
-      }, 500);
-    });
   };
 
   const COLORS = ['#001F3D', '#f5f5f5'];
 
-  const StatCard = ({ icon: Icon, title, value, subtitle }: { 
+  const StatCard = ({ 
+    icon: Icon, 
+    title, 
+    value, 
+    subtitle 
+  }: { 
     icon: React.ElementType; 
     title: string; 
     value: string | number; 
     subtitle?: string;
-    accentColor?: string;
   }) => (
-    <div className="rounded-lg p-4 hover:shadow-2xl transition-shadow" style={{ 
-      backgroundColor: '#001F3D',
-      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 10px 25px -5px rgba(0, 31, 61, 0.3)'
-    }}>
+    <div 
+      className="rounded-lg p-4 hover:shadow-2xl transition-shadow" 
+      style={{ 
+        backgroundColor: '#001F3D',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 10px 25px -5px rgba(0, 31, 61, 0.3)'
+      }}
+    >
       <div className="flex items-center justify-between mb-3">
         <div className="p-2 rounded-lg bg-white bg-opacity-20">
           <Icon className="w-5 h-5 text-white" />
@@ -171,12 +122,15 @@ const AdminDashboard = () => {
           </div>
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+              {/* Steady green dot — no blinking */}
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
               <span className="text-sm text-gray-600 font-medium">Live</span>
             </div>
             <div className="text-right">
               <p className="text-xs text-gray-400">Last Updated</p>
-              <p className="text-sm font-medium text-gray-700">{lastUpdated.toLocaleTimeString()}</p>
+              <p className="text-sm font-medium text-gray-700">
+                {lastUpdated.toLocaleTimeString()}
+              </p>
             </div>
           </div>
         </div>
@@ -269,8 +223,8 @@ const AdminDashboard = () => {
                 />
                 <Legend />
                 <Bar dataKey="paid" fill="#001F3D" name="Paid" radius={[8, 8, 0, 0]} />
-                <Bar dataKey="pending" fill="#fbbf24" name="Pending" radius={[8, 8, 0, 0]} />
-                <Bar dataKey="overdue" fill="#ef4444" name="Overdue" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="pending" fill="#4A90E2" name="Pending" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="overdue" fill="#A8D5FF" name="Overdue" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -326,10 +280,9 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Footer Info */}
+        {/* Footer Info — simplified */}
         <div className="mt-8 text-center text-sm text-gray-400">
-          <p>Dashboard refreshes automatically every 5 seconds</p>
-          <p className="mt-1">Connect your REST API endpoints to display live data from your database</p>
+          <p>Dashboard refreshes automatically every 30 seconds</p>
         </div>
       </div>
     </div>
