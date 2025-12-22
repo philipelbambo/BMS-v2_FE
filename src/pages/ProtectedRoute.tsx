@@ -5,9 +5,13 @@
     }
 
     const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-    const isAuthenticated = localStorage.getItem("authToken"); // or sessionStorage
+    const isAuthenticated = localStorage.getItem("auth_token");
+    
+    // Check if user is an admin
+    const user = localStorage.getItem("user");
+    const isAdmin = user ? JSON.parse(user).role === "admin" : false;
 
-    return isAuthenticated ? children : <Navigate to="/" replace />;
+    return isAuthenticated && isAdmin ? children : <Navigate to="/login-admin" replace />;
     };
 
     export default ProtectedRoute;

@@ -19,13 +19,13 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/rooms", label: "Room", icon: BedDouble },
-  { to: "/tenant", label: "Tenant", icon: Users },
-  { to: "/booking-requests", label: "Booking", icon: CalendarCheck },
-  { to: "/payment-bill", label: "Payment & Bill", icon: Receipt },
-  { to: "/reports", label: "Reports", icon: BarChart3 },
-  { to: "/notifications", label: "Notifications", icon: Bell, isNotification: true },
+  { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/admin/rooms", label: "Room", icon: BedDouble },
+  { to: "/admin/tenant", label: "Tenant", icon: Users },
+  { to: "/admin/booking-requests", label: "Booking", icon: CalendarCheck },
+  { to: "/admin/payment-bill", label: "Payment & Bill", icon: Receipt },
+  { to: "/admin/reports", label: "Reports", icon: BarChart3 },
+  { to: "/admin/notifications", label: "Notifications", icon: Bell, isNotification: true },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
@@ -120,7 +120,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
             <div className="absolute bottom-14 left-0 w-[90%] bg-white/10 rounded-xl shadow-lg py-2 flex flex-col gap-1 z-10">
               {/* SETTINGS LINK */}
               <NavLink
-                to="/settings"
+                to="/admin/settings"
                 className="flex items-center gap-2 text-white px-4 py-2 hover:bg-white/20 rounded-lg"
                 onClick={() => setShowLogoutMenu(false)}
               >

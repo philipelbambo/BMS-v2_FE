@@ -52,7 +52,7 @@ const BoardinghouseLanding: React.FC = () => {
     {
       id: 1,
       title: 'Room 1',
-      type: 'Single',
+      type: 'Double',
       price: '₱3,500',
       pricePerMonth: '₱3,500/month',
       images: [
@@ -84,7 +84,7 @@ const BoardinghouseLanding: React.FC = () => {
     {
       id: 3,
       title: 'Room 3',
-      type: 'Single',
+      type: 'Double',
       price: '₱2,800',
       pricePerMonth: '₱2,800/month',
       images: [
@@ -100,7 +100,7 @@ const BoardinghouseLanding: React.FC = () => {
     {
       id: 4,
       title: 'Room 4',
-      type: 'Single',
+      type: 'Double',
       price: '₱3,200',
       pricePerMonth: '₱3,200/month',
       images: [
@@ -132,7 +132,7 @@ const BoardinghouseLanding: React.FC = () => {
     {
       id: 6,
       title: 'Room 6',
-      type: 'Single',
+      type: 'Double',
       price: '₱3,800',
       pricePerMonth: '₱3,800/month',
       images: [
@@ -148,7 +148,7 @@ const BoardinghouseLanding: React.FC = () => {
     {
       id: 7,
       title: 'Room 7',
-      type: 'Single',
+      type: 'Double',
       price: '₱2,600',
       pricePerMonth: '₱2,600/month',
       images: [
@@ -180,7 +180,7 @@ const BoardinghouseLanding: React.FC = () => {
     {
       id: 9,
       title: 'Room 9',
-      type: 'Single',
+      type: 'Double',
       price: '₱3,300',
       pricePerMonth: '₱3,300/month',
       images: [
@@ -196,7 +196,7 @@ const BoardinghouseLanding: React.FC = () => {
     {
       id: 10,
       title: 'Room 10',
-      type: 'Single',
+      type: 'Double',
       price: '₱2,900',
       pricePerMonth: '₱2,900/month',
       images: [
@@ -328,7 +328,7 @@ const BoardinghouseLanding: React.FC = () => {
               <div className="h-8 w-[1px] bg-gray-200"></div>
               <div className="flex items-center space-x-4">
                 <a 
-                  href="login-tenant" 
+                  href="/admin/dashboard" 
                   className="px-7 py-2.5 text-[#001F3D] font-bold hover:bg-[#001F3D]/5 rounded-lg transition-all text-center"
                 >
                   Login
@@ -360,14 +360,14 @@ const BoardinghouseLanding: React.FC = () => {
               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
                 <a 
                   href="login-tenant" 
-                  className="w-full px-6 py-4 text-[#001F3D] border-2 border-[#001F3D] rounded-2xl font-bold text-center"
+                  className="w-full px-6 py-4 text-[#001F3D] border-2 border-[#001F3D] rounded font-bold text-center"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Login
                 </a>
                 <a 
                   href="register" 
-                  className="w-full px-6 py-4 bg-[#001F3D] text-white rounded-2xl font-bold shadow-lg text-center"
+                  className="w-full px-6 py-4 bg-[#001F3D] text-white rounded font-bold shadow-lg text-center"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Register
@@ -472,19 +472,19 @@ const BoardinghouseLanding: React.FC = () => {
           )}
 
           <div className="relative">
-            <div className="relative h-[700px] mb-8 rounded-2xl overflow-hidden shadow-2xl bg-white">
+            <div className="relative h-[700px] mb-8 rounded overflow-hidden shadow-2xl bg-white">
               <div className="relative h-[500px] overflow-hidden">
                 <img
                   src={roomsData[currentSlide].images[0]}
                   alt={roomsData[currentSlide].title}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute top-4 right-4 bg-white px-4 py-2 rounded-full shadow-lg">
+                <div className="absolute top-4 right-4 bg-white px-4 py-2 rounded-lg shadow-lg">
                   <span className={`text-sm font-bold ${roomsData[currentSlide].availability === 'Available' ? 'text-green-600' : 'text-orange-600'}`}>
                     {roomsData[currentSlide].availability}
                   </span>
                 </div>
-                <div className="absolute top-4 left-4 bg-[#001F3D] text-white px-4 py-2 rounded-full shadow-lg">
+                <div className="absolute top-4 left-4 bg-[#001F3D] text-white px-4 py-2 rounded-lg shadow-lg">
                   <span className="text-sm font-bold">{roomsData[currentSlide].type}</span>
                 </div>
               </div>
@@ -542,7 +542,7 @@ const BoardinghouseLanding: React.FC = () => {
                 <div
                   key={index}
                   onClick={() => setCurrentSlide(index)}
-                  className={`flex-shrink-0 w-56 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 ${
+                  className={`flex-shrink-0 w-56 rounded overflow-hidden cursor-pointer transition-all duration-300 ${
                     currentSlide === index ? 'ring-4 ring-[#001F3D] scale-105 shadow-lg' : 'opacity-60 hover:opacity-100'
                   }`}
                 >
@@ -628,7 +628,7 @@ const BoardinghouseLanding: React.FC = () => {
                       <p className="text-gray-500">{selectedRoom.pricePerMonth}</p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-6 mb-8 p-6 bg-gray-50 rounded-xl">
+                  <div className="grid grid-cols-2 gap-6 mb-8 p-6 bg-gray-50 rounded">
                     <div>
                       <p className="text-sm text-gray-500 mb-1">Room Type</p>
                       <p className="text-lg font-bold text-gray-900">{selectedRoom.type}</p>
@@ -651,7 +651,7 @@ const BoardinghouseLanding: React.FC = () => {
                   </div>
                   <div className="border-t border-gray-200 pt-8">
                     {!isLoggedIn ? (
-                      <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-8 text-center">
+                      <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded p-8 text-center">
                         <Lock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                         <h4 className="text-2xl font-bold text-gray-900 mb-2">Login Required</h4>
                         <p className="text-gray-600 mb-6 max-w-md mx-auto">
@@ -659,7 +659,7 @@ const BoardinghouseLanding: React.FC = () => {
                         </p>
                         <div className="flex gap-4 justify-center flex-wrap">
                           <a
-                            href="login-tenant"
+                            href="login-admin"
                             className="px-8 py-3 bg-white border-2 border-[#001F3D] text-[#001F3D] rounded-lg hover:bg-gray-50 transition-all font-bold"
                           >
                             Login
@@ -843,12 +843,12 @@ const BoardinghouseLanding: React.FC = () => {
             </div>
             <div className="lg:col-span-3">
               <h4 className="font-bold text-xl mb-6 text-white">Meet the Owner</h4>
-              <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800 hover:border-[#001F3D]/50 transition-all shadow-xl">
+              <div className="bg-gray-900 rounded p-6 border border-gray-800 hover:border-[#001F3D]/50 transition-all shadow-xl">
                 <div className="flex items-center space-x-4 mb-4">
                   <img
                     src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&h=300&fit=crop"
                     alt="Owner"
-                    className="w-16 h-16 rounded-xl border-2 border-[#001F3D] object-cover"
+                    className="w-16 h-16 rounded border-2 border-[#001F3D] object-cover"
                   />
                   <div>
                     <h5 className="font-bold text-white text-lg leading-tight">Maria Santos</h5>
