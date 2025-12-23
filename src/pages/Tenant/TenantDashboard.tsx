@@ -1,368 +1,598 @@
-import React, { useState, useEffect } from 'react';
+interface ActivityItem {
+  id: string;
+  type: 'payment' | 'maintenance' | 'message' | 'document';
+  title: string;
+  description: string;
+  date: string;
+  icon: React.ReactNode;
+}import React, { useState, useEffect } from 'react';
+import { Home, DollarSign, FileText, AlertCircle } from 'lucide-react';
 
-// Types
-interface SummaryCardData {
+// TypeScript Interfaces
+interface SummaryCard {
   id: string;
   title: string;
   value: string;
   icon: React.ReactNode;
-  status: 'positive' | 'negative' | 'neutral';
-  statusText: string;
-}
-
-interface QuickAction {
-  id: string;
-  label: string;
-  icon: React.ReactNode;
-  action: () => void;
+  status?: 'success' | 'warning' | 'danger';
 }
 
 interface ActivityItem {
   id: string;
-  icon: React.ReactNode;
+  type: 'payment' | 'maintenance' | 'message' | 'document';
   title: string;
   description: string;
-  timestamp: string;
+  date: string;
+  icon: React.ReactNode;
 }
 
-// Mock data
-const mockSummaryData: SummaryCardData[] = [
-  {
-    id: 'rent',
-    title: 'Rent Due',
-    value: '$1,250',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-    status: 'negative',
-    statusText: 'Due in 3 days',
-  },
-  {
-    id: 'balance',
-    title: 'Account Balance',
-    value: '$245.50',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-      </svg>
-    ),
-    status: 'positive',
-    statusText: 'Updated today',
-  },
-  {
-    id: 'tickets',
-    title: 'Open Tickets',
-    value: '2',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 3v4.5m0 12V21m0-3.75a1.875 1.875 0 01-1.875-1.875M12 4.5c1.035 0 1.875.84 1.875 1.875M12 19.5c-1.035 0-1.875-.84-1.875-1.875m-3.75-4.5h7.5" />
-      </svg>
-    ),
-    status: 'negative',
-    statusText: '+1 new today',
-  },
-  {
-    id: 'lease',
-    title: 'Lease End',
-    value: 'Aug 2026',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    ),
-    status: 'neutral',
-    statusText: '11 months left',
-  },
-];
+interface ViewportSize {
+  width: number;
+  isMobile: boolean;
+  isTablet: boolean;
+  isDesktop: boolean;
+}
 
-const mockQuickActions: QuickAction[] = [
-  {
-    id: 'pay-rent',
-    label: 'Pay Rent',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-      </svg>
-    ),
-    action: () => console.log('Pay rent clicked'),
-  },
-  {
-    id: 'maintenance',
-    label: 'Maintenance',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ),
-    action: () => console.log('Maintenance clicked'),
-  },
-  {
-    id: 'documents',
-    label: 'Documents',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    ),
-    action: () => console.log('Documents clicked'),
-  },
-  {
-    id: 'messages',
-    label: 'Messages',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-      </svg>
-    ),
-    action: () => console.log('Messages clicked'),
-  },
-  {
-    id: 'profile',
-    label: 'Profile',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-      </svg>
-    ),
-    action: () => console.log('Profile clicked'),
-  },
-];
+// Custom Hook for Viewport Detection
+const useViewport = (): ViewportSize => {
+  const [viewport, setViewport] = useState<ViewportSize>({
+    width: typeof window !== 'undefined' ? window.innerWidth : 0,
+    isMobile: typeof window !== 'undefined' ? window.innerWidth < 768 : false,
+    isTablet: typeof window !== 'undefined' ? window.innerWidth >= 768 && window.innerWidth < 1024 : false,
+    isDesktop: typeof window !== 'undefined' ? window.innerWidth >= 1024 : false,
+  });
 
-const mockActivity: ActivityItem[] = [
-  {
-    id: 'act1',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-    title: 'Payment Received',
-    description: 'December rent payment processed',
-    timestamp: '2 hours ago',
-  },
-  {
-    id: 'act2',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-      </svg>
-    ),
-    title: 'Maintenance Request',
-    description: 'Leaky faucet in kitchen reported',
-    timestamp: 'Yesterday',
-  },
-  {
-    id: 'act3',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    ),
-    title: 'Lease Renewal',
-    description: 'Lease renewal offer sent',
-    timestamp: '3 days ago',
-  },
-];
-
-// Loading Skeleton Component
-const SkeletonCard: React.FC = () => (
-  <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center animate-pulse">
-    <div className="bg-gray-200 rounded-lg w-10 h-10 mr-4 flex-shrink-0"></div>
-    <div className="flex-1 min-w-0">
-      <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-      <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-    </div>
-    <div className="bg-gray-200 rounded-full w-16 h-4 flex-shrink-0 ml-2"></div>
-  </div>
-);
-
-const SkeletonActivityItem: React.FC = () => (
-  <div className="flex items-start pb-4 border-b border-gray-100 animate-pulse">
-    <div className="bg-gray-200 rounded-full w-8 h-8 mt-1 mr-3 flex-shrink-0"></div>
-    <div className="flex-1 min-w-0">
-      <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
-      <div className="h-3 bg-gray-200 rounded w-2/3 mb-1"></div>
-      <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-    </div>
-  </div>
-);
-
-// Main Component
-const TenantDashboard: React.FC = () => {
-  const [summaryData, setSummaryData] = useState<SummaryCardData[]>([]);
-  const [quickActions] = useState<QuickAction[]>(mockQuickActions);
-  const [activity, setActivity] = useState<ActivityItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Simulate API call
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setSummaryData(mockSummaryData);
-      setActivity(mockActivity);
-      setLoading(false);
-    }, 800);
+    const handleResize = () => {
+      const width = window.innerWidth;
+      setViewport({
+        width,
+        isMobile: width < 768,
+        isTablet: width >= 768 && width < 1024,
+        isDesktop: width >= 1024,
+      });
+    };
 
-    return () => clearTimeout(timer);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Status indicator color mapping
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'positive': return 'text-green-600 bg-green-100';
-      case 'negative': return 'text-red-600 bg-red-100';
-      case 'neutral': return 'text-blue-600 bg-blue-100';
-      default: return 'text-gray-600 bg-gray-100';
-    }
+  return viewport;
+};
+
+const TenantDashboard: React.FC = () => {
+  const viewport = useViewport();
+  const [activeActivityIndex, setActiveActivityIndex] = useState(0);
+
+  const summaryCards: SummaryCard[] = [
+    {
+      id: '1',
+      title: 'Rent Status',
+      value: 'Paid',
+      icon: <Home size={24} />,
+      status: 'success',
+    },
+    {
+      id: '2',
+      title: 'Next Payment',
+      value: 'Jan 1',
+      icon: <DollarSign size={24} />,
+      status: 'warning',
+    },
+    {
+      id: '3',
+      title: 'Documents',
+      value: '5 New',
+      icon: <FileText size={24} />,
+    },
+    {
+      id: '4',
+      title: 'Maintenance',
+      value: '2 Open',
+      icon: <AlertCircle size={24} />,
+      status: 'danger',
+    },
+  ];
+
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+  
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                      'July', 'August', 'September', 'October', 'November', 'December'];
+  
+  // Important dates (rent due dates)
+  const importantDates = [1, 15]; // 1st and 15th of each month
+
+  const previousMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1));
+  };
+
+  const nextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1));
+  };
+
+  const isImportantDate = (day: number) => {
+    return importantDates.includes(day);
+  };
+
+  const isToday = (day: number) => {
+    const today = new Date();
+    return day === today.getDate() && 
+           currentDate.getMonth() === today.getMonth() && 
+           currentDate.getFullYear() === today.getFullYear();
+  };
+
+  const handleActivityScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    // Removed - no longer needed
   };
 
   return (
-    <div 
-      className="min-h-screen bg-white text-gray-800"
-      style={
-        {
-          '--section-padding': '1rem',
-          '--card-gap': '1rem',
-        } as React.CSSProperties
-      }
-    >
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-4 py-4 sm:px-6 sm:py-5">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#001F3D]">Tenant Dashboard</h1>
-            <p className="text-gray-600 text-sm sm:text-base mt-1">Welcome back, Sarah Johnson</p>
-          </div>
-          <div className="flex items-center space-x-3 sm:space-x-4">
-            <button className="p-2 rounded-full text-gray-500 hover:text-[#001F3D] hover:bg-gray-100">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-              </svg>
-            </button>
-            <div className="flex items-center">
-              <div className="bg-gray-300 border-2 border-dashed rounded-xl w-9 h-9 sm:w-10 sm:h-10" />
-            </div>
-          </div>
-        </div>
-      </header>
-    
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-        {/* Summary Cards */}
-        <section className="mb-8" aria-labelledby="summary-heading">
-          <h2 
-            id="summary-heading" 
-            className="text-lg font-semibold text-[#001F3D] mb-4"
-            style={{ paddingLeft: 'var(--section-padding)' }}
-          >
-            Account Overview
-          </h2>
-          <div 
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[var(--card-gap)]"
-            style={{ paddingLeft: 'var(--section-padding)', paddingRight: 'var(--section-padding)' }}
-          >
-            {loading ? (
-              <>
-                <SkeletonCard />
-                <SkeletonCard />
-                <SkeletonCard />
-                <SkeletonCard />
-              </>
-            ) : (
-              summaryData.map((card) => (
-                <div
-                  key={card.id}
-                  className="bg-white rounded-xl border border-gray-200 p-4 flex items-center transition-all duration-300 hover:shadow-md hover:scale-[1.02]"
-                >
-                  <div className="text-[#001F3D] mr-4 flex-shrink-0">
-                    {card.icon}
+    <div className="dashboard-container">
+      <style>{`
+        :root {
+          --primary-color: #001F3D;
+          --background-color: #ffffff;
+          --card-bg: #ffffff;
+          --text-primary: #001F3D;
+          --text-secondary: #6b7280;
+          --border-color: #e5e7eb;
+          --success-color: #10b981;
+          --warning-color: #f59e0b;
+          --danger-color: #ef4444;
+          --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+          --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+          --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
+        .dashboard-container {
+          min-height: 100vh;
+          background-color: #f9fafb;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+          color: var(--text-primary);
+        }
+
+        .dashboard-header {
+          background-color: var(--primary-color);
+          color: var(--background-color);
+          padding: clamp(16px, 4vw, 32px) clamp(16px, 4vw, 24px);
+          box-shadow: var(--shadow-md);
+          display: none;
+        }
+
+        .dashboard-title {
+          font-size: clamp(20px, 5vw, 32px);
+          font-weight: 700;
+          margin-bottom: 4px;
+          display: none;
+        }
+
+        .dashboard-subtitle {
+          font-size: clamp(12px, 3vw, 16px);
+          opacity: 0.9;
+          display: none;
+        }
+
+        .dashboard-content {
+          padding: clamp(16px, 4vw, 24px);
+          padding-top: calc(clamp(16px, 4vw, 24px) + env(safe-area-inset-top));
+          padding-right: calc(clamp(16px, 4vw, 24px) + env(safe-area-inset-right));
+          padding-bottom: calc(clamp(16px, 4vw, 24px) + env(safe-area-inset-bottom));
+          padding-left: calc(clamp(16px, 4vw, 24px) + env(safe-area-inset-left));
+          width: 100%;
+          height: 100%;
+        }
+
+        .dashboard-layout {
+          display: flex;
+          flex-direction: column;
+          gap: clamp(16px, 4vw, 24px);
+        }
+
+        /* Summary Cards Grid */
+        .summary-grid {
+          display: grid;
+          grid-template-columns: repeat(1, 1fr);
+          gap: clamp(12px, 3vw, 16px);
+        }
+
+        @media (min-width: 768px) {
+          .summary-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .summary-grid {
+            grid-template-columns: repeat(4, 1fr);
+          }
+        }
+
+        .summary-card {
+          background-color: var(--card-bg);
+          border-radius: clamp(8px, 2vw, 12px);
+          padding: clamp(16px, 4vw, 24px);
+          box-shadow: var(--shadow-sm);
+          border: 1px solid var(--border-color);
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          min-height: 120px;
+          position: relative;
+        }
+
+        @media (hover: hover) {
+          .summary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+          }
+        }
+
+        .summary-card-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .summary-card-icon {
+          width: clamp(40px, 10vw, 48px);
+          height: clamp(40px, 10vw, 48px);
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: rgba(0, 31, 61, 0.1);
+          color: var(--primary-color);
+        }
+
+        .summary-card-icon.success {
+          background-color: rgba(16, 185, 129, 0.1);
+          color: var(--success-color);
+        }
+
+        .summary-card-icon.warning {
+          background-color: rgba(245, 158, 11, 0.1);
+          color: var(--warning-color);
+        }
+
+        .summary-card-icon.danger {
+          background-color: rgba(239, 68, 68, 0.1);
+          color: var(--danger-color);
+        }
+
+        .summary-card-content {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .summary-card-title {
+          font-size: clamp(12px, 3vw, 14px);
+          color: var(--text-secondary);
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .summary-card-value {
+          font-size: clamp(24px, 6vw, 32px);
+          font-weight: 700;
+          color: var(--text-primary);
+        }
+
+        /* Main Content Area */
+        .main-content {
+          display: flex;
+          flex-direction: column;
+          gap: clamp(16px, 4vw, 24px);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+          background-color: var(--card-bg);
+          border-radius: clamp(8px, 2vw, 12px);
+          padding: clamp(16px, 4vw, 24px);
+          box-shadow: var(--shadow-sm);
+          border: 1px solid var(--border-color);
+        }
+
+        .section-title {
+          font-size: clamp(16px, 4vw, 20px);
+          font-weight: 600;
+          margin-bottom: 16px;
+          color: var(--text-primary);
+        }
+
+        .action-buttons {
+          display: grid;
+          grid-template-columns: repeat(1, 1fr);
+          gap: 12px;
+        }
+
+        @media (min-width: 768px) {
+          .action-buttons {
+            grid-template-columns: repeat(1, 1fr);
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .action-buttons {
+            grid-template-columns: repeat(1, 1fr);
+          }
+        }
+
+        .action-button {
+          min-height: 44px;
+          padding: 12px 16px;
+          background-color: var(--primary-color);
+          color: var(--background-color);
+          border: none;
+          border-radius: 8px;
+          font-size: clamp(13px, 3.5vw, 15px);
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        @media (hover: hover) {
+          .action-button:hover {
+            background-color: #00152a;
+            transform: scale(1.02);
+          }
+        }
+
+        .action-button:active {
+          transform: scale(0.98);
+        }
+
+        /* Activity Section */
+        .activity-section {
+          background-color: var(--card-bg);
+          border-radius: clamp(8px, 2vw, 12px);
+          padding: clamp(12px, 3vw, 20px);
+          box-shadow: var(--shadow-sm);
+          border: 1px solid var(--border-color);
+          width: 100%;
+        }
+        .calendar-container {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .calendar-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 8px 0;
+        }
+
+        .calendar-month {
+          font-size: clamp(16px, 4vw, 18px);
+          font-weight: 600;
+          color: var(--text-primary);
+        }
+
+        .calendar-nav-button {
+          min-width: 40px;
+          min-height: 40px;
+          background-color: var(--primary-color);
+          color: white;
+          border: none;
+          border-radius: 6px;
+          font-size: 16px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        @media (hover: hover) {
+          .calendar-nav-button:hover {
+            background-color: #00152a;
+            transform: scale(1.05);
+          }
+        }
+
+        .calendar-nav-button:active {
+          transform: scale(0.95);
+        }
+
+        .calendar-grid {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: clamp(3px, 0.8vw, 6px);
+        }
+
+        .calendar-day-header {
+          text-align: center;
+          font-size: clamp(10px, 2vw, 11px);
+          font-weight: 600;
+          color: var(--text-secondary);
+          padding: 6px 2px;
+          text-transform: uppercase;
+        }
+
+        .calendar-day {
+          aspect-ratio: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: clamp(12px, 2.5vw, 14px);
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          background-color: #f9fafb;
+          color: var(--text-primary);
+          font-weight: 500;
+          min-height: 36px;
+          max-height: 50px;
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        .calendar-day.empty {
+          background-color: transparent;
+          cursor: default;
+        }
+
+        .calendar-day.important {
+          background-color: rgba(239, 68, 68, 0.1);
+          color: var(--danger-color);
+          font-weight: 700;
+          border: 2px solid var(--danger-color);
+        }
+
+        .calendar-day.today {
+          background-color: var(--primary-color);
+          color: white;
+          font-weight: 700;
+        }
+
+        .calendar-day.today.important {
+          background: linear-gradient(135deg, var(--primary-color) 0%, var(--danger-color) 100%);
+          color: white;
+          border: 2px solid var(--danger-color);
+        }
+
+        @media (hover: hover) {
+          .calendar-day:not(.empty):hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-md);
+          }
+        }
+
+        .calendar-day:not(.empty):active {
+          transform: scale(0.95);
+        }
+
+        .calendar-legend {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          padding-top: 16px;
+          border-top: 1px solid var(--border-color);
+        }
+
+        .legend-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: clamp(12px, 3vw, 14px);
+          color: var(--text-secondary);
+        }
+
+        .legend-dot {
+          width: 16px;
+          height: 16px;
+          border-radius: 4px;
+          flex-shrink: 0;
+        }
+
+        .legend-dot.important {
+          background-color: rgba(239, 68, 68, 0.1);
+          border: 2px solid var(--danger-color);
+        }
+
+        .legend-dot.today {
+          background-color: var(--primary-color);
+        }
+
+        /* Calendar Styles */
+      `}</style>
+
+      <main className="dashboard-content">
+        <div className="dashboard-layout">
+          <div className="main-content">
+            <div className="summary-grid">
+              {summaryCards.map((card) => (
+                <div key={card.id} className="summary-card">
+                  <div className="summary-card-header">
+                    <div className={`summary-card-icon ${card.status || ''}`}>
+                      {card.icon}
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-600 truncate">{card.title}</p>
-                    <p className="text-xl font-bold text-[#001F3D] mt-1">{card.value}</p>
-                  </div>
-                  <div className={`text-xs px-2 py-1 rounded-full ${getStatusColor(card.status)} flex-shrink-0`}>
-                    {card.statusText}
+                  <div className="summary-card-content">
+                    <div className="summary-card-title">{card.title}</div>
+                    <div className="summary-card-value">{card.value}</div>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
-        </section>
+              ))}
+            </div>
 
-        {/* Quick Actions */}
-        <section className="mb-8" aria-labelledby="actions-heading">
-          <h2 
-            id="actions-heading" 
-            className="text-lg font-semibold text-[#001F3D] mb-4"
-            style={{ paddingLeft: 'var(--section-padding)' }}
-          >
-            Quick Actions
-          </h2>
-          <div 
-            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"
-            style={{ paddingLeft: 'var(--section-padding)', paddingRight: 'var(--section-padding)' }}
-          >
-            {quickActions.map((action) => (
-              <button
-                key={action.id}
-                onClick={action.action}
-                className="flex items-center justify-center bg-[#001F3D] text-white font-medium rounded-lg py-3 px-2 sm:px-4 transition-all duration-300 hover:bg-opacity-90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#001F3D] focus:ring-opacity-50 min-h-[56px]"
-              >
-                <span className="mr-2 flex-shrink-0">{action.icon}</span>
-                <span className="truncate text-sm">{action.label}</span>
-              </button>
-            ))}
-          </div>
-        </section>
 
-        {/* Recent Activity */}
-        <section aria-labelledby="activity-heading">
-          <h2 
-            id="activity-heading" 
-            className="text-lg font-semibold text-[#001F3D] mb-4"
-            style={{ paddingLeft: 'var(--section-padding)' }}
-          >
-            Recent Activity
-          </h2>
-          <div 
-            className="bg-white rounded-xl border border-gray-200 overflow-hidden"
-            style={{ paddingLeft: 'var(--section-padding)', paddingRight: 'var(--section-padding)' }}
-          >
-            {loading ? (
-              <div className="p-4">
-                <SkeletonActivityItem />
-                <SkeletonActivityItem />
-                <SkeletonActivityItem />
+          </div>
+
+          <aside className="activity-section">
+            <h2 className="section-title">Payment Calendar</h2>
+            <div className="calendar-container">
+              <div className="calendar-header">
+                <button className="calendar-nav-button" onClick={previousMonth}>
+                  ←
+                </button>
+                <div className="calendar-month">
+                  {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+                </div>
+                <button className="calendar-nav-button" onClick={nextMonth}>
+                  →
+                </button>
               </div>
-            ) : activity.length > 0 ? (
-              <ul className="divide-y divide-gray-100">
-                {activity.map((item) => (
-                  <li key={item.id} className="p-4">
-                    <div className="flex">
-                      <div className="flex-shrink-0 mt-1 mr-3">
-                        {item.icon}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-[#001F3D] text-sm sm:text-base">{item.title}</p>
-                        <p className="text-gray-600 text-xs sm:text-sm mt-1">{item.description}</p>
-                        <p className="text-gray-500 text-xs mt-2">{item.timestamp}</p>
-                      </div>
-                    </div>
-                  </li>
+              
+              <div className="calendar-grid">
+                <div className="calendar-day-header">Sun</div>
+                <div className="calendar-day-header">Mon</div>
+                <div className="calendar-day-header">Tue</div>
+                <div className="calendar-day-header">Wed</div>
+                <div className="calendar-day-header">Thu</div>
+                <div className="calendar-day-header">Fri</div>
+                <div className="calendar-day-header">Sat</div>
+                
+                {Array.from({ length: firstDayOfMonth }).map((_, index) => (
+                  <div key={`empty-${index}`} className="calendar-day empty"></div>
                 ))}
-              </ul>
-            ) : (
-              <div className="text-center py-8 sm:py-10">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 sm:h-12 sm:w-12 text-gray-300 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p className="mt-3 sm:mt-4 text-gray-500 text-sm sm:text-base">No recent activity</p>
+                
+                {Array.from({ length: daysInMonth }).map((_, index) => {
+                  const day = index + 1;
+                  return (
+                    <div
+                      key={day}
+                      className={`calendar-day ${isImportantDate(day) ? 'important' : ''} ${isToday(day) ? 'today' : ''}`}
+                      onClick={() => setSelectedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day))}
+                    >
+                      {day}
+                    </div>
+                  );
+                })}
               </div>
-            )}
-          </div>
-        </section>
+              
+              <div className="calendar-legend">
+                <div className="legend-item">
+                  <div className="legend-dot important"></div>
+                  <span>Rent Due Date</span>
+                </div>
+                <div className="legend-item">
+                  <div className="legend-dot today"></div>
+                  <span>Today</span>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
       </main>
     </div>
   );

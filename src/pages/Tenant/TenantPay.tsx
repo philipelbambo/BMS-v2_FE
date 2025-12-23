@@ -1,608 +1,887 @@
-    import React, { useState, useEffect, useRef } from 'react';
-    import { CreditCard, Smartphone, DollarSign, Check, X, ChevronDown, ChevronUp, Download, Eye } from 'lucide-react';
+    import React, { useState, useEffect } from 'react';
+    import { 
+    Camera, Copy, CheckCircle, Clock, XCircle, Download, Bell, 
+    Filter, Upload, X, ChevronDown, Eye, Printer 
+    } from 'lucide-react';
 
-    // Extend Window interface to include ApplePaySession
-    declare global {
-        interface Window {
-        ApplePaySession?: any;
-        PaymentRequest?: any;
-        }
-    }
-
-    // TypeScript interfaces
-    interface PaymentMethod {
+    // TypeScript Interfaces
+    interface GCashPayment {
     id: string;
-    type: 'card' | 'apple' | 'google';
-    last4?: string;
-    brand?: string;
-    expiryDate?: string;
-    isDefault: boolean;
-    }
-
-    interface Transaction {
-    id: string;
-    date: string;
     amount: number;
-    status: 'completed' | 'pending' | 'failed';
-    method: string;
+    referenceNumber: string;
+    transactionDate: string;
+    screenshot?: string;
+    status: 'pending' | 'verified' | 'rejected';
+    notes?: string;
+    }
+
+    interface PersonalPayment {
+    id: string;
+    amount: number;
+    date: string;
+    recipient: string;
+    receipt?: string;
+    notes?: string;
+    status: 'pending' | 'verified' | 'rejected';
+    }
+
+    interface PaymentSchedule {
+    id: string;
+    dueDate: string;
+    amount: number;
     description: string;
-    receiptUrl?: string;
+    isPaid: boolean;
     }
 
-    interface PaymentFormData {
-    amount: string;
-    cardNumber: string;
-    expiryDate: string;
-    cvv: string;
-    cardholderName: string;
-    }
+    // Custom Hooks
+    const usePaymentHistory = () => {
+    const [gcashPayments, setGCashPayments] = useState<GCashPayment[]>([
+        {
+        id: '1',
+        amount: 1000,
+        referenceNumber: 'BH-101-20231215-7X9K',
+        transactionDate: '2023-12-15',
+        status: 'verified',
+        },
+        {
+        id: '2',
+        amount: 1000,
+        referenceNumber: 'BH-101-20231115-2M4P',
+        transactionDate: '2023-11-15',
+        status: 'verified',
+        },
+    ]);
 
-    type PaymentStep = 'amount' | 'method' | 'details' | 'confirm';
+    const [personalPayments, setPersonalPayments] = useState<PersonalPayment[]>([
+        {
+        id: '1',
+        amount: 1000,
+        date: '2023-10-15',
+        recipient: 'Mrs. Santos',
+        status: 'verified',
+        notes: 'October rent',
+        },
+    ]);
 
-    const PaymentProcessor: React.FC = () => {
-    const [step, setStep] = useState<PaymentStep>('amount');
-    const [formData, setFormData] = useState<PaymentFormData>({
-        amount: '',
-        cardNumber: '',
-        expiryDate: '',
-        cvv: '',
-        cardholderName: ''
-    });
-    const [selectedMethod, setSelectedMethod] = useState<string>('');
-    const [processing, setProcessing] = useState(false);
-    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-    const [expandedTx, setExpandedTx] = useState<string | null>(null);
-    const [receiptModal, setReceiptModal] = useState<Transaction | null>(null);
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-    const [supportsApplePay, setSupportsApplePay] = useState(false);
-    const [supportsGooglePay, setSupportsGooglePay] = useState(false);
+    return {
+        gcashPayments,
+        setGCashPayments,
+        personalPayments,
+        setPersonalPayments,
+    };
+    };
 
-    const scrollRef = useRef<HTMLDivElement>(null);
+    const useNotifications = () => {
+    const [notifications, setNotifications] = useState<string[]>([
+        'Rent due in 3 days - January 2024',
+    ]);
 
-    // Payment methods
-    const paymentMethods: PaymentMethod[] = [
-        { id: '1', type: 'card', last4: '4242', brand: 'Visa', expiryDate: '12/25', isDefault: true },
-        { id: '2', type: 'card', last4: '5555', brand: 'Mastercard', expiryDate: '08/24', isDefault: false },
-        { id: '3', type: 'apple', isDefault: false },
-        { id: '4', type: 'google', isDefault: false }
-    ];
+    return { notifications, setNotifications };
+    };
 
-    // Transaction history
-    const transactions: Transaction[] = [
-        { id: '1', date: '2024-12-20', amount: 125.50, status: 'completed', method: 'Visa •••• 4242', description: 'Online Purchase', receiptUrl: '#' },
-        { id: '2', date: '2024-12-19', amount: 89.99, status: 'completed', method: 'Apple Pay', description: 'Subscription', receiptUrl: '#' },
-        { id: '3', date: '2024-12-18', amount: 250.00, status: 'pending', method: 'Mastercard •••• 5555', description: 'Service Payment' },
-        { id: '4', date: '2024-12-17', amount: 45.00, status: 'failed', method: 'Visa •••• 4242', description: 'Failed Transaction' }
-    ];
+    const App: React.FC = () => {
+    const [activeTab, setActiveTab] = useState<'gcash' | 'personal'>('gcash');
+    const [showQR, setShowQR] = useState(false);
+    const [copied, setCopied] = useState(false);
+    const [amount, setAmount] = useState('');
+    const [screenshot, setScreenshot] = useState<string | null>(null);
+    const [filterStatus, setFilterStatus] = useState<string>('all');
+    const [showNotifications, setShowNotifications] = useState(false);
+    
+    // Personal Payment States
+    const [personalAmount, setPersonalAmount] = useState('');
+    const [personalDate, setPersonalDate] = useState('');
+    const [recipient, setRecipient] = useState('');
+    const [personalReceipt, setPersonalReceipt] = useState<string | null>(null);
+    const [personalNotes, setPersonalNotes] = useState('');
 
-    // Detect device capabilities
-    useEffect(() => {
-        const checkPaymentSupport = () => {
-        // Type-safe check for Apple Pay support
-        if (typeof window !== 'undefined' && 'ApplePaySession' in window) {
-            setSupportsApplePay(true);
+    // View Receipt Modal States
+    const [showReceiptModal, setShowReceiptModal] = useState(false);
+    const [selectedPayment, setSelectedPayment] = useState<GCashPayment | PersonalPayment | null>(null);
+    const [selectedPaymentType, setSelectedPaymentType] = useState<'gcash' | 'personal'>('gcash');
+
+    const { gcashPayments, setGCashPayments, personalPayments, setPersonalPayments } = usePaymentHistory();
+    const { notifications } = useNotifications();
+
+    const gcashNumber = '09123456789';
+    const gcashName = 'MARIA SANTOS';
+    const [roomNumber, setRoomNumber] = useState('1');
+
+    const generateReferenceNumber = () => {
+        const date = new Date().toISOString().split('T')[0].replace(/-/g, '');
+        const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+        return `BH-${roomNumber}-${date}-${random}`;
+    };
+
+    const [referenceNumber] = useState(generateReferenceNumber());
+
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    const generateQRCode = () => {
+        const qrData = `GCash Payment
+    Amount: ₱${amount}
+    Reference: ${referenceNumber}
+    To: ${gcashName}
+    Number: ${gcashNumber}`;
+        
+        const canvas = document.createElement('canvas');
+        const size = 200;
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        
+        if (ctx) {
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, size, size);
+        ctx.fillStyle = '#001F3D';
+        ctx.font = '12px monospace';
+        ctx.fillText('QR Code', size / 2 - 30, size / 2);
+        ctx.fillText('Placeholder', size / 2 - 40, size / 2 + 20);
         }
         
-        // Check for Google Pay/ Payment Request API support
-        if (typeof window !== 'undefined' && 'PaymentRequest' in window) {
-            setSupportsGooglePay(true);
+        return canvas.toDataURL();
+    };
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'gcash' | 'personal') => {
+        const file = e.target.files?.[0];
+        if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            if (type === 'gcash') {
+            setScreenshot(reader.result as string);
+            } else {
+            setPersonalReceipt(reader.result as string);
+            }
+        };
+        reader.readAsDataURL(file);
         }
+    };
+
+    const handleGCashSubmit = () => {
+        if (!amount || !screenshot) {
+        alert('Please fill in all required fields');
+        return;
+        }
+
+        const newPayment: GCashPayment = {
+        id: Date.now().toString(),
+        amount: parseFloat(amount),
+        referenceNumber,
+        transactionDate: new Date().toISOString().split('T')[0],
+        screenshot,
+        status: 'pending',
         };
 
-        const handleResize = () => {
-        setIsMobile(window.innerWidth < 768);
+        setGCashPayments([newPayment, ...gcashPayments]);
+        setAmount('');
+        setScreenshot(null);
+        alert('Payment submitted for verification!');
+    };
+
+    const handlePersonalSubmit = () => {
+        if (!personalAmount || !personalDate || !recipient) {
+        alert('Please fill in all required fields');
+        return;
+        }
+
+        const newPayment: PersonalPayment = {
+        id: Date.now().toString(),
+        amount: parseFloat(personalAmount),
+        date: personalDate,
+        recipient,
+        receipt: personalReceipt || undefined,
+        notes: personalNotes || undefined,
+        status: 'pending',
         };
 
-        checkPaymentSupport();
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    // Auto-dismiss toast
-    useEffect(() => {
-        if (toast) {
-        const timer = setTimeout(() => setToast(null), 4000);
-        return () => clearTimeout(timer);
-        }
-    }, [toast]);
-
-    // Format card number with spaces
-    const formatCardNumber = (value: string): string => {
-        const cleaned = value.replace(/\D/g, '');
-        const chunks = cleaned.match(/.{1,4}/g) || [];
-        return chunks.join(' ').substr(0, 19);
+        setPersonalPayments([newPayment, ...personalPayments]);
+        setPersonalAmount('');
+        setPersonalDate('');
+        setRecipient('');
+        setPersonalReceipt(null);
+        setPersonalNotes('');
+        alert('Payment recorded successfully!');
     };
 
-    // Format expiry date
-    const formatExpiry = (value: string): string => {
-        const cleaned = value.replace(/\D/g, '');
-        if (cleaned.length >= 2) {
-        return cleaned.substr(0, 2) + '/' + cleaned.substr(2, 2);
-        }
-        return cleaned;
-    };
+    // 🔴 DELETE FUNCTION — ADDED HERE
+    const handleDeletePayment = (type: 'gcash' | 'personal', id: string) => {
+        const confirmed = window.confirm('Are you sure you want to delete this payment? This cannot be undone.');
+        if (!confirmed) return;
 
-    // Handle form input
-    const handleInputChange = (field: keyof PaymentFormData, value: string) => {
-        let formatted = value;
-        if (field === 'cardNumber') {
-        formatted = formatCardNumber(value);
-        } else if (field === 'expiryDate') {
-        formatted = formatExpiry(value);
-        } else if (field === 'cvv') {
-        formatted = value.replace(/\D/g, '').substr(0, 4);
-        } else if (field === 'amount') {
-        formatted = value.replace(/[^\d.]/g, '');
-        }
-        setFormData(prev => ({ ...prev, [field]: formatted }));
-    };
-
-    // Process payment
-    const handleProcessPayment = async () => {
-        setProcessing(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setProcessing(false);
-        setToast({ message: 'Payment processed successfully!', type: 'success' });
-        setStep('amount');
-        setFormData({ amount: '', cardNumber: '', expiryDate: '', cvv: '', cardholderName: '' });
-    };
-
-    // Get status color
-    const getStatusColor = (status: string): string => {
-        switch (status) {
-        case 'completed': return 'text-green-600 bg-green-100';
-        case 'pending': return 'text-yellow-600 bg-yellow-100';
-        case 'failed': return 'text-red-600 bg-red-100';
-        default: return 'text-gray-600 bg-gray-100';
+        if (type === 'gcash') {
+        setGCashPayments(prev => prev.filter(payment => payment.id !== id));
+        } else {
+        setPersonalPayments(prev => prev.filter(payment => payment.id !== id));
         }
     };
 
-    // Step indicator
-    const steps = ['Amount', 'Method', 'Details', 'Confirm'];
-    const stepIndex = steps.indexOf(step.charAt(0).toUpperCase() + step.slice(1));
+    const viewReceipt = (payment: GCashPayment | PersonalPayment, type: 'gcash' | 'personal') => {
+        setSelectedPayment(payment);
+        setSelectedPaymentType(type);
+        setShowReceiptModal(true);
+    };
+
+    const printReceipt = () => {
+        window.print();
+    };
+
+    const paymentSchedule: PaymentSchedule[] = [
+        {
+        id: '1',
+        dueDate: '2024-01-15',
+        amount: 1000,
+        description: 'January Rent',
+        isPaid: false,
+        },
+        {
+        id: '2',
+        dueDate: '2024-01-31',
+        amount: 0,
+        description: 'WiFi (End of Month)',
+        isPaid: false,
+        },
+        {
+        id: '3',
+        dueDate: '2024-02-15',
+        amount: 1000,
+        description: 'February Rent',
+        isPaid: false,
+        },
+    ];
+
+    const getStatusBadge = (status: string) => {
+        const styles = {
+        pending: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+        verified: 'bg-green-100 text-green-800 border-green-300',
+        rejected: 'bg-red-100 text-red-800 border-red-300',
+        };
+
+        const icons = {
+        pending: <Clock size={14} />,
+        verified: <CheckCircle size={14} />,
+        rejected: <XCircle size={14} />,
+        };
+
+        return (
+        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium border ${styles[status as keyof typeof styles]}`}>
+            {icons[status as keyof typeof icons]}
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+        </span>
+        );
+    };
+
+    const filteredGCashPayments = filterStatus === 'all' 
+        ? gcashPayments 
+        : gcashPayments.filter(p => p.status === filterStatus);
+
+    const filteredPersonalPayments = filterStatus === 'all'
+        ? personalPayments
+        : personalPayments.filter(p => p.status === filterStatus);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-[env(safe-area-inset-bottom)]">
-        <style>{`
-            @supports (padding: max(0px)) {
-            .pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 1rem); }
-            .fixed-bottom-safe { bottom: max(env(safe-area-inset-bottom), 1rem); }
-            }
-            
-            .touch-manipulation {
-            -webkit-tap-highlight-color: transparent;
-            tap-highlight-color: transparent;
-            }
-            
-            @media print {
-            body { background: white; }
-            .no-print { display: none !important; }
-            .print-full { page-break-inside: avoid; }
-            }
+        <div className="min-h-screen bg-white" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        {/* Receipt Modal */}
+        {showReceiptModal && selectedPayment && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onClick={() => setShowReceiptModal(false)}>
+            <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                {/* Receipt Content */}
+                <div className="p-6" id="receipt-content">
+                {/* Receipt Header */}
+                <div className="text-center mb-6 pb-4 border-b-2" style={{ borderColor: '#001F3D' }}>
+                    <h2 className="text-2xl font-bold" style={{ color: '#001F3D' }}>Payment Receipt</h2>
+                    <p className="text-sm text-gray-600 mt-1">Boarding House Payment</p>
+                </div>
 
-            .scrollbar-hide::-webkit-scrollbar { display: none; }
-            .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-
-            input[type="number"]::-webkit-inner-spin-button,
-            input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-            }
-
-            .card-shimmer {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            }
-
-            @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-            }
-        `}</style>
-
-        {/* Sticky Header */}
-        <div className="sticky top-0 z-50 bg-white shadow-md no-print">
-            <div className="max-w-7xl mx-auto px-4 py-4 lg:px-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Payment Center</h1>
-                <DollarSign className="text-indigo-600" size={28} />
-            </div>
-            
-            {/* Step Indicator */}
-            <div className="mt-4 flex items-center justify-between">
-                {steps.map((s, i) => (
-                <div key={s} className="flex items-center flex-1">
-                    <div className={`flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 transition-all ${
-                    i <= stepIndex ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-white border-gray-300 text-gray-400'
-                    }`}>
-                    {i < stepIndex ? <Check size={16} /> : <span className="text-sm">{i + 1}</span>}
+                {/* Receipt Details */}
+                <div className="space-y-4 mb-6">
+                    <div className="flex justify-between items-start">
+                    <span className="text-sm text-gray-600">Receipt No:</span>
+                    <span className="text-sm font-semibold" style={{ color: '#001F3D' }}>
+                        {selectedPaymentType === 'gcash' 
+                        ? (selectedPayment as GCashPayment).referenceNumber 
+                        : selectedPayment.id}
+                    </span>
                     </div>
-                    <span className="hidden lg:inline ml-2 text-sm font-medium">{s}</span>
-                    {i < steps.length - 1 && (
-                    <div className={`flex-1 h-1 mx-2 ${i < stepIndex ? 'bg-indigo-600' : 'bg-gray-300'}`} />
+
+                    <div className="flex justify-between items-start">
+                    <span className="text-sm text-gray-600">Room Number:</span>
+                    <span className="text-sm font-semibold" style={{ color: '#001F3D' }}>
+                        {roomNumber === '11' ? 'Room 11 (Pad)' : `Room ${roomNumber}`}
+                    </span>
+                    </div>
+
+                    <div className="flex justify-between items-start">
+                    <span className="text-sm text-gray-600">Date:</span>
+                    <span className="text-sm font-semibold" style={{ color: '#001F3D' }}>
+                        {new Date(
+                        selectedPaymentType === 'gcash' 
+                            ? (selectedPayment as GCashPayment).transactionDate 
+                            : (selectedPayment as PersonalPayment).date
+                        ).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                        })}
+                    </span>
+                    </div>
+
+                    <div className="flex justify-between items-start">
+                    <span className="text-sm text-gray-600">Payment Method:</span>
+                    <span className="text-sm font-semibold" style={{ color: '#001F3D' }}>
+                        {selectedPaymentType === 'gcash' ? 'GCash' : 'Cash'}
+                    </span>
+                    </div>
+
+                    {selectedPaymentType === 'personal' && (selectedPayment as PersonalPayment).recipient && (
+                    <div className="flex justify-between items-start">
+                        <span className="text-sm text-gray-600">Paid To:</span>
+                        <span className="text-sm font-semibold" style={{ color: '#001F3D' }}>
+                        {(selectedPayment as PersonalPayment).recipient}
+                        </span>
+                    </div>
+                    )}
+
+                    <div className="flex justify-between items-start pt-4 border-t" style={{ borderColor: '#e5e7eb' }}>
+                    <span className="text-base font-semibold text-gray-700">Amount:</span>
+                    <span className="text-2xl font-bold" style={{ color: '#001F3D' }}>
+                        ₱{selectedPayment.amount.toLocaleString()}
+                    </span>
+                    </div>
+
+                    <div className="flex justify-between items-start">
+                    <span className="text-sm text-gray-600">Status:</span>
+                    <span>
+                        {getStatusBadge(selectedPayment.status)}
+                    </span>
+                    </div>
+
+                    {selectedPaymentType === 'personal' && (selectedPayment as PersonalPayment).notes && (
+                    <div className="pt-3 border-t" style={{ borderColor: '#e5e7eb' }}>
+                        <p className="text-xs text-gray-600 mb-1">Notes:</p>
+                        <p className="text-sm" style={{ color: '#001F3D' }}>
+                        {(selectedPayment as PersonalPayment).notes}
+                        </p>
+                    </div>
                     )}
                 </div>
-                ))}
-            </div>
-            </div>
-        </div>
 
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 py-6 lg:px-6" ref={scrollRef}>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Payment Form Section */}
-            <div className="lg:col-span-2 space-y-6">
-                {/* Payment Summary */}
-                <div className="bg-white rounded-2xl shadow-lg p-6 lg:p-8">
-                <h2 className="text-lg lg:text-xl font-bold text-gray-900 mb-4">Payment Summary</h2>
-                <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-6 text-white">
-                    <p className="text-sm opacity-90 mb-2">Amount to Pay</p>
-                    <p className="font-bold" style={{ fontSize: 'clamp(24px, 5vw, 48px)' }}>
-                    ${formData.amount || '0.00'}
+                {/* Proof Images */}
+                {selectedPaymentType === 'gcash' && (selectedPayment as GCashPayment).screenshot && (
+                    <div className="mb-6">
+                    <p className="text-sm font-semibold mb-2" style={{ color: '#001F3D' }}>Transaction Screenshot:</p>
+                    <img 
+                        src={(selectedPayment as GCashPayment).screenshot} 
+                        alt="Transaction proof" 
+                        className="w-full rounded-lg border"
+                        style={{ borderColor: '#e5e7eb' }}
+                    />
+                    </div>
+                )}
+
+                {selectedPaymentType === 'personal' && (selectedPayment as PersonalPayment).receipt && (
+                    <div className="mb-6">
+                    <p className="text-sm font-semibold mb-2" style={{ color: '#001F3D' }}>Receipt Photo:</p>
+                    <img 
+                        src={(selectedPayment as PersonalPayment).receipt} 
+                        alt="Receipt" 
+                        className="w-full rounded-lg border"
+                        style={{ borderColor: '#e5e7eb' }}
+                    />
+                    </div>
+                )}
+
+                {/* Receipt Footer */}
+                <div className="text-center pt-4 border-t" style={{ borderColor: '#e5e7eb' }}>
+                    <p className="text-xs text-gray-500">Thank you for your payment!</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                    Generated on {new Date().toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })}
                     </p>
                 </div>
                 </div>
 
-                {/* Amount Input */}
-                {step === 'amount' && (
-                <div className="bg-white rounded-2xl shadow-lg p-6 lg:p-8">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4">Enter Amount</h3>
-                    <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl text-gray-500">$</span>
-                    <input
-                        type="text"
-                        inputMode="decimal"
-                        value={formData.amount}
-                        onChange={(e) => handleInputChange('amount', e.target.value)}
-                        placeholder="0.00"
-                        className="w-full pl-12 pr-4 py-4 text-2xl font-bold border-2 border-gray-300 rounded-xl focus:border-indigo-600 focus:outline-none"
-                    />
-                    </div>
-                    <button
-                    onClick={() => formData.amount && setStep('method')}
-                    disabled={!formData.amount}
-                    className="w-full mt-6 py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all touch-manipulation"
-                    >
-                    Continue
-                    </button>
+                {/* Modal Actions */}
+                <div className="flex gap-3 p-4 border-t" style={{ borderColor: '#e5e7eb' }}>
+                <button
+                    onClick={printReceipt}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-medium text-white"
+                    style={{ backgroundColor: '#001F3D', minHeight: '44px' }}
+                >
+                    <Printer size={20} />
+                    Print Receipt
+                </button>
+                <button
+                    onClick={() => setShowReceiptModal(false)}
+                    className="flex-1 py-3 rounded-lg font-medium border"
+                    style={{ borderColor: '#001F3D', color: '#001F3D', minHeight: '44px' }}
+                >
+                    Close
+                </button>
                 </div>
-                )}
-
-                {/* Payment Method Selection */}
-                {step === 'method' && (
-                <div className="bg-white rounded-2xl shadow-lg p-6 lg:p-8">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4">Select Payment Method</h3>
-                    
-                    {/* Mobile: Horizontal Scroll */}
-                    <div className="lg:hidden overflow-x-auto scrollbar-hide -mx-2 px-2">
-                    <div className="flex space-x-4 pb-2">
-                        {paymentMethods.filter(m => m.type === 'card' || (m.type === 'apple' && supportsApplePay) || (m.type === 'google' && supportsGooglePay)).map(method => (
-                        <button
-                            key={method.id}
-                            onClick={() => setSelectedMethod(method.id)}
-                            className={`flex-shrink-0 w-64 p-4 border-2 rounded-xl transition-all ${
-                            selectedMethod === method.id ? 'border-indigo-600 bg-indigo-50' : 'border-gray-300 bg-white'
-                            }`}
-                            style={{ minWidth: '256px', minHeight: '144px' }}
-                        >
-                            {method.type === 'card' ? (
-                            <div className="flex flex-col h-full justify-between">
-                                <div className="flex items-center justify-between">
-                                <CreditCard className="text-gray-700" size={32} />
-                                <span className="text-xs font-bold text-gray-600">{method.brand}</span>
-                                </div>
-                                <div>
-                                <p className="text-lg font-mono">•••• •••• •••• {method.last4}</p>
-                                <p className="text-sm text-gray-600 mt-1">Expires {method.expiryDate}</p>
-                                </div>
-                            </div>
-                            ) : method.type === 'apple' ? (
-                            <div className="flex flex-col items-center justify-center h-full">
-                                <Smartphone size={32} className="mb-2" />
-                                <p className="font-bold">Apple Pay</p>
-                            </div>
-                            ) : (
-                            <div className="flex flex-col items-center justify-center h-full">
-                                <Smartphone size={32} className="mb-2" />
-                                <p className="font-bold">Google Pay</p>
-                            </div>
-                            )}
-                        </button>
-                        ))}
-                    </div>
-                    </div>
-
-                    {/* Desktop: Vertical List */}
-                    <div className="hidden lg:grid grid-cols-2 gap-4">
-                    {paymentMethods.filter(m => m.type === 'card' || (m.type === 'apple' && supportsApplePay) || (m.type === 'google' && supportsGooglePay)).map(method => (
-                        <button
-                        key={method.id}
-                        onClick={() => setSelectedMethod(method.id)}
-                        className={`p-6 border-2 rounded-xl transition-all ${
-                            selectedMethod === method.id ? 'border-indigo-600 bg-indigo-50' : 'border-gray-300 bg-white'
-                        }`}
-                        style={{ minHeight: '120px' }}
-                        >
-                        {method.type === 'card' ? (
-                            <div className="flex items-center space-x-4">
-                            <CreditCard className="text-gray-700" size={40} />
-                            <div className="text-left">
-                                <p className="text-lg font-mono">•••• {method.last4}</p>
-                                <p className="text-sm text-gray-600">{method.brand} - Exp {method.expiryDate}</p>
-                            </div>
-                            </div>
-                        ) : (
-                            <div className="flex items-center justify-center space-x-3">
-                            <Smartphone size={32} />
-                            <p className="font-bold text-lg">{method.type === 'apple' ? 'Apple Pay' : 'Google Pay'}</p>
-                            </div>
-                        )}
-                        </button>
-                    ))}
-                    </div>
-
-                    <button
-                    onClick={() => selectedMethod && setStep('details')}
-                    disabled={!selectedMethod}
-                    className="w-full mt-6 py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all touch-manipulation"
-                    >
-                    Continue
-                    </button>
-                </div>
-                )}
-
-                {/* Payment Details */}
-                {step === 'details' && (
-                <div className="bg-white rounded-2xl shadow-lg p-6 lg:p-8">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4">Card Details</h3>
-                    <div className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Card Number</label>
-                        <input
-                        type="text"
-                        inputMode="numeric"
-                        value={formData.cardNumber}
-                        onChange={(e) => handleInputChange('cardNumber', e.target.value)}
-                        placeholder="1234 5678 9012 3456"
-                        maxLength={19}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-indigo-600 focus:outline-none font-mono text-lg"
-                        />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Expiry Date</label>
-                        <input
-                            type="text"
-                            inputMode="numeric"
-                            value={formData.expiryDate}
-                            onChange={(e) => handleInputChange('expiryDate', e.target.value)}
-                            placeholder="MM/YY"
-                            maxLength={5}
-                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-indigo-600 focus:outline-none font-mono text-lg"
-                        />
-                        </div>
-                        
-                        <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">CVV</label>
-                        <input
-                            type="password"
-                            inputMode="numeric"
-                            value={formData.cvv}
-                            onChange={(e) => handleInputChange('cvv', e.target.value)}
-                            placeholder="123"
-                            maxLength={4}
-                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-indigo-600 focus:outline-none font-mono text-lg"
-                        />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Cardholder Name</label>
-                        <input
-                        type="text"
-                        value={formData.cardholderName}
-                        onChange={(e) => handleInputChange('cardholderName', e.target.value)}
-                        placeholder="JOHN DOE"
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-indigo-600 focus:outline-none uppercase text-lg"
-                        />
-                    </div>
-                    </div>
-
-                    <button
-                    onClick={() => formData.cardNumber && formData.expiryDate && formData.cvv && formData.cardholderName && setStep('confirm')}
-                    disabled={!formData.cardNumber || !formData.expiryDate || !formData.cvv || !formData.cardholderName}
-                    className="w-full mt-6 py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all touch-manipulation"
-                    >
-                    Review Payment
-                    </button>
-                </div>
-                )}
-
-                {/* Confirmation */}
-                {step === 'confirm' && (
-                <div className="bg-white rounded-2xl shadow-lg p-6 lg:p-8">
-                    <h3 className="text-lg font-bold text-gray-900 mb-6">Confirm Payment</h3>
-                    
-                    <div className="space-y-4 bg-gray-50 rounded-xl p-4">
-                    <div className="flex justify-between">
-                        <span className="text-gray-600">Amount:</span>
-                        <span className="font-bold text-xl">${formData.amount}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-600">Card:</span>
-                        <span className="font-mono">•••• {formData.cardNumber.slice(-4)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-600">Cardholder:</span>
-                        <span>{formData.cardholderName}</span>
-                    </div>
-                    </div>
-
-                    <button
-                    onClick={handleProcessPayment}
-                    disabled={processing}
-                    className="w-full mt-6 py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 disabled:bg-gray-300 transition-all flex items-center justify-center touch-manipulation"
-                    >
-                    {processing ? (
-                        <div className="card-shimmer w-24 h-6 rounded" />
-                    ) : (
-                        <>
-                        <Check className="mr-2" size={20} />
-                        Process Payment
-                        </>
-                    )}
-                    </button>
-                </div>
-                )}
             </div>
+            </div>
+        )}
 
-            {/* Transaction History */}
-            <div className="lg:col-span-1">
-                <div className="bg-white rounded-2xl shadow-lg p-6 lg:p-8 sticky top-24">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Recent Transactions</h3>
-                
-                {/* Mobile: Accordion */}
-                <div className="lg:hidden space-y-3 max-h-96 overflow-y-auto">
-                    {transactions.map(tx => (
-                    <div key={tx.id} className="border-2 border-gray-200 rounded-xl overflow-hidden">
-                        <button
-                        onClick={() => setExpandedTx(expandedTx === tx.id ? null : tx.id)}
-                        className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                        style={{ minHeight: '44px' }}
-                        >
-                        <div className="text-left">
-                            <p className="font-bold">${tx.amount.toFixed(2)}</p>
-                            <p className="text-xs text-gray-600">{tx.date}</p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(tx.status)}`}>
-                            {tx.status}
-                            </span>
-                            {expandedTx === tx.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                        </div>
-                        </button>
-                        
-                        {expandedTx === tx.id && (
-                        <div className="p-4 bg-gray-50 border-t-2 border-gray-200 space-y-2">
-                            <p className="text-sm"><span className="font-medium">Method:</span> {tx.method}</p>
-                            <p className="text-sm"><span className="font-medium">Description:</span> {tx.description}</p>
-                            {tx.receiptUrl && (
-                            <button
-                                onClick={() => setReceiptModal(tx)}
-                                className="flex items-center space-x-2 text-indigo-600 text-sm font-medium hover:text-indigo-800 touch-manipulation"
-                                style={{ minHeight: '44px' }}
-                            >
-                                <Eye size={16} />
-                                <span>View Receipt</span>
-                            </button>
-                            )}
-                        </div>
-                        )}
-                    </div>
-                    ))}
-                </div>
-
-                {/* Desktop: Table */}
-                <div className="hidden lg:block overflow-auto max-h-96">
-                    <table className="w-full text-sm">
-                    <thead className="bg-gray-50 sticky top-0">
-                        <tr>
-                        <th className="px-3 py-2 text-left font-medium text-gray-600">Date</th>
-                        <th className="px-3 py-2 text-left font-medium text-gray-600">Amount</th>
-                        <th className="px-3 py-2 text-left font-medium text-gray-600">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                        {transactions.map(tx => (
-                        <tr key={tx.id} className="hover:bg-gray-50">
-                            <td className="px-3 py-3">{tx.date}</td>
-                            <td className="px-3 py-3 font-bold">${tx.amount.toFixed(2)}</td>
-                            <td className="px-3 py-3">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(tx.status)}`}>
-                                {tx.status}
-                            </span>
-                            </td>
-                        </tr>
-                        ))}
-                    </tbody>
-                    </table>
+        {/* Header */}
+        <div className="bg-white rounded-lg px-4 py-4" style={{ backgroundColor: '#001F3D' }}>
+            <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+                <div>
+                <div className="flex items-center gap-2 mt-1">
+                    <p className="text-xs text-gray-300">Room</p>
+                    <select
+                    value={roomNumber}
+                    onChange={(e) => setRoomNumber(e.target.value)}
+                    className="px-2 py-1 rounded text-xs font-medium"
+                    style={{ backgroundColor: 'white', color: '#001F3D', minHeight: '28px' }}
+                    >
+                    <option value="1">Room 1</option>
+                    <option value="2">Room 2</option>
+                    <option value="3">Room 3</option>
+                    <option value="4">Room 4</option>
+                    <option value="5">Room 5</option>
+                    <option value="6">Room 6</option>
+                    <option value="7">Room 7</option>
+                    <option value="8">Room 8</option>
+                    <option value="9">Room 9</option>
+                    <option value="10">Room 10</option>
+                    <option value="11">Room 11 (Pad)</option>
+                    </select>
                 </div>
                 </div>
             </div>
+            <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition-colors"
+                style={{ minWidth: '44px', minHeight: '44px' }}
+            >
+                <Bell size={24} className="text-white" />
+                {notifications.length > 0 && (
+                <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 rounded-lg text-white text-xs flex items-center justify-center font-bold">
+                    {notifications.length}
+                </span>
+                )}
+            </button>
+            </div>
+
+            {/* Notifications Dropdown */}
+            {showNotifications && (
+            <div className="mt-3 bg-white rounded-lg shadow-lg p-3">
+                {notifications.map((notif, idx) => (
+                <div key={idx} className="flex items-start gap-2 p-2" style={{ color: '#001F3D' }}>
+                    <Bell size={16} className="mt-1" />
+                    <p className="text-sm">{notif}</p>
+                </div>
+                ))}
+            </div>
+            )}
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="flex border-b" style={{ borderColor: '#e5e7eb' }}>
+            <button
+            onClick={() => setActiveTab('gcash')}
+            className="flex-1 py-3 text-sm font-medium transition-colors"
+            style={{
+                color: activeTab === 'gcash' ? '#001F3D' : '#6b7280',
+                borderBottom: activeTab === 'gcash' ? '3px solid #001F3D' : 'none',
+                minHeight: '44px',
+            }}
+            >
+            Pay with GCash
+            </button>
+            <button
+            onClick={() => setActiveTab('personal')}
+            className="flex-1 py-3 text-sm font-medium transition-colors"
+            style={{
+                color: activeTab === 'personal' ? '#001F3D' : '#6b7280',
+                borderBottom: activeTab === 'personal' ? '3px solid #001F3D' : 'none',
+                minHeight: '44px',
+            }}
+            >
+            Personal Payment
+            </button>
+        </div>
+
+        {/* Payment Schedule */}
+        <div className="p-4 border-b" style={{ borderColor: '#e5e7eb', backgroundColor: '#f9fafb' }}>
+            <h3 className="text-sm font-semibold mb-3" style={{ color: '#001F3D' }}>Upcoming Payments</h3>
+            <div className="space-y-2">
+            {paymentSchedule.slice(0, 2).map(schedule => (
+                <div key={schedule.id} className="flex items-center justify-between p-3 bg-white rounded-lg border" style={{ borderColor: '#e5e7eb' }}>
+                <div>
+                    <p className="text-sm font-medium" style={{ color: '#001F3D' }}>{schedule.description}</p>
+                    <p className="text-xs text-gray-500 mt-1">Due: {new Date(schedule.dueDate).toLocaleDateString()}</p>
+                </div>
+                <div className="text-right">
+                    <p className="text-sm font-bold" style={{ color: '#001F3D' }}>₱{schedule.amount.toLocaleString()}</p>
+                </div>
+                </div>
+            ))}
             </div>
         </div>
 
-        {/* Receipt Modal */}
-        {receiptModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-auto print-full">
-                <div className="sticky top-0 bg-white p-4 border-b flex justify-between items-center no-print">
-                <h4 className="font-bold text-lg">Receipt</h4>
-                <button
-                    onClick={() => setReceiptModal(null)}
-                    className="p-2 hover:bg-gray-100 rounded-lg"
-                >
-                    <X size={24} />
-                </button>
+        {/* Content */}
+        <div className="p-4">
+            {activeTab === 'gcash' ? (
+            <div className="space-y-6">
+                {/* GCash Number Display */}
+                <div className="p-4 rounded-lg border-2" style={{ backgroundColor: '#f0f9ff', borderColor: '#001F3D' }}>
+                <p className="text-xs text-gray-600 mb-2">Pay to this GCash number:</p>
+                <div className="flex items-center justify-between mb-2">
+                    <div>
+                    <p className="text-2xl font-bold" style={{ color: '#001F3D' }}>{gcashNumber}</p>
+                    <p className="text-sm text-gray-600 mt-1">{gcashName}</p>
+                    </div>
+                    <button
+                    onClick={() => copyToClipboard(gcashNumber)}
+                    className="p-3 rounded-lg transition-colors"
+                    style={{ 
+                        backgroundColor: copied ? '#10b981' : '#001F3D',
+                        minWidth: '44px',
+                        minHeight: '44px',
+                    }}
+                    >
+                    {copied ? <CheckCircle size={20} className="text-white" /> : <Copy size={20} className="text-white" />}
+                    </button>
                 </div>
-                
-                <div className="p-6 space-y-4">
-                <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900">Payment Receipt</h2>
-                    <p className="text-gray-600 mt-2">Transaction ID: {receiptModal.id}</p>
+                {copied && <p className="text-xs text-green-600 mt-2">Copied to clipboard!</p>}
                 </div>
-                
-                <div className="border-2 border-gray-200 rounded-xl p-4 space-y-3">
-                    <div className="flex justify-between">
-                    <span className="text-gray-600">Date:</span>
-                    <span className="font-medium">{receiptModal.date}</span>
+
+                {/* Payment Form */}
+                <div className="space-y-4">
+                <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#001F3D' }}>
+                    Amount (₱) *
+                    </label>
+                    <input
+                    type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="1000"
+                    className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2"
+                    style={{ borderColor: '#e5e7eb', minHeight: '44px' }}
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#001F3D' }}>
+                    Reference Number
+                    </label>
+                    <div className="flex items-center gap-2">
+                    <input
+                        type="text"
+                        value={referenceNumber}
+                        readOnly
+                        className="flex-1 px-4 py-3 border rounded-lg bg-gray-50"
+                        style={{ borderColor: '#e5e7eb', minHeight: '44px' }}
+                    />
+                    <button
+                        onClick={() => copyToClipboard(referenceNumber)}
+                        className="p-3 rounded-lg"
+                        style={{ backgroundColor: '#001F3D', minWidth: '44px', minHeight: '44px' }}
+                    >
+                        <Copy size={20} className="text-white" />
+                    </button>
                     </div>
-                    <div className="flex justify-between">
-                    <span className="text-gray-600">Amount:</span>
-                    <span className="font-bold text-xl">${receiptModal.amount.toFixed(2)}</span>
+                    <p className="text-xs text-gray-500 mt-1">I-copy at i-paste sa GCash notes</p>
+                </div>
+
+                {amount && (
+                    <button
+                    onClick={() => setShowQR(!showQR)}
+                    className="w-full py-3 rounded-lg font-medium transition-colors"
+                    style={{ 
+                        backgroundColor: showQR ? '#6b7280' : '#001F3D',
+                        color: 'white',
+                        minHeight: '44px',
+                    }}
+                    >
+                    {showQR ? 'Hide QR Code' : 'Generate QR Code'}
+                    </button>
+                )}
+
+                {showQR && amount && (
+                    <div className="p-4 bg-gray-50 rounded-lg text-center">
+                    <img
+                        src={generateQRCode()}
+                        alt="QR Code"
+                        className="mx-auto mb-3"
+                        style={{ width: '200px', height: '200px' }}
+                    />
+                    <p className="text-xs text-gray-600">Scan with GCash app</p>
                     </div>
-                    <div className="flex justify-between">
-                    <span className="text-gray-600">Payment Method:</span>
-                    <span className="font-medium">{receiptModal.method}</span>
-                    </div>
-                    <div className="flex justify-between">
-                    <span className="text-gray-600">Description:</span>
-                    <span className="font-medium">{receiptModal.description}</span>
-                    </div>
-                    <div className="flex justify-between">
-                    <span className="text-gray-600">Status:</span>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(receiptModal.status)}`}>
-                        {receiptModal.status}
+                )}
+
+                <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#001F3D' }}>
+                    Upload Screenshot *
+                    </label>
+                    <label
+                    className="flex items-center justify-center gap-2 w-full py-4 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                    style={{ borderColor: '#001F3D', minHeight: '44px' }}
+                    >
+                    <Camera size={24} style={{ color: '#001F3D' }} />
+                    <span className="text-sm" style={{ color: '#001F3D' }}>
+                        {screenshot ? 'Change Screenshot' : 'Upload Screenshot'}
                     </span>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileUpload(e, 'gcash')}
+                        className="hidden"
+                    />
+                    </label>
+                    {screenshot && (
+                    <div className="mt-2 relative">
+                        <img src={screenshot} alt="Screenshot" className="w-full rounded-lg" />
+                        <button
+                        onClick={() => setScreenshot(null)}
+                        className="absolute top-2 right-2 p-2 bg-red-500 rounded-lg"
+                        style={{ minWidth: '44px', minHeight: '44px' }}
+                        >
+                        <X size={16} className="text-white" />
+                        </button>
                     </div>
+                    )}
                 </div>
 
                 <button
-                    onClick={() => window.print()}
-                    className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 flex items-center justify-center no-print touch-manipulation"
+                    onClick={handleGCashSubmit}
+                    disabled={!amount || !screenshot}
+                    className="w-full py-4 rounded-lg font-bold text-white transition-colors disabled:opacity-50"
+                    style={{ 
+                    backgroundColor: '#001F3D',
+                    minHeight: '44px',
+                    }}
                 >
-                    <Download className="mr-2" size={20} />
-                    Print Receipt
+                    Submit Payment
                 </button>
                 </div>
             </div>
-            </div>
-        )}
+            ) : (
+            <div className="space-y-6">
+                {/* Personal Payment Form */}
+                <div className="p-4 bg-gray-50 rounded-lg">
+                <h3 className="text-sm font-semibold mb-3" style={{ color: '#001F3D' }}>
+                    Record Cash Payment
+                </h3>
+                <p className="text-xs text-gray-600 mb-4">
+                    Mag-record ng cash payment na direktang binayad
+                </p>
+                </div>
 
-        {/* Toast Notification */}
-        {toast && (
-            <div className={`fixed ${isMobile ? 'top-20' : 'bottom-6'} right-6 z-50 ${
-            toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
-            } text-white px-6 py-4 rounded-xl shadow-2xl flex items-center space-x-3 animate-slide-in max-w-sm`}>
-            {toast.type === 'success' ? <Check size={24} /> : <X size={24} />}
-            <span className="font-medium">{toast.message}</span>
+                <div className="space-y-4">
+                <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#001F3D' }}>
+                    Amount (₱) *
+                    </label>
+                    <input
+                    type="number"
+                    value={personalAmount}
+                    onChange={(e) => setPersonalAmount(e.target.value)}
+                    placeholder="1000"
+                    className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2"
+                    style={{ borderColor: '#e5e7eb', minHeight: '44px' }}
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#001F3D' }}>
+                    Date of Payment *
+                    </label>
+                    <input
+                    type="date"
+                    value={personalDate}
+                    onChange={(e) => setPersonalDate(e.target.value)}
+                    className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2"
+                    style={{ borderColor: '#e5e7eb', minHeight: '44px' }}
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#001F3D' }}>
+                    Paid To (Recipient) *
+                    </label>
+                    <input
+                    type="text"
+                    value={recipient}
+                    onChange={(e) => setRecipient(e.target.value)}
+                    placeholder="Mrs. Santos"
+                    className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2"
+                    style={{ borderColor: '#e5e7eb', minHeight: '44px' }}
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#001F3D' }}>
+                    Notes (Optional)
+                    </label>
+                    <textarea
+                    value={personalNotes}
+                    onChange={(e) => setPersonalNotes(e.target.value)}
+                    placeholder="Add any additional details..."
+                    rows={3}
+                    className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2"
+                    style={{ borderColor: '#e5e7eb' }}
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#001F3D' }}>
+                    Receipt Photo (Optional)
+                    </label>
+                    <label
+                    className="flex items-center justify-center gap-2 w-full py-4 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                    style={{ borderColor: '#001F3D', minHeight: '44px' }}
+                    >
+                    <Upload size={24} style={{ color: '#001F3D' }} />
+                    <span className="text-sm" style={{ color: '#001F3D' }}>
+                        {personalReceipt ? 'Change Receipt' : 'Upload Receipt'}
+                    </span>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileUpload(e, 'personal')}
+                        className="hidden"
+                    />
+                    </label>
+                    {personalReceipt && (
+                    <div className="mt-2 relative">
+                        <img src={personalReceipt} alt="Receipt" className="w-full rounded-lg" />
+                        <button
+                        onClick={() => setPersonalReceipt(null)}
+                        className="absolute top-2 right-2 p-2 bg-red-500 rounded-lg"
+                        style={{ minWidth: '44px', minHeight: '44px' }}
+                        >
+                        <X size={16} className="text-white" />
+                        </button>
+                    </div>
+                    )}
+                </div>
+
+                <button
+                    onClick={handlePersonalSubmit}
+                    disabled={!personalAmount || !personalDate || !recipient}
+                    className="w-full py-4 rounded-lg font-bold text-white transition-colors disabled:opacity-50"
+                    style={{ 
+                    backgroundColor: '#001F3D',
+                    minHeight: '44px',
+                    }}
+                >
+                    Record Payment
+                </button>
+                </div>
             </div>
-        )}
+            )}
+
+            {/* Payment History */}
+            <div className="mt-8">
+            <div className="mb-4">
+                <h2 className="text-lg font-bold" style={{ color: '#001F3D' }}>
+                Payment History
+                </h2>
+            </div>
+
+            <div className="space-y-3">
+                {activeTab === 'gcash' ? (
+                gcashPayments.length > 0 ? (
+                    gcashPayments.map(payment => (
+                    <div key={payment.id} className="p-4 border rounded-lg" style={{ borderColor: '#e5e7eb' }}>
+                        <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                            <p className="font-bold" style={{ color: '#001F3D' }}>₱{payment.amount.toLocaleString()}</p>
+                            <p className="text-xs text-gray-500 mt-1">{payment.referenceNumber}</p>
+                        </div>
+                        {getStatusBadge(payment.status)}
+                        </div>
+                        <p className="text-xs text-gray-600 mb-3">
+                        {new Date(payment.transactionDate).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        })}
+                        </p>
+                        <div className="flex items-center justify-between mt-2">
+                        <button
+                            onClick={() => viewReceipt(payment, 'gcash')}
+                            className="flex items-center gap-2 py-2 px-3 rounded-lg border text-sm font-medium"
+                            style={{ borderColor: '#001F3D', color: '#001F3D' }}
+                        >
+                            <Eye size={16} />
+                            View
+                        </button>
+                        <button
+                            onClick={() => handleDeletePayment('gcash', payment.id)}
+                            className="flex items-center gap-2 py-2 px-3 rounded-lg border text-sm font-medium text-red-600 border-red-300 hover:bg-red-50"
+                        >
+                            <XCircle size={16} />
+                            Delete
+                        </button>
+                        </div>
+                    </div>
+                    ))
+                ) : (
+                    <p className="text-center text-gray-500 py-8">No payments found</p>
+                )
+                ) : (
+                personalPayments.length > 0 ? (
+                    personalPayments.map(payment => (
+                    <div key={payment.id} className="p-4 border rounded-lg" style={{ borderColor: '#e5e7eb' }}>
+                        <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                            <p className="font-bold" style={{ color: '#001F3D' }}>₱{payment.amount.toLocaleString()}</p>
+                            <p className="text-xs text-gray-600 mt-1">Paid to: {payment.recipient}</p>
+                        </div>
+                        {getStatusBadge(payment.status)}
+                        </div>
+                        <p className="text-xs text-gray-600 mb-2">
+                        {new Date(payment.date).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        })}
+                        </p>
+                        {payment.notes && (
+                        <p className="text-xs text-gray-600 italic mb-3">Note: {payment.notes}</p>
+                        )}
+                        <div className="flex items-center justify-between mt-2">
+                        <button
+                            onClick={() => viewReceipt(payment, 'personal')}
+                            className="flex items-center gap-2 py-2 px-3 rounded-lg border text-sm font-medium"
+                            style={{ borderColor: '#001F3D', color: '#001F3D' }}
+                        >
+                            <Eye size={16} />
+                            View
+                        </button>
+                        <button
+                            onClick={() => handleDeletePayment('personal', payment.id)}
+                            className="flex items-center gap-2 py-2 px-3 rounded-lg border text-sm font-medium text-red-600 border-red-300 hover:bg-red-50"
+                        >
+                            <XCircle size={16} />
+                            Delete
+                        </button>
+                        </div>
+                    </div>
+                    ))
+                ) : (
+                    <p className="text-center text-gray-500 py-8">No payments recorded</p>
+                )
+                )}
+            </div>
+            </div>
+        </div>
         </div>
     );
     };
 
-    export default PaymentProcessor;
+    export default App;

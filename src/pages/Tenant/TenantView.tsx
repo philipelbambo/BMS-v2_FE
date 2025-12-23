@@ -1,111 +1,95 @@
     import React, { useState } from 'react';
-    import { User, FileText, Home, Phone, Download, ChevronDown, Calendar, DollarSign, MapPin } from 'lucide-react';
+    import { ChevronDown, Download, Mail, Phone, MapPin, Calendar, DollarSign, User, AlertCircle } from 'lucide-react';
 
-    interface TenantData {
-    profile: {
+    interface TenantInfoProps {
+    tenant?: {
         name: string;
         email: string;
         phone: string;
+        photo: string;
         moveInDate: string;
-        tenantId: string;
+        leaseEnd: string;
     };
-    contract: {
-        startDate: string;
-        endDate: string;
-        monthlyRent: number;
-        securityDeposit: number;
-        contractUrl: string;
-    };
-    room: {
-        number: string;
-        building: string;
-        floor: number;
-        size: string;
-        amenities: string[];
-    };
-    emergencyContacts: Array<{
-        name: string;
-        relationship: string;
-        phone: string;
-    }>;
-    payments: Array<{
-        date: string;
-        amount: number;
-        status: 'paid' | 'pending' | 'overdue';
-    }>;
     }
 
-    const Accordion: React.FC<{
-    title: string;
-    icon: React.ReactNode;
-    children: React.ReactNode;
-    defaultOpen?: boolean;
-    }> = ({ title, icon, children, defaultOpen = false }) => {
-    const [isOpen, setIsOpen] = useState(defaultOpen);
+    const TenantInformationView: React.FC<TenantInfoProps> = ({ tenant }) => {
+    const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+        profile: true,
+        contract: true,
+        room: true,
+        emergency: true,
+        payment: true,
+    });
 
-    return (
-        <div className="accordion-card">
+    const toggleSection = (section: string) => {
+        setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+    };
+
+    const tenantData = tenant || {
+        name: 'Sarah Mitchell',
+        email: 'sarah.mitchell@email.com',
+        phone: '+1 (555) 123-4567',
+        photo: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="48" fill="none" stroke="%23333" stroke-width="4"/%3E%3Ccircle cx="50" cy="35" r="15" fill="none" stroke="%23333" stroke-width="4"/%3E%3Cpath d="M 20 75 Q 20 55 50 55 Q 80 55 80 75" fill="none" stroke="%23333" stroke-width="4" stroke-linecap="round"/%3E%3C/svg%3E',
+        moveInDate: '2024-01-15',
+        leaseEnd: '2025-01-14',
+    };
+
+    const contractData = {
+        contractNumber: 'TN-2024-001234',
+        rent: '₱1,000',
+        wifi: '₱100/month',
+        wifiNote: 'Payable every end of month',
+        deposit: '₱1,000',
+        term: '12 months',
+        status: 'Active',
+    };
+
+    const roomData = {
+        unit: 'Room 7',
+        address: 'Zone 4 Dike Timog Boardinghouse',
+        city: 'Tagoloan, Misamis Oriental',
+        sqft: '850 sq ft',
+        bedrooms: 2,
+        bathrooms: 1,
+    };
+
+    const emergencyContacts = [
+        { name: 'John Mitchell', relation: 'Father', phone: '+1 (555) 234-5678' },
+        { name: 'Emily Chen', relation: 'Friend', phone: '+1 (555) 345-6789' },
+    ];
+
+    const paymentHistory = [
+        { date: '2024-12-01', amount: '₱1,000', status: 'Paid', method: 'Cash' },
+        { date: '2024-11-30', amount: '₱100', status: 'Paid', method: 'GCash', type: 'WiFi' },
+        { date: '2024-11-01', amount: '₱1,000', status: 'Paid', method: 'Cash' },
+        { date: '2024-10-31', amount: '₱100', status: 'Paid', method: 'GCash', type: 'WiFi' },
+    ];
+
+    const InfoCard: React.FC<{ title: string; section: string; children: React.ReactNode }> = ({
+        title,
+        section,
+        children,
+    }) => (
+        <div className="info-card">
         <button
             className="accordion-header"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-expanded={isOpen}
+            onClick={() => toggleSection(section)}
+            aria-expanded={openSections[section]}
         >
-            <div className="accordion-title">
-            {icon}
-            <span>{title}</span>
-            </div>
+            <h2>{title}</h2>
             <ChevronDown
-            className={`accordion-chevron ${isOpen ? 'open' : ''}`}
+            className={`chevron ${openSections[section] ? 'open' : ''}`}
             size={20}
             />
         </button>
-        <div className={`accordion-content ${isOpen ? 'open' : ''}`}>
+        <div className={`accordion-content ${openSections[section] ? 'open' : ''}`}>
             {children}
         </div>
         </div>
     );
-    };
-
-    const TenantInfoView: React.FC = () => {
-    const tenantData: TenantData = {
-        profile: {
-        name: 'Sarah Johnson',
-        email: 'sarah.johnson@email.com',
-        phone: '+1 (555) 123-4567',
-        moveInDate: '2024-01-15',
-        tenantId: 'TN-2024-001'
-        },
-        contract: {
-        startDate: '2024-01-15',
-        endDate: '2025-01-14',
-        monthlyRent: 1850,
-        securityDeposit: 3700,
-        contractUrl: '#'
-        },
-        room: {
-        number: '304',
-        building: 'Tower A',
-        floor: 3,
-        size: '650 sq ft',
-        amenities: ['Air Conditioning', 'Balcony', 'In-unit Washer/Dryer', 'Dishwasher']
-        },
-        emergencyContacts: [
-        { name: 'John Johnson', relationship: 'Father', phone: '+1 (555) 234-5678' },
-        { name: 'Mary Smith', relationship: 'Sister', phone: '+1 (555) 345-6789' }
-        ],
-        payments: [
-        { date: '2024-12-01', amount: 1850, status: 'paid' },
-        { date: '2024-11-01', amount: 1850, status: 'paid' },
-        { date: '2024-10-01', amount: 1850, status: 'paid' }
-        ]
-    };
-
-    const handleDownload = () => {
-        alert('Contract download initiated');
-    };
 
     return (
-        <div className="tenant-container">
+        <div className="tenant-view-container">
         <style>{`
             * {
             box-sizing: border-box;
@@ -113,35 +97,16 @@
             padding: 0;
             }
 
-            body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #f5f7fa;
-            overflow-x: hidden;
-            }
-
-            .tenant-container {
-            width: 100%;
+            .tenant-view-container {
             min-height: 100vh;
+            background: #ffffff;
             padding: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             }
 
-            .tenant-header {
-            margin-bottom: 24px;
-            }
-
-            .tenant-header h1 {
-            font-size: clamp(20px, 5vw, 28px);
-            color: #1a202c;
-            margin-bottom: 8px;
-            font-weight: 700;
-            }
-
-            .tenant-id {
-            font-size: clamp(12px, 3vw, 14px);
-            color: #718096;
-            }
-
-            .tenant-layout {
+            .content-wrapper {
+            width: 100%;
+            margin: 0 auto;
             display: grid;
             grid-template-columns: 1fr;
             gap: 16px;
@@ -159,35 +124,11 @@
             gap: 16px;
             }
 
-            .card, .accordion-card {
+            .info-card {
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            }
-
-            .card {
-            padding: 20px;
-            }
-
-            .card-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #e2e8f0;
-            }
-
-            .card-header svg {
-            color: #3182ce;
-            flex-shrink: 0;
-            }
-
-            .card-header h2 {
-            font-size: clamp(16px, 4vw, 18px);
-            color: #2d3748;
-            font-weight: 600;
             }
 
             .accordion-header {
@@ -204,34 +145,27 @@
             }
 
             .accordion-header:hover {
-            background: #f7fafc;
+            background: #f8f9fa;
             }
 
             .accordion-header:active {
-            background: #edf2f7;
+            background: #e9ecef;
             }
 
-            .accordion-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: clamp(16px, 4vw, 18px);
-            color: #2d3748;
+            .accordion-header h2 {
+            font-size: clamp(18px, 4.5vw, 20px);
             font-weight: 600;
+            color: #1a202c;
             }
 
-            .accordion-title svg {
-            color: #3182ce;
-            flex-shrink: 0;
-            }
-
-            .accordion-chevron {
-            color: #718096;
+            .chevron {
             transition: transform 0.3s ease;
+            color: #667eea;
             flex-shrink: 0;
+            margin-left: 12px;
             }
 
-            .accordion-chevron.open {
+            .chevron.open {
             transform: rotate(180deg);
             }
 
@@ -243,14 +177,54 @@
 
             .accordion-content.open {
             max-height: 2000px;
+            }
+
+            .card-content {
             padding: 0 20px 20px 20px;
+            }
+
+            .profile-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+            }
+
+            .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid #667eea;
+            flex-shrink: 0;
+            margin-bottom: 16px;
+            }
+
+            .profile-info {
+            text-align: center;
+            }
+
+            .profile-info h3 {
+            font-size: clamp(20px, 5vw, 24px);
+            color: #1a202c;
+            margin-bottom: 8px;
+            }
+
+            .status-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: #d4edda;
+            color: #155724;
+            border-radius: 12px;
+            font-size: clamp(12px, 3.5vw, 14px);
+            font-weight: 500;
             }
 
             .info-row {
             display: flex;
-            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
             padding: 12px 0;
-            border-bottom: 1px solid #f7fafc;
+            border-bottom: 1px solid #e9ecef;
             font-size: clamp(14px, 4vw, 16px);
             line-height: 1.5;
             }
@@ -259,115 +233,50 @@
             border-bottom: none;
             }
 
+            .info-row svg {
+            color: #667eea;
+            flex-shrink: 0;
+            }
+
             .info-label {
-            color: #718096;
-            font-weight: 500;
+            font-weight: 600;
+            color: #495057;
+            min-width: 100px;
             }
 
             .info-value {
-            color: #2d3748;
-            font-weight: 600;
-            text-align: right;
-            word-break: break-word;
-            max-width: 60%;
+            color: #1a202c;
             }
 
-            .amenities-list {
+            .grid-2 {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 8px;
-            margin-top: 12px;
+            gap: 12px;
             }
 
-            .amenity-item {
-            padding: 8px 12px;
-            background: #f7fafc;
-            border-radius: 6px;
-            font-size: clamp(13px, 3.5vw, 14px);
-            color: #4a5568;
-            }
-
-            .contact-card {
+            .grid-item {
             padding: 16px;
-            background: #f7fafc;
+            background: #f8f9fa;
             border-radius: 8px;
-            margin-bottom: 12px;
             }
 
-            .contact-card:last-child {
-            margin-bottom: 0;
-            }
-
-            .contact-name {
-            font-size: clamp(15px, 4vw, 16px);
-            font-weight: 600;
-            color: #2d3748;
+            .grid-item-label {
+            font-size: clamp(12px, 3.5vw, 14px);
+            color: #6c757d;
             margin-bottom: 4px;
+            font-weight: 500;
             }
 
-            .contact-detail {
-            font-size: clamp(13px, 3.5vw, 14px);
-            color: #718096;
-            margin-bottom: 4px;
-            line-height: 1.5;
-            }
-
-            .payment-table-container {
-            overflow-x: auto;
-            margin-top: 12px;
-            -webkit-overflow-scrolling: touch;
-            }
-
-            .payment-table {
-            width: 100%;
-            min-width: 300px;
-            border-collapse: collapse;
-            font-size: clamp(13px, 3.5vw, 14px);
-            }
-
-            .payment-table th {
-            padding: 12px 8px;
-            text-align: left;
-            background: #f7fafc;
-            color: #4a5568;
+            .grid-item-value {
+            font-size: clamp(16px, 4.5vw, 18px);
+            color: #1a202c;
             font-weight: 600;
-            border-bottom: 2px solid #e2e8f0;
             }
 
-            .payment-table td {
-            padding: 12px 8px;
-            border-bottom: 1px solid #f7fafc;
-            color: #2d3748;
-            }
-
-            .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: clamp(11px, 3vw, 12px);
-            font-weight: 600;
-            text-transform: uppercase;
-            }
-
-            .status-paid {
-            background: #c6f6d5;
-            color: #22543d;
-            }
-
-            .status-pending {
-            background: #feebc8;
-            color: #744210;
-            }
-
-            .status-overdue {
-            background: #fed7d7;
-            color: #742a2a;
-            }
-
-            .btn-download {
+            .download-btn {
             width: 100%;
             padding: 14px 20px;
-            background: #3182ce;
+            background: #667eea;
             color: white;
             border: none;
             border-radius: 8px;
@@ -378,77 +287,191 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: background 0.2s;
             margin-top: 16px;
-            }
-
-            .btn-download:hover {
-            background: #2c5282;
-            }
-
-            .btn-download:active {
-            background: #2a4365;
-            }
-
-            .quick-action {
-            padding: 16px;
-            background: #edf2f7;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            cursor: pointer;
             transition: background 0.2s;
             }
 
-            .quick-action:hover {
-            background: #e2e8f0;
+            .download-btn:hover {
+            background: #5568d3;
             }
 
-            .quick-action:last-child {
+            .download-btn:active {
+            background: #4c5fc7;
+            }
+
+            .emergency-contact {
+            padding: 16px;
+            background: #001F3D;
+            border-left: 4px solid #0066cc;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            }
+
+            .emergency-contact:last-child {
             margin-bottom: 0;
             }
 
-            .quick-action-text {
-            font-size: clamp(14px, 4vw, 15px);
-            color: #2d3748;
-            font-weight: 500;
+            .emergency-name {
+            font-size: clamp(16px, 4.2vw, 18px);
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
             }
 
-            .quick-action-icon {
-            color: #3182ce;
+            .emergency-relation {
+            font-size: clamp(13px, 3.8vw, 14px);
+            color: #a8c5e6;
+            margin-bottom: 8px;
+            }
+
+            .emergency-phone {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: clamp(14px, 4vw, 15px);
+            color: #ffffff;
+            }
+
+            .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 12px;
+            }
+
+            .payment-table {
+            width: 100%;
+            min-width: 550px;
+            border-collapse: collapse;
+            }
+
+            .payment-table th,
+            .payment-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+            font-size: clamp(13px, 3.8vw, 14px);
+            }
+
+            .payment-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            }
+
+            .payment-table td {
+            color: #1a202c;
+            }
+
+            .status-paid {
+            color: #28a745;
+            font-weight: 600;
+            }
+
+            .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            }
+
+            .action-btn {
+            width: 100%;
+            padding: 14px;
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            border-radius: 8px;
+            font-size: clamp(14px, 4vw, 15px);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            }
+
+            .action-btn:hover {
+            background: #667eea;
+            color: white;
+            }
+
+            .alert-box {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: start;
+            }
+
+            .alert-box svg {
+            color: #721c24;
             flex-shrink: 0;
+            margin-top: 2px;
+            }
+
+            .alert-content {
+            flex: 1;
+            }
+
+            .alert-title {
+            font-size: clamp(14px, 4vw, 15px);
+            font-weight: 600;
+            color: #721c24;
+            margin-bottom: 4px;
+            }
+
+            .alert-text {
+            font-size: clamp(13px, 3.8vw, 14px);
+            color: #721c24;
+            line-height: 1.5;
             }
 
             @media (min-width: 768px) {
-            .tenant-container {
+            .tenant-view-container {
                 padding: 24px;
             }
 
-            .tenant-layout {
+            .content-wrapper {
                 grid-template-columns: 60% 40%;
                 gap: 24px;
             }
 
-            .amenities-list {
-                grid-template-columns: repeat(2, 1fr);
+            .main-content,
+            .sidebar {
+                gap: 20px;
             }
 
-            .btn-download {
+            .info-card {
+                margin-bottom: 0;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .download-btn {
                 width: auto;
-                align-self: flex-start;
+                padding: 12px 24px;
+            }
+
+            .quick-actions {
+                flex-direction: row;
+            }
+
+            .action-btn {
+                width: auto;
+                flex: 1;
             }
             }
 
             @media (min-width: 1024px) {
-            .tenant-container {
-                max-width: 1400px;
-                margin: 0 auto;
+            .tenant-view-container {
                 padding: 32px;
             }
 
-            .tenant-layout {
+            .content-wrapper {
                 grid-template-columns: 70% 30%;
                 gap: 32px;
             }
@@ -456,185 +479,191 @@
             .sidebar {
                 position: sticky;
                 top: 20px;
-                align-self: flex-start;
+                align-self: start;
             }
 
-            .card, .accordion-card {
-                transition: box-shadow 0.2s;
+            .accordion-header h2 {
+                font-size: 22px;
             }
 
-            .card:hover, .accordion-card:hover {
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            .quick-actions {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
             }
             }
 
             @media (max-width: 374px) {
-            .tenant-container {
+            .avatar {
+                width: 100px;
+                height: 100px;
+            }
+            }
+
+            @media (orientation: landscape) and (max-height: 500px) {
+            .tenant-view-container {
                 padding: 12px;
             }
 
-            .info-value {
-                max-width: 55%;
-                font-size: 13px;
-            }
-            }
-
-            @media (orientation: landscape) and (max-height: 450px) {
-            .tenant-container {
-                padding: 12px;
-            }
-
-            .tenant-header h1 {
-                font-size: 20px;
-            }
-
-            .accordion-content.open {
-                max-height: 1500px;
+            .info-card {
+                margin-bottom: 12px;
             }
             }
         `}</style>
 
-        <div className="tenant-header">
-            <h1>Tenant Information</h1>
-            <div className="tenant-id">ID: {tenantData.profile.tenantId}</div>
-        </div>
-
-        <div className="tenant-layout">
+        <div className="content-wrapper">
             <div className="main-content">
-            <Accordion title="Profile Information" icon={<User size={20} />} defaultOpen={true}>
-                <div className="info-row">
-                <span className="info-label">Full Name</span>
-                <span className="info-value">{tenantData.profile.name}</span>
+            <InfoCard title="Tenant Profile" section="profile">
+                <div className="card-content">
+                <div className="profile-header">
+                    <img src={tenantData.photo} alt={tenantData.name} className="avatar" />
+                    <div className="profile-info">
+                    <h3>{tenantData.name}</h3>
+                    <span className="status-badge">Active Tenant</span>
+                    </div>
                 </div>
                 <div className="info-row">
-                <span className="info-label">Email</span>
-                <span className="info-value">{tenantData.profile.email}</span>
+                    <Mail size={20} />
+                    <span className="info-value">{tenantData.email}</span>
                 </div>
                 <div className="info-row">
-                <span className="info-label">Phone</span>
-                <span className="info-value">{tenantData.profile.phone}</span>
+                    <Phone size={20} />
+                    <span className="info-value">{tenantData.phone}</span>
                 </div>
                 <div className="info-row">
-                <span className="info-label">Move-in Date</span>
-                <span className="info-value">{new Date(tenantData.profile.moveInDate).toLocaleDateString()}</span>
+                    <Calendar size={20} />
+                    <span className="info-label">Move-in:</span>
+                    <span className="info-value">{tenantData.moveInDate}</span>
                 </div>
-            </Accordion>
+                <div className="info-row">
+                    <Calendar size={20} />
+                    <span className="info-label">Lease End:</span>
+                    <span className="info-value">{tenantData.leaseEnd}</span>
+                </div>
+                </div>
+            </InfoCard>
 
-            <Accordion title="Contract Details" icon={<FileText size={20} />}>
-                <div className="info-row">
-                <span className="info-label">Start Date</span>
-                <span className="info-value">{new Date(tenantData.contract.startDate).toLocaleDateString()}</span>
+            <InfoCard title="Contract Details" section="contract">
+                <div className="card-content">
+                <div className="grid-2">
+                    <div className="grid-item">
+                    <div className="grid-item-label">Contract Number</div>
+                    <div className="grid-item-value">{contractData.contractNumber}</div>
+                    </div>
+                    <div className="grid-item">
+                    <div className="grid-item-label">Status</div>
+                    <div className="grid-item-value">{contractData.status}</div>
+                    </div>
+                    <div className="grid-item">
+                    <div className="grid-item-label">Monthly Rent</div>
+                    <div className="grid-item-value">{contractData.rent}</div>
+                    </div>
+                    <div className="grid-item">
+                    <div className="grid-item-label">WiFi Fee</div>
+                    <div className="grid-item-value">{contractData.wifi}</div>
+                    <div style={{ fontSize: 'clamp(11px, 3vw, 12px)', color: '#6c757d', marginTop: '4px' }}>
+                        {contractData.wifiNote}
+                    </div>
+                    </div>
+                    <div className="grid-item">
+                    <div className="grid-item-label">Security Deposit</div>
+                    <div className="grid-item-value">{contractData.deposit}</div>
+                    </div>
+                    <div className="grid-item">
+                    <div className="grid-item-label">Lease Term</div>
+                    <div className="grid-item-value">{contractData.term}</div>
+                    </div>
                 </div>
-                <div className="info-row">
-                <span className="info-label">End Date</span>
-                <span className="info-value">{new Date(tenantData.contract.endDate).toLocaleDateString()}</span>
-                </div>
-                <div className="info-row">
-                <span className="info-label">Monthly Rent</span>
-                <span className="info-value">${tenantData.contract.monthlyRent.toLocaleString()}</span>
-                </div>
-                <div className="info-row">
-                <span className="info-label">Security Deposit</span>
-                <span className="info-value">${tenantData.contract.securityDeposit.toLocaleString()}</span>
-                </div>
-                <button className="btn-download" onClick={handleDownload}>
-                <Download size={18} />
-                Download Contract
-                </button>
-            </Accordion>
 
-            <Accordion title="Room Details" icon={<Home size={20} />}>
-                <div className="info-row">
-                <span className="info-label">Room Number</span>
-                <span className="info-value">{tenantData.room.number}</span>
                 </div>
-                <div className="info-row">
-                <span className="info-label">Building</span>
-                <span className="info-value">{tenantData.room.building}</span>
-                </div>
-                <div className="info-row">
-                <span className="info-label">Floor</span>
-                <span className="info-value">{tenantData.room.floor}</span>
-                </div>
-                <div className="info-row">
-                <span className="info-label">Size</span>
-                <span className="info-value">{tenantData.room.size}</span>
-                </div>
-                <div style={{ marginTop: '16px' }}>
-                <span className="info-label" style={{ display: 'block', marginBottom: '8px' }}>Amenities</span>
-                <div className="amenities-list">
-                    {tenantData.room.amenities.map((amenity, idx) => (
-                    <div key={idx} className="amenity-item">{amenity}</div>
-                    ))}
-                </div>
-                </div>
-            </Accordion>
+            </InfoCard>
 
-            <Accordion title="Emergency Contacts" icon={<Phone size={20} />}>
-                {tenantData.emergencyContacts.map((contact, idx) => (
-                <div key={idx} className="contact-card">
-                    <div className="contact-name">{contact.name}</div>
-                    <div className="contact-detail">{contact.relationship}</div>
-                    <div className="contact-detail">{contact.phone}</div>
+            <InfoCard title="Room Details" section="room">
+                <div className="card-content">
+                <div className="info-row">
+                    <MapPin size={20} />
+                    <div>
+                    <div className="info-value" style={{ fontWeight: 600 }}>
+                        {roomData.unit}
+                    </div>
+                    <div className="info-value" style={{ fontSize: 'clamp(13px, 3.8vw, 14px)', color: '#6c757d' }}>
+                        {roomData.address}
+                    </div>
+                    <div className="info-value" style={{ fontSize: 'clamp(13px, 3.8vw, 14px)', color: '#6c757d' }}>
+                        {roomData.city}
+                    </div>
+                    </div>
                 </div>
-                ))}
-            </Accordion>
-            </div>
+                <div className="grid-2" style={{ marginTop: '16px' }}>
+                    <div className="grid-item">
+                    <div className="grid-item-label">Size</div>
+                    <div className="grid-item-value">{roomData.sqft}</div>
+                    </div>
+                    <div className="grid-item">
+                    <div className="grid-item-label">Bedrooms</div>
+                    <div className="grid-item-value">{roomData.bedrooms}</div>
+                    </div>
+                    <div className="grid-item">
+                    <div className="grid-item-label">Bathrooms</div>
+                    <div className="grid-item-value">{roomData.bathrooms}</div>
+                    </div>
+                </div>
+                </div>
+            </InfoCard>
 
-            <div className="sidebar">
-            <div className="card">
-                <div className="card-header">
-                <DollarSign size={20} />
-                <h2>Recent Payments</h2>
-                </div>
-                <div className="payment-table-container">
-                <table className="payment-table">
+            <InfoCard title="Payment History" section="payment">
+                <div className="card-content">
+                <div className="table-container">
+                    <table className="payment-table">
                     <thead>
-                    <tr>
+                        <tr>
                         <th>Date</th>
                         <th>Amount</th>
                         <th>Status</th>
-                    </tr>
+                        <th>Method</th>
+                        <th>Type</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {tenantData.payments.map((payment, idx) => (
+                        {paymentHistory.map((payment, idx) => (
                         <tr key={idx}>
-                        <td>{new Date(payment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</td>
-                        <td>${payment.amount.toLocaleString()}</td>
-                        <td>
-                            <span className={`status-badge status-${payment.status}`}>
-                            {payment.status}
-                            </span>
-                        </td>
+                            <td>{payment.date}</td>
+                            <td>{payment.amount}</td>
+                            <td className="status-paid">{payment.status}</td>
+                            <td>{payment.method}</td>
+                            <td>{payment.type || 'Rent'}</td>
                         </tr>
-                    ))}
+                        ))}
                     </tbody>
-                </table>
+                    </table>
                 </div>
+                </div>
+            </InfoCard>
             </div>
 
-            <div className="card">
-                <div className="card-header">
-                <Calendar size={20} />
-                <h2>Quick Actions</h2>
+            <div className="sidebar">
+            <InfoCard title="Emergency Contacts" section="emergency">
+                <div className="card-content">
+                {emergencyContacts.map((contact, idx) => (
+                    <div key={idx} className="emergency-contact">
+                    <div className="emergency-name">{contact.name}</div>
+                    <div className="emergency-relation">{contact.relation}</div>
+                    <div className="emergency-phone">
+                        <Phone size={16} />
+                        {contact.phone}
+                    </div>
+                    </div>
+                ))}
                 </div>
-                <div className="quick-action" onClick={() => alert('Request maintenance')}>
-                <span className="quick-action-text">Request Maintenance</span>
-                <ChevronDown size={18} className="quick-action-icon" style={{ transform: 'rotate(-90deg)' }} />
-                </div>
-                <div className="quick-action" onClick={() => alert('Pay rent')}>
-                <span className="quick-action-text">Pay Rent</span>
-                <ChevronDown size={18} className="quick-action-icon" style={{ transform: 'rotate(-90deg)' }} />
-                </div>
-                <div className="quick-action" onClick={() => alert('Contact landlord')}>
-                <span className="quick-action-text">Contact Landlord</span>
-                <ChevronDown size={18} className="quick-action-icon" style={{ transform: 'rotate(-90deg)' }} />
-                </div>
-            </div>
+            </InfoCard>
+
+
             </div>
         </div>
         </div>
     );
     };
 
-    export default TenantInfoView;
+    export default TenantInformationView;

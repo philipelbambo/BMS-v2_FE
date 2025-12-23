@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import TenantSidebar from '../components/navigation/TenantSidebar';
-import Header from '../components/navigation/Header';
+import TenantSidebar from '../components/NavigationMenu/TenantSidebar';
+import Header from '../components/NavigationMenu/Header';
 import { useTheme } from '../contexts/ThemeContext';
 
 const TenantLayout: React.FC = () => {

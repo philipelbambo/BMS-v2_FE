@@ -8,18 +8,18 @@ import MainLayout from "./layouts/MainLayout";
 import TenantLayout from "./layouts/TenantLayout";
 
 import LandingPage from "./pages/LandingPage";
-import LoginAdmin from "./pages/LoginAdmin";
+import LoginAdmin from "./pages/auth/LoginAdmin";
 import LoginTenant from "./pages/auth/LoginTenant";
 import Register from "./pages/auth/Register";
 
-import Dashboard from "./pages/Dashboard";
-import RoomManagement from "./pages/RoomManagement";
-import Tenant from "./pages/Tenant";
-import BookingRequestsAdmin from "./pages/BookingRequest";
-import PaymentBill from "./pages/PaymentBill";
-import Reports from "./pages/Reports";
-import Settings from "./pages/Settings";
-import AdminNotifications from "./pages/NotificationsCenter";
+import Dashboard from "./pages/Admin/Dashboard";
+import RoomManagement from "./pages/Admin/RoomManagement";
+import Tenant from "./pages/Admin/Tenant";
+import BookingRequestsAdmin from "./pages/Admin/BookingRequest";
+import PaymentBill from "./pages/Admin/PaymentBill";
+import Reports from "./pages/Admin/Reports";
+import Settings from "./pages/Admin/Settings";
+import AdminNotifications from "./pages/Admin/NotificationsCenter";
 
 // TENANT PAGES - Corrected imports based on your folder structure
 import TenantDashboard from "./pages/Tenant/TenantDashboard";
