@@ -249,40 +249,6 @@ const BoardinghouseLanding: React.FC = () => {
       alert(`Proceeding to reservation for ${room.title}`);
     }
   };
-
-  const features: Feature[] = [
-    {
-      icon: <Clock className="w-8 h-8" />,
-      title: "Real-Time Availability",
-      description: "View up-to-the-minute room availability and make instant booking decisions with live updates."
-    },
-    {
-      icon: <Calendar className="w-8 h-8" />,
-      title: "Online Booking",
-      description: "Book your preferred room anytime, anywhere with our intuitive online booking system."
-    },
-    {
-      icon: <Lock className="w-8 h-8" />,
-      title: "Secure Login",
-      description: "Your data is protected with industry-standard encryption and secure authentication."
-    },
-    {
-      icon: <Bell className="w-8 h-8" />,
-      title: "Instant Notifications",
-      description: "Receive real-time updates about your bookings, payments, and important announcements."
-    },
-    {
-      icon: <Users className="w-8 h-8" />,
-      title: "User Management",
-      description: "Easily manage your profile, booking history, and preferences in one centralized dashboard."
-    },
-    {
-      icon: <Shield className="w-8 h-8" />,
-      title: "Payment Security",
-      description: "Process payments safely with our secure payment gateway and transaction tracking."
-    }
-  ];
-
   const benefits: Benefit[] = [
     {
       icon: <CheckCircle className="w-6 h-6" />,
@@ -693,44 +659,6 @@ const BoardinghouseLanding: React.FC = () => {
           )}
         </div>
       </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-32 px-4 sm:px-10 lg:px-16 bg-gray-50/50">
-        <div className="max-w-[1800px] mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-5xl sm:text-7xl font-black text-gray-900 mb-8 tracking-tight">
-              Powerful <span className="text-[#001F3D]">Features</span>
-            </h2>
-            <p className="text-2xl text-gray-500 max-w-4xl mx-auto leading-relaxed">
-              Everything you need to manage and book boardinghouse accommodations efficiently.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 xl:gap-12">
-            {features.map((feature, index) => (
-              <div 
-                key={index}
-                className="bg-white p-12 rounded-lg border border-gray-100 shadow-xl shadow-gray-200/60 hover:shadow-2xl hover:shadow-[#001F3D]/10 transition-all duration-500 group flex flex-col items-start hover:-translate-y-2"
-              >
-                <div className="bg-white p-6 rounded-3xl text-[#001F3D] mb-8 group-hover:bg-[#001F3D] group-hover:text-white transition-all duration-500 shadow-md border border-gray-50">
-                  <div className="w-10 h-10 flex items-center justify-center">
-                    {React.cloneElement(feature.icon as React.ReactElement, { size: 40 })}
-                  </div>
-                </div>
-                <h3 className="text-3xl font-black text-gray-900 mb-5 group-hover:text-[#001F3D] transition-colors">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-500 text-lg leading-relaxed mb-6">
-                  {feature.description}
-                </p>
-                <div className="mt-auto pt-4 text-[#001F3D] font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
-                  Explore Details <span>→</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Benefits Section */}
       <section id="benefits" className="py-24 px-6 sm:px-10 bg-gray-50">
         <div className="text-center mb-16">

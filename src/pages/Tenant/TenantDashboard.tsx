@@ -155,7 +155,7 @@ const TenantDashboard: React.FC = () => {
 
         .dashboard-container {
           min-height: 100vh;
-          background-color: #f9fafb;
+          background-color: #ffffff;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
           color: var(--text-primary);
         }
