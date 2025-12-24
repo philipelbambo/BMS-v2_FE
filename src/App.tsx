@@ -4,14 +4,18 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { ThemeProvider } from "./contexts/ThemeContext";
 
+// LAYOUTS
 import MainLayout from "./layouts/MainLayout";
 import TenantLayout from "./layouts/TenantLayout";
 
+// PUBLIC PAGES
 import LandingPage from "./pages/LandingPage";
+import TenantLandingpage from "./pages/Tenant/TenantLandingpage";
 import LoginAdmin from "./pages/auth/LoginAdmin";
 import LoginTenant from "./pages/auth/LoginTenant";
 import Register from "./pages/auth/Register";
 
+// ADMIN PAGES
 import Dashboard from "./pages/Admin/Dashboard";
 import RoomManagement from "./pages/Admin/RoomManagement";
 import Tenant from "./pages/Admin/Tenant";
@@ -21,17 +25,19 @@ import Reports from "./pages/Admin/Reports";
 import Settings from "./pages/Admin/Settings";
 import AdminNotifications from "./pages/Admin/NotificationsCenter";
 
-// TENANT PAGES - Corrected imports based on your folder structure
+// TENANT PAGES
 import TenantDashboard from "./pages/Tenant/TenantDashboard";
 import TenantView from "./pages/Tenant/TenantView";
 import TenantRequest from "./pages/Tenant/TenantRequest";
 import TenantPay from "./pages/Tenant/TenantPay";
 import TenantStatus from "./pages/Tenant/TenantStatus";
 
-import NotFound from "./pages/NotFound";
-
+// ROUTE GUARDS
 import ProtectedRoute from "./pages/ProtectedRoute";
 import TenantProtectedRoute from "./pages/TenantProtectedRoute";
+
+// OTHERS
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -40,13 +46,14 @@ function App() {
         <ToastContainer />
 
         <Routes>
-          {/* PUBLIC */}
+          {/* ================= PUBLIC ================= */}
           <Route path="/" element={<LandingPage />} />
+          <Route path="/tenant-landingpage" element={<TenantLandingpage />} />
           <Route path="/login-admin" element={<LoginAdmin />} />
           <Route path="/login-tenant" element={<LoginTenant />} />
           <Route path="/register" element={<Register />} />
 
-          {/* ADMIN */}
+          {/* ================= ADMIN ================= */}
           <Route
             element={
               <ProtectedRoute>
@@ -57,14 +64,20 @@ function App() {
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/rooms" element={<RoomManagement />} />
             <Route path="/admin/tenant" element={<Tenant />} />
-            <Route path="/admin/booking-requests" element={<BookingRequestsAdmin />} />
+            <Route
+              path="/admin/booking-requests"
+              element={<BookingRequestsAdmin />}
+            />
             <Route path="/admin/payment-bill" element={<PaymentBill />} />
             <Route path="/admin/reports" element={<Reports />} />
             <Route path="/admin/settings" element={<Settings />} />
-            <Route path="/admin/notifications" element={<AdminNotifications />} />
+            <Route
+              path="/admin/notifications"
+              element={<AdminNotifications />}
+            />
           </Route>
 
-          {/* TENANT */}
+          {/* ================= TENANT ================= */}
           <Route
             element={
               <TenantProtectedRoute>
@@ -79,7 +92,7 @@ function App() {
             <Route path="/tenant/status" element={<TenantStatus />} />
           </Route>
 
-          {/* 404 */}
+          {/* ================= 404 ================= */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

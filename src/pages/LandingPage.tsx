@@ -3,6 +3,7 @@ import {
   Home, Calendar, Shield, Bell, Clock, Lock, Users, CheckCircle, 
   Menu, X, MapPin, Phone, Mail, ChevronLeft, ChevronRight 
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // ✅ Added for SPA navigation
 
 // ====== TypeScript Interfaces ======
 interface Room {
@@ -18,12 +19,6 @@ interface Room {
   description: string;
 }
 
-interface Feature {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}
-
 interface Benefit {
   icon: React.ReactNode;
   title: string;
@@ -31,12 +26,11 @@ interface Benefit {
 }
 
 const BoardinghouseLanding: React.FC = () => {
+  const navigate = useNavigate(); // ✅ Initialize navigate
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [carouselRotation, setCarouselRotation] = useState(0);
-  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [selectedRoomImage, setSelectedRoomImage] = useState(0);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   const boardinghouseImages: string[] = [
@@ -52,7 +46,7 @@ const BoardinghouseLanding: React.FC = () => {
     {
       id: 1,
       title: 'Room 1',
-      type: 'Double',
+      type: 'Single',
       price: '₱3,500',
       pricePerMonth: '₱3,500/month',
       images: [
@@ -84,7 +78,7 @@ const BoardinghouseLanding: React.FC = () => {
     {
       id: 3,
       title: 'Room 3',
-      type: 'Double',
+      type: 'Single',
       price: '₱2,800',
       pricePerMonth: '₱2,800/month',
       images: [
@@ -100,7 +94,7 @@ const BoardinghouseLanding: React.FC = () => {
     {
       id: 4,
       title: 'Room 4',
-      type: 'Double',
+      type: 'Single',
       price: '₱3,200',
       pricePerMonth: '₱3,200/month',
       images: [
@@ -132,7 +126,7 @@ const BoardinghouseLanding: React.FC = () => {
     {
       id: 6,
       title: 'Room 6',
-      type: 'Double',
+      type: 'Single',
       price: '₱3,800',
       pricePerMonth: '₱3,800/month',
       images: [
@@ -148,7 +142,7 @@ const BoardinghouseLanding: React.FC = () => {
     {
       id: 7,
       title: 'Room 7',
-      type: 'Double',
+      type: 'Single',
       price: '₱2,600',
       pricePerMonth: '₱2,600/month',
       images: [
@@ -180,7 +174,7 @@ const BoardinghouseLanding: React.FC = () => {
     {
       id: 9,
       title: 'Room 9',
-      type: 'Double',
+      type: 'Single',
       price: '₱3,300',
       pricePerMonth: '₱3,300/month',
       images: [
@@ -196,7 +190,7 @@ const BoardinghouseLanding: React.FC = () => {
     {
       id: 10,
       title: 'Room 10',
-      type: 'Double',
+      type: 'Single',
       price: '₱2,900',
       pricePerMonth: '₱2,900/month',
       images: [
@@ -241,14 +235,11 @@ const BoardinghouseLanding: React.FC = () => {
     setCurrentSlide((prev) => (prev - 1 + roomsData.length) % roomsData.length);
   };
 
-  const handleReserveClick = (room: Room) => {
-    if (!isLoggedIn) {
-      setShowLoginPrompt(true);
-      setTimeout(() => setShowLoginPrompt(false), 4000);
-    } else {
-      alert(`Proceeding to reservation for ${room.title}`);
-    }
+  // ✅ Updated: Navigate to /tenant-landingpage (no ID)
+  const handleRoomClick = () => {
+    navigate('/tenant-landingpage');
   };
+
   const benefits: Benefit[] = [
     {
       icon: <CheckCircle className="w-6 h-6" />,
@@ -300,7 +291,7 @@ const BoardinghouseLanding: React.FC = () => {
                   Login
                 </a>
                 <a 
-                  href="register" 
+                  href="/register" 
                   className="px-7 py-2.5 bg-[#001F3D] text-white rounded-lg hover:bg-[#003566] transition-all font-bold shadow-lg shadow-[#001F3D]/20 text-center"
                 >
                   Register
@@ -325,14 +316,14 @@ const BoardinghouseLanding: React.FC = () => {
               <a href="#rooms" className="block text-xl font-bold text-gray-900" onClick={() => setMobileMenuOpen(false)}>Rooms</a>
               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
                 <a 
-                  href="login-tenant" 
+                  href="/login-tenant" 
                   className="w-full px-6 py-4 text-[#001F3D] border-2 border-[#001F3D] rounded font-bold text-center"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Login
                 </a>
                 <a 
-                  href="register" 
+                  href="/register" 
                   className="w-full px-6 py-4 bg-[#001F3D] text-white rounded font-bold shadow-lg text-center"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -363,7 +354,7 @@ const BoardinghouseLanding: React.FC = () => {
               </div>
               <div>
                 <a 
-                  href="register" 
+                  href="/register" 
                   className="inline-block px-10 py-4 bg-[#001F3D] text-white rounded-lg hover:bg-[#0d0d20] transition-all font-bold shadow-xl text-lg"
                 >
                   Get Started
@@ -371,15 +362,15 @@ const BoardinghouseLanding: React.FC = () => {
               </div>
               <div className="grid grid-cols-3 gap-8 pt-8 text-[#001F3D]">
                 <div>
-                  <div className="text-4xl sm:text-5xl font-black mb-2">1200 +</div>
+                  <div className="text-4xl sm:text-5xl font-black mb-2">1200+</div>
                   <div className="font-medium">Listed Properties</div>
                 </div>
                 <div>
-                  <div className="text-4xl sm:text-5xl font-black mb-2">4500 +</div>
+                  <div className="text-4xl sm:text-5xl font-black mb-2">4500+</div>
                   <div className="font-medium">Happy Customers</div>
                 </div>
                 <div>
-                  <div className="text-4xl sm:text-5xl font-black mb-2">100 +</div>
+                  <div className="text-4xl sm:text-5xl font-black mb-2">100+</div>
                   <div className="font-medium">Awards</div>
                 </div>
               </div>
@@ -439,17 +430,16 @@ const BoardinghouseLanding: React.FC = () => {
 
           <div className="relative">
             <div className="relative h-[700px] mb-8 rounded overflow-hidden shadow-2xl bg-white">
-              <div className="relative h-[500px] overflow-hidden">
+              <div 
+                className="relative h-[500px] overflow-hidden cursor-pointer" 
+                onClick={handleRoomClick} // ✅ No roomId
+              >
                 <img
                   src={roomsData[currentSlide].images[0]}
                   alt={roomsData[currentSlide].title}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute top-4 right-4 bg-white px-4 py-2 rounded-lg shadow-lg">
-                  <span className={`text-sm font-bold ${roomsData[currentSlide].availability === 'Available' ? 'text-green-600' : 'text-orange-600'}`}>
-                    {roomsData[currentSlide].availability}
-                  </span>
-                </div>
+                {/* Only Room Type — no availability badge */}
                 <div className="absolute top-4 left-4 bg-[#001F3D] text-white px-4 py-2 rounded-lg shadow-lg">
                   <span className="text-sm font-bold">{roomsData[currentSlide].type}</span>
                 </div>
@@ -479,10 +469,7 @@ const BoardinghouseLanding: React.FC = () => {
                     )}
                   </div>
                   <button 
-                    onClick={() => {
-                      setSelectedRoom(roomsData[currentSlide]);
-                      setSelectedRoomImage(0);
-                    }}
+                    onClick={handleRoomClick} // ✅ No roomId
                     className="bg-[#001F3D] text-white px-8 py-3 rounded-lg hover:bg-[#003566] transition-all font-bold shadow-lg whitespace-nowrap ml-4"
                   >
                     View Details
@@ -507,7 +494,10 @@ const BoardinghouseLanding: React.FC = () => {
               {roomsData.map((room, index) => (
                 <div
                   key={index}
-                  onClick={() => setCurrentSlide(index)}
+                  onClick={() => {
+                    setCurrentSlide(index);
+                    handleRoomClick(); // ✅ No roomId
+                  }}
                   className={`flex-shrink-0 w-56 rounded overflow-hidden cursor-pointer transition-all duration-300 ${
                     currentSlide === index ? 'ring-4 ring-[#001F3D] scale-105 shadow-lg' : 'opacity-60 hover:opacity-100'
                   }`}
@@ -534,131 +524,9 @@ const BoardinghouseLanding: React.FC = () => {
               </div>
             </div>
           </div>
-
-          {/* ✅ FIXED MODAL: z-[200] ensures it appears above header (z-[100]) */}
-          {selectedRoom && (
-            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex items-center justify-center p-4" onClick={() => setSelectedRoom(null)}>
-              <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative" onClick={(e) => e.stopPropagation()}>
-                <button
-                  onClick={() => setSelectedRoom(null)}
-                  className="absolute top-6 right-6 bg-white p-3 rounded-full shadow-lg hover:bg-gray-100 transition-all z-10"
-                >
-                  <X className="w-6 h-6 text-gray-900" />
-                </button>
-                <div className="pt-16"></div>
-                <div className="relative h-96 bg-gray-900">
-                  <img
-                    src={selectedRoom.images[selectedRoomImage]}
-                    alt={selectedRoom.title}
-                    className="w-full h-full object-cover"
-                  />
-                  {selectedRoom.images.length > 1 && (
-                    <>
-                      <button
-                        onClick={() => setSelectedRoomImage((prev) => (prev - 1 + selectedRoom.images.length) % selectedRoom.images.length)}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 p-3 rounded-full shadow-lg hover:bg-white transition-all"
-                      >
-                        <ChevronLeft className="w-6 h-6 text-gray-900" />
-                      </button>
-                      <button
-                        onClick={() => setSelectedRoomImage((prev) => (prev + 1) % selectedRoom.images.length)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 p-3 rounded-full shadow-lg hover:bg-white transition-all"
-                      >
-                        <ChevronRight className="w-6 h-6 text-gray-900" />
-                      </button>
-                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                        {selectedRoom.images.map((_, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => setSelectedRoomImage(idx)}
-                            className={`w-3 h-3 rounded-full transition-all ${selectedRoomImage === idx ? 'bg-white w-8' : 'bg-white/50'}`}
-                          />
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-                <div className="p-8">
-                  <div className="flex items-start justify-between mb-6 flex-wrap gap-4">
-                    <div>
-                      <div className="flex items-center gap-3 mb-2 flex-wrap">
-                        <h2 className="text-4xl font-black text-gray-900">{selectedRoom.title}</h2>
-                        <span className={`px-4 py-1 rounded-full text-sm font-bold ${selectedRoom.availability === 'Available' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
-                          {selectedRoom.availability}
-                        </span>
-                      </div>
-                      <p className="text-gray-600 text-lg">{selectedRoom.description}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-5xl font-black text-[#001F3D] mb-1">{selectedRoom.price}</p>
-                      <p className="text-gray-500">{selectedRoom.pricePerMonth}</p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-6 mb-8 p-6 bg-gray-50 rounded">
-                    <div>
-                      <p className="text-sm text-gray-500 mb-1">Room Type</p>
-                      <p className="text-lg font-bold text-gray-900">{selectedRoom.type}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500 mb-1">Room Size</p>
-                      <p className="text-lg font-bold text-gray-900">{selectedRoom.size}</p>
-                    </div>
-                  </div>
-                  <div className="mb-8">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4">Amenities</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {selectedRoom.amenities.map((amenity, idx) => (
-                        <div key={idx} className="flex items-center gap-2 bg-gray-50 px-4 py-3 rounded-lg">
-                          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                          <span className="text-gray-900 font-medium">{amenity}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="border-t border-gray-200 pt-8">
-                    {!isLoggedIn ? (
-                      <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded p-8 text-center">
-                        <Lock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                        <h4 className="text-2xl font-bold text-gray-900 mb-2">Login Required</h4>
-                        <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                          You need to be logged in to make a reservation. Please login or create an account to continue.
-                        </p>
-                        <div className="flex gap-4 justify-center flex-wrap">
-                          <a
-                            href="login-admin"
-                            className="px-8 py-3 bg-white border-2 border-[#001F3D] text-[#001F3D] rounded-lg hover:bg-gray-50 transition-all font-bold"
-                          >
-                            Login
-                          </a>
-                          <a
-                            href="register"
-                            className="px-8 py-3 bg-[#001F3D] text-white rounded-lg hover:bg-[#003566] transition-all font-bold shadow-lg"
-                          >
-                            Register Now
-                          </a>
-                        </div>
-                      </div>
-                    ) : (
-                      <div>
-                        <h4 className="text-2xl font-bold text-gray-900 mb-4">Ready to Reserve?</h4>
-                        <p className="text-gray-600 mb-6">
-                          Click the button below to proceed with your reservation for {selectedRoom.title}.
-                        </p>
-                        <button
-                          onClick={() => handleReserveClick(selectedRoom)}
-                          className="w-full bg-[#001F3D] text-white px-8 py-4 rounded-lg hover:bg-[#003566] transition-all font-bold text-lg shadow-xl"
-                        >
-                          Reserve This Room
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </section>
+
       {/* Benefits Section */}
       <section id="benefits" className="py-24 px-6 sm:px-10 bg-gray-50">
         <div className="text-center mb-16">
@@ -720,7 +588,7 @@ const BoardinghouseLanding: React.FC = () => {
             Ready to Get <span className="text-[#001F3D]">Started?</span>
           </h2>
           <a 
-            href="register" 
+            href="/register" 
             className="inline-block px-12 py-5 bg-[#001F3D] text-white rounded-lg hover:bg-[#003566] transition-all font-bold shadow-xl text-xl"
           >
             Join BoardingHub Today
@@ -757,7 +625,7 @@ const BoardinghouseLanding: React.FC = () => {
               <ul className="space-y-4 text-gray-400">
                 <li className="flex items-start space-x-3">
                   <Mail className="w-6 h-6 text-white shrink-0" />
-                  <span className="break-all">Tatay|Boardinghouse@gmail.com</span>
+                  <span>Tatay|Boardinghouse@gmail.com</span>
                 </li>
                 <li className="flex items-start space-x-3">
                   <Phone className="w-6 h-6 text-white shrink-0" />
@@ -797,7 +665,7 @@ const BoardinghouseLanding: React.FC = () => {
             </div>
           </div>
           <div className="border-t border-gray-900 pt-10 flex flex-col md:flex-row justify-between items-center gap-4 text-gray-500 text-sm font-medium">
-            <p>&copy; 2025 BoardingHub. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} BoardingHub. All rights reserved.</p>
             <div className="flex space-x-8">
               <a href="#" className="hover:text-white transition-colors">Facebook</a>
               <a href="#" className="hover:text-white transition-colors">Instagram</a>
