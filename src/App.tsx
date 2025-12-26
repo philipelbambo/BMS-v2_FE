@@ -13,7 +13,10 @@ import LandingPage from "./pages/LandingPage";
 import TenantLandingpage from "./pages/Tenant/TenantLandingpage";
 import LoginAdmin from "./pages/auth/LoginAdmin";
 import LoginTenant from "./pages/auth/LoginTenant";
+import ForgotPasswordPage from "./pages/auth/ForgotPassword";
 import Register from "./pages/auth/Register";
+import TenantForm from "./pages/Tenant/TenantApplication";
+
 
 // ADMIN PAGES
 import Dashboard from "./pages/Admin/Dashboard";
@@ -51,7 +54,9 @@ function App() {
           <Route path="/tenant-landingpage" element={<TenantLandingpage />} />
           <Route path="/login-admin" element={<LoginAdmin />} />
           <Route path="/login-tenant" element={<LoginTenant />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/Tenant-application" element={<TenantForm />} />
 
           {/* ================= ADMIN ================= */}
           <Route

@@ -27,7 +27,7 @@
         localStorage.removeItem("authToken");
         localStorage.removeItem("role");
         setIsLoggingOut(false);
-        navigate("/login-admin");
+        navigate("/login-tenant");
         }, 1000);
     };
 

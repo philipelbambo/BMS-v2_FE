@@ -1,5 +1,15 @@
     import React, { useState } from 'react';
-    import { ChevronDown, Download, Mail, Phone, MapPin, Calendar, DollarSign, User, AlertCircle } from 'lucide-react';
+    import {
+    ChevronDown,
+    Download,
+    Mail,
+    Phone,
+    MapPin,
+    Calendar,
+    DollarSign,
+    User,
+    AlertCircle,
+    } from 'lucide-react';
 
     interface TenantInfoProps {
     tenant?: {
@@ -9,6 +19,7 @@
         photo: string;
         moveInDate: string;
         leaseEnd: string;
+        roomImage?: string; // 👈 Image of the rented room/unit
     };
     }
 
@@ -32,6 +43,7 @@
         photo: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="48" fill="none" stroke="%23333" stroke-width="4"/%3E%3Ccircle cx="50" cy="35" r="15" fill="none" stroke="%23333" stroke-width="4"/%3E%3Cpath d="M 20 75 Q 20 55 50 55 Q 80 55 80 75" fill="none" stroke="%23333" stroke-width="4" stroke-linecap="round"/%3E%3C/svg%3E',
         moveInDate: '2024-01-15',
         leaseEnd: '2025-01-14',
+        roomImage: 'https://placehold.co/600x400/cccccc/333333?text=Room+7', // 👈 placeholder room image
     };
 
     const contractData = {
@@ -197,6 +209,17 @@
             border: 4px solid #667eea;
             flex-shrink: 0;
             margin-bottom: 16px;
+            }
+
+            /* 👇 Room Image Styling */
+            .room-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            margin-bottom: 16px;
+            display: block;
             }
 
             .profile-info {
@@ -576,12 +599,20 @@
                     <div className="grid-item-value">{contractData.term}</div>
                     </div>
                 </div>
-
                 </div>
             </InfoCard>
 
             <InfoCard title="Room Details" section="room">
                 <div className="card-content">
+                {/* 👇 RENDER ROOM IMAGE IF AVAILABLE */}
+                {tenantData.roomImage && (
+                    <img
+                    src={tenantData.roomImage}
+                    alt={`Room ${roomData.unit}`}
+                    className="room-image"
+                    />
+                )}
+
                 <div className="info-row">
                     <MapPin size={20} />
                     <div>
@@ -658,8 +689,6 @@
                 ))}
                 </div>
             </InfoCard>
-
-
             </div>
         </div>
         </div>

@@ -102,7 +102,7 @@
 
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-lg bg-white rounded-xl shadow-md p-8 md:p-10 space-y-6 relative">
+        <div className="w-full max-w-lg bg-white rounded shadow-md p-8 md:p-10 space-y-6 relative">
           {/* Back Button - Top Left */}
           <button
             type="button"
@@ -128,13 +128,6 @@
 
           {/* Top accent bar */}
           <div className="h-1.5 bg-[#001F3D] rounded-t-xl -mx-8 -mt-8 mb-5"></div>
-
-          {/* Logo (now centered since back button is separate) */}
-          <div className="flex justify-center items-center space-x-3 pt-2">
-            <div className="w-9 h-9 rounded-full bg-[#001F3D]"></div>
-            <h1 className="text-xl font-bold text-[#001F3D]">BoardingHouse</h1>
-          </div>
-
           <div className="text-center">
             <h2 className="text-2xl md:text-3xl font-semibold text-gray-800">Create Your Account</h2>
             <p className="text-gray-500 mt-2">
@@ -143,7 +136,7 @@
           </div>
 
           {errors.form && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
               {errors.form}
             </div>
           )}
@@ -160,7 +153,7 @@
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:outline-none transition ${
+                className={`w-full px-4 py-3 border rounded focus:ring-2 focus:outline-none transition ${
                   errors.name
                     ? 'border-red-400 focus:ring-red-200'
                     : 'border-gray-300 focus:ring-[#001F3D]/20 focus:border-[#001F3D]'
@@ -181,7 +174,7 @@
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:outline-none transition ${
+                className={`w-full px-4 py-3 border rounded focus:ring-2 focus:outline-none transition ${
                   errors.email
                     ? 'border-red-400 focus:ring-red-200'
                     : 'border-gray-300 focus:ring-[#001F3D]/20 focus:border-[#001F3D]'
@@ -202,7 +195,7 @@
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:outline-none transition ${
+                className={`w-full px-4 py-3 border rounded focus:ring-2 focus:outline-none transition ${
                   errors.password
                     ? 'border-red-400 focus:ring-red-200'
                     : 'border-gray-300 focus:ring-[#001F3D]/20 focus:border-[#001F3D]'
@@ -226,7 +219,7 @@
                 name="password_confirmation"
                 value={formData.password_confirmation}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:outline-none transition ${
+                className={`w-full px-4 py-3 border rounded focus:ring-2 focus:outline-none transition ${
                   errors.password_confirmation
                     ? 'border-red-400 focus:ring-red-200'
                     : 'border-gray-300 focus:ring-[#001F3D]/20 focus:border-[#001F3D]'
@@ -242,7 +235,7 @@
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition ${
+              className={`w-full py-3 px-4 rounded font-semibold text-white transition ${
                 isSubmitting
                   ? 'bg-[#001F3D]/70 cursor-not-allowed'
                   : 'bg-[#001F3D] hover:bg-[#003566] active:bg-[#002a57] shadow-sm'

@@ -52,7 +52,7 @@
             'user',
             JSON.stringify({ id: 1, name: 'Tenant User', email, role: 'tenant' })
         );
-        navigate('/tenant-dashboard', { replace: true });
+        navigate('/tenant/dashboard', { replace: true });
         } else {
         setErrors({ form: 'Invalid email or password.' });
         }
@@ -77,7 +77,7 @@
 
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-lg bg-white rounded-xl shadow-md p-8 md:p-10 space-y-6 relative">
+        <div className="w-full max-w-lg bg-white rounded shadow-md p-8 md:p-10 space-y-6 relative">
             {/* Back Button */}
             <button
             type="button"
@@ -98,13 +98,6 @@
 
             {/* Accent bar */}
             <div className="h-1.5 bg-[#001F3D] rounded-t-xl -mx-8 -mt-8 mb-5"></div>
-
-            {/* Logo */}
-            <div className="flex justify-center items-center space-x-3 pt-2">
-            <div className="w-9 h-9 rounded-full bg-[#001F3D]"></div>
-            <h1 className="text-xl font-bold text-[#001F3D]">BoardingHouse</h1>
-            </div>
-
             <div className="text-center">
             <h2 className="text-2xl md:text-3xl font-semibold text-gray-800">Welcome Back</h2>
             <p className="text-gray-500 mt-2">Sign in to access your dashboard</p>
@@ -112,7 +105,7 @@
 
             {/* Message banner */}
             {errors.form && (
-            <div className="border px-4 py-3 rounded-lg text-sm bg-red-50 border-red-200 text-red-700">
+            <div className="border px-4 py-3 rounded text-sm bg-red-50 border-red-200 text-red-700">
                 {errors.form}
             </div>
             )}
@@ -128,7 +121,7 @@
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:outline-none transition border-gray-300 focus:ring-[#001F3D]/20 focus:border-[#001F3D]`}
+                className={`w-full px-4 py-3 border rounded focus:ring-2 focus:outline-none transition border-gray-300 focus:ring-[#001F3D]/20 focus:border-[#001F3D]`}
                 placeholder="your@email.com"
                 />
             </div>
@@ -144,7 +137,7 @@
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:outline-none transition border-gray-300 focus:ring-[#001F3D]/20 focus:border-[#001F3D]`}
+                className={`w-full px-4 py-3 border rounded focus:ring-2 focus:outline-none transition border-gray-300 focus:ring-[#001F3D]/20 focus:border-[#001F3D]`}
                 placeholder="Enter your password"
                 />
 
@@ -159,7 +152,7 @@
             <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition ${
+                className={`w-full py-3 px-4 rounded font-semibold text-white transition ${
                 isSubmitting
                     ? 'bg-[#001F3D]/70 cursor-not-allowed'
                     : 'bg-[#001F3D] hover:bg-[#003566] active:bg-[#002a57] shadow-sm'
