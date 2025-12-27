@@ -1,5 +1,6 @@
     import React, { useState, useEffect } from 'react';
     import { useNavigate, useLocation } from 'react-router-dom';
+    import axios from 'axios';
 
     interface FormData {
     email: string;
@@ -38,32 +39,46 @@
         }
     };
 
-    // Mock login function for prototype
-    const mockLogin = async (email: string, password: string) => {
+    // Real login function using Axios
+    const handleLogin = async (email: string, password: string) => {
         setIsSubmitting(true);
-
-        // Simulate loading
-        await new Promise((resolve) => setTimeout(resolve, 800));
-
-        // Only check temporary account for prototype
-        if (email === 'tenant@example.com' && password === 'Temporary123') {
-        localStorage.setItem('auth_token', 'mock-token');
-        localStorage.setItem(
-            'user',
-            JSON.stringify({ id: 1, name: 'Tenant User', email, role: 'tenant' })
-        );
-        navigate('/tenant/dashboard', { replace: true });
-        } else {
-        setErrors({ form: 'Invalid email or password.' });
+        setErrors({});
+        
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/login`, {
+                username: email,
+                password,
+            });
+            
+            // Store the token and user data
+            localStorage.setItem('auth_token', response.data.token);
+            localStorage.setItem(
+                'user',
+                JSON.stringify({ 
+                    id: response.data.user.id,
+                    name: response.data.user.name,
+                    email: response.data.user.email,
+                    role: response.data.user.role
+                })
+            );
+            
+            navigate('/tenant/dashboard', { replace: true });
+        } catch (error: any) {
+            if (axios.isAxiosError(error)) {
+                const errorMessage = error.response?.data?.message || 'Invalid email or password.';
+                setErrors({ form: errorMessage });
+            } else {
+                setErrors({ form: 'Network error. Please try again.' });
+            }
+        } finally {
+            setIsSubmitting(false);
         }
-
-        setIsSubmitting(false);
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setErrors({});
-        mockLogin(formData.email, formData.password);
+        handleLogin(formData.email, formData.password);
     };
 
     const handleTempAccount = () => {
@@ -72,7 +87,7 @@
         password: 'Temporary123',
         };
         setFormData(tempData);
-        mockLogin(tempData.email, tempData.password);
+        handleLogin(tempData.email, tempData.password);
     };
 
     return (
@@ -113,7 +128,7 @@
             {/* Email */}
             <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
-                Email Address
+                Email or Username
                 </label>
                 <input
                 type="email"
@@ -122,7 +137,7 @@
                 value={formData.email}
                 onChange={handleChange}
                 className={`w-full px-4 py-3 border rounded focus:ring-2 focus:outline-none transition border-gray-300 focus:ring-[#001F3D]/20 focus:border-[#001F3D]`}
-                placeholder="your@email.com"
+                placeholder="Enter your email or username"
                 />
             </div>
 

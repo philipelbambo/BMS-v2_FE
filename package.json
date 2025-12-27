@@ -1,5 +1,5 @@
 {
-  "name": "Apartment-System",
+  "name": "BMS",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@shadcn/ui": "^0.0.4",
-    "axios": "^1.9.0",
+    "axios": "^1.13.2",
     "chart.js": "^4.4.1",
     "framer-motion": "^11.1.12",
     "lucide-react": "^0.555.0",

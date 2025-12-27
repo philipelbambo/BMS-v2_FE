@@ -1,6 +1,7 @@
     // ForgotPasswordPage.tsx
     import { useState, useRef, useEffect } from 'react';
     import { useNavigate } from 'react-router-dom';
+    import axios from 'axios';
 
     const ForgotPasswordPage = () => {
     const navigate = useNavigate();
@@ -44,13 +45,21 @@
         setIsLoading(true);
         
         try {
-        // Simulate API call (replace with your real API)
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/forgot-password`, {
+            email,
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
         
-        // For demo: assume success
         setSuccess(true);
-        } catch (err) {
-        setError('Failed to send reset link. Please try again.');
+        } catch (err: any) {
+        if (axios.isAxiosError(err)) {
+            setError(err.response?.data?.message || 'Failed to send reset link. Please try again.');
+        } else {
+            setError('Network error. Please try again.');
+        }
         } finally {
         setIsLoading(false);
         }

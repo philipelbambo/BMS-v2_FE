@@ -78,7 +78,7 @@
       }
 
       try {
-        await axios.post('/api/register', formData);
+        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/register`, formData);
         navigate('/', {
           state: { message: 'Registration successful! Please log in.', type: 'success' },
         });

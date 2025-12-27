@@ -124,6 +124,18 @@
             gap: 16px;
             }
 
+            @media (min-width: 768px) {
+            .content-wrapper {
+                grid-template-columns: 65% 35%;
+            }
+            }
+
+            @media (min-width: 1024px) {
+            .content-wrapper {
+                grid-template-columns: 70% 30%;
+            }
+            }
+
             .main-content {
             display: flex;
             flex-direction: column;

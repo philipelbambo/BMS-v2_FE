@@ -146,20 +146,20 @@ const TenantDashboard: React.FC = () => {
           --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
           --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
         }
-
+  
         * {
           box-sizing: border-box;
           margin: 0;
           padding: 0;
         }
-
+  
         .dashboard-container {
           min-height: 100vh;
           background-color: #ffffff;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
           color: var(--text-primary);
         }
-
+  
         .dashboard-header {
           background-color: var(--primary-color);
           color: var(--background-color);
@@ -167,20 +167,20 @@ const TenantDashboard: React.FC = () => {
           box-shadow: var(--shadow-md);
           display: none;
         }
-
+  
         .dashboard-title {
           font-size: clamp(20px, 5vw, 32px);
           font-weight: 700;
           margin-bottom: 4px;
           display: none;
         }
-
+  
         .dashboard-subtitle {
           font-size: clamp(12px, 3vw, 16px);
           opacity: 0.9;
           display: none;
         }
-
+  
         .dashboard-content {
           padding: clamp(16px, 4vw, 24px);
           padding-top: calc(clamp(16px, 4vw, 24px) + env(safe-area-inset-top));
@@ -190,32 +190,32 @@ const TenantDashboard: React.FC = () => {
           width: 100%;
           height: 100%;
         }
-
+  
         .dashboard-layout {
           display: flex;
           flex-direction: column;
           gap: clamp(16px, 4vw, 24px);
         }
-
+  
         /* Summary Cards Grid */
         .summary-grid {
           display: grid;
           grid-template-columns: repeat(1, 1fr);
           gap: clamp(12px, 3vw, 16px);
         }
-
-        @media (min-width: 768px) {
+  
+        @media (min-width: 640px) {
           .summary-grid {
             grid-template-columns: repeat(2, 1fr);
           }
         }
-
+  
         @media (min-width: 1024px) {
           .summary-grid {
             grid-template-columns: repeat(4, 1fr);
           }
         }
-
+  
         .summary-card {
           background-color: var(--card-bg);
           border-radius: clamp(8px, 2vw, 12px);
@@ -228,21 +228,22 @@ const TenantDashboard: React.FC = () => {
           transition: transform 0.2s ease, box-shadow 0.2s ease;
           min-height: 120px;
           position: relative;
+          width: 100%;
         }
-
+  
         @media (hover: hover) {
           .summary-card:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
           }
         }
-
+  
         .summary-card-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
         }
-
+  
         .summary-card-icon {
           width: clamp(40px, 10vw, 48px);
           height: clamp(40px, 10vw, 48px);
@@ -253,28 +254,28 @@ const TenantDashboard: React.FC = () => {
           background-color: rgba(0, 31, 61, 0.1);
           color: var(--primary-color);
         }
-
+  
         .summary-card-icon.success {
           background-color: rgba(16, 185, 129, 0.1);
           color: var(--success-color);
         }
-
+  
         .summary-card-icon.warning {
           background-color: rgba(245, 158, 11, 0.1);
           color: var(--warning-color);
         }
-
+  
         .summary-card-icon.danger {
           background-color: rgba(239, 68, 68, 0.1);
           color: var(--danger-color);
         }
-
+  
         .summary-card-content {
           display: flex;
           flex-direction: column;
           gap: 4px;
         }
-
+  
         .summary-card-title {
           font-size: clamp(12px, 3vw, 14px);
           color: var(--text-secondary);
@@ -282,20 +283,20 @@ const TenantDashboard: React.FC = () => {
           text-transform: uppercase;
           letter-spacing: 0.05em;
         }
-
+  
         .summary-card-value {
           font-size: clamp(24px, 6vw, 32px);
           font-weight: 700;
           color: var(--text-primary);
         }
-
+  
         /* Main Content Area */
         .main-content {
           display: flex;
           flex-direction: column;
           gap: clamp(16px, 4vw, 24px);
         }
-
+  
         /* Quick Actions */
         .quick-actions {
           background-color: var(--card-bg);
@@ -304,32 +305,32 @@ const TenantDashboard: React.FC = () => {
           box-shadow: var(--shadow-sm);
           border: 1px solid var(--border-color);
         }
-
+  
         .section-title {
           font-size: clamp(16px, 4vw, 20px);
           font-weight: 600;
           margin-bottom: 16px;
           color: var(--text-primary);
         }
-
+  
         .action-buttons {
           display: grid;
           grid-template-columns: repeat(1, 1fr);
           gap: 12px;
         }
-
-        @media (min-width: 768px) {
+  
+        @media (min-width: 640px) {
           .action-buttons {
-            grid-template-columns: repeat(1, 1fr);
+            grid-template-columns: repeat(2, 1fr);
           }
         }
-
+  
         @media (min-width: 1024px) {
           .action-buttons {
-            grid-template-columns: repeat(1, 1fr);
+            grid-template-columns: repeat(2, 1fr);
           }
         }
-
+  
         .action-button {
           min-height: 44px;
           padding: 12px 16px;
@@ -347,18 +348,18 @@ const TenantDashboard: React.FC = () => {
           gap: 8px;
           -webkit-tap-highlight-color: transparent;
         }
-
+  
         @media (hover: hover) {
           .action-button:hover {
             background-color: #00152a;
             transform: scale(1.02);
           }
         }
-
+  
         .action-button:active {
           transform: scale(0.98);
         }
-
+  
         /* Activity Section */
         .activity-section {
           background-color: var(--card-bg);
@@ -373,20 +374,22 @@ const TenantDashboard: React.FC = () => {
           flex-direction: column;
           gap: 12px;
         }
-
+  
         .calendar-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
           padding: 8px 0;
+          flex-wrap: wrap;
+          gap: 8px;
         }
-
+  
         .calendar-month {
           font-size: clamp(16px, 4vw, 18px);
           font-weight: 600;
           color: var(--text-primary);
         }
-
+  
         .calendar-nav-button {
           min-width: 40px;
           min-height: 40px;
@@ -402,24 +405,31 @@ const TenantDashboard: React.FC = () => {
           justify-content: center;
           -webkit-tap-highlight-color: transparent;
         }
-
+  
         @media (hover: hover) {
           .calendar-nav-button:hover {
             background-color: #00152a;
             transform: scale(1.05);
           }
         }
-
+  
         .calendar-nav-button:active {
           transform: scale(0.95);
         }
-
+  
         .calendar-grid {
           display: grid;
           grid-template-columns: repeat(7, 1fr);
           gap: clamp(3px, 0.8vw, 6px);
+          overflow-x: auto;
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
-
+                
+        .calendar-grid::-webkit-scrollbar {
+          display: none;
+        }
+        
         .calendar-day-header {
           text-align: center;
           font-size: clamp(10px, 2vw, 11px);
@@ -427,8 +437,10 @@ const TenantDashboard: React.FC = () => {
           color: var(--text-secondary);
           padding: 6px 2px;
           text-transform: uppercase;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
-
+        
         .calendar-day {
           aspect-ratio: 1;
           display: flex;
@@ -444,43 +456,62 @@ const TenantDashboard: React.FC = () => {
           min-height: 36px;
           max-height: 50px;
           -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
         }
-
+                
+        /* Mobile-specific calendar adjustments */
+        @media (max-width: 767px) {
+          .calendar-grid {
+            gap: 4px;
+          }
+                  
+          .calendar-day {
+            min-height: 30px;
+            font-size: 12px;
+            padding: 0;
+          }
+                  
+          .calendar-day-header {
+            font-size: 9px;
+            padding: 4px 0;
+          }
+        }
+  
         .calendar-day.empty {
           background-color: transparent;
           cursor: default;
         }
-
+  
         .calendar-day.important {
           background-color: rgba(239, 68, 68, 0.1);
           color: var(--danger-color);
           font-weight: 700;
           border: 2px solid var(--danger-color);
         }
-
+  
         .calendar-day.today {
           background-color: var(--primary-color);
           color: white;
           font-weight: 700;
         }
-
+  
         .calendar-day.today.important {
           background: linear-gradient(135deg, var(--primary-color) 0%, var(--danger-color) 100%);
           color: white;
           border: 2px solid var(--danger-color);
         }
-
+  
         @media (hover: hover) {
           .calendar-day:not(.empty):hover {
             transform: scale(1.1);
             box-shadow: var(--shadow-md);
           }
         }
-
+  
         .calendar-day:not(.empty):active {
           transform: scale(0.95);
         }
-
+  
         .calendar-legend {
           display: flex;
           flex-direction: column;
@@ -488,7 +519,7 @@ const TenantDashboard: React.FC = () => {
           padding-top: 16px;
           border-top: 1px solid var(--border-color);
         }
-
+  
         .legend-item {
           display: flex;
           align-items: center;
@@ -496,26 +527,124 @@ const TenantDashboard: React.FC = () => {
           font-size: clamp(12px, 3vw, 14px);
           color: var(--text-secondary);
         }
-
+  
         .legend-dot {
           width: 16px;
           height: 16px;
           border-radius: 4px;
           flex-shrink: 0;
         }
-
+  
         .legend-dot.important {
           background-color: rgba(239, 68, 68, 0.1);
           border: 2px solid var(--danger-color);
         }
-
+  
         .legend-dot.today {
           background-color: var(--primary-color);
         }
-
+  
+        /* Responsive adjustments for mobile */
+        @media (max-width: 767px) {
+          .dashboard-content {
+            padding: 12px;
+          }
+                
+          .calendar-day {
+            min-height: 30px;
+            font-size: 12px;
+          }
+                
+          .calendar-nav-button {
+            min-width: 36px;
+            min-height: 36px;
+            font-size: 14px;
+          }
+                
+          .calendar-month {
+            font-size: 14px;
+          }
+                
+          .section-title {
+            font-size: 16px;
+          }
+                
+          .summary-card {
+            padding: 16px;
+          }
+                
+          .summary-card-value {
+            font-size: 24px;
+          }
+        }
+      
+        /* Tablet adjustments */
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .calendar-day {
+            min-height: 34px;
+          }
+                
+          .summary-card {
+            padding: 20px;
+          }
+        }
+              
+        /* Desktop adjustments */
+        @media (min-width: 1024px) {
+          .dashboard-content {
+            padding: 24px;
+          }
+                
+          .summary-grid {
+            grid-template-columns: repeat(4, 1fr);
+          }
+                
+          .summary-card {
+            min-height: 140px;
+          }
+                
+          .summary-card-value {
+            font-size: 32px;
+          }
+        }
+              
+        /* Large desktop adjustments */
+        @media (min-width: 1280px) {
+          .summary-card {
+            min-height: 150px;
+          }
+                
+          .summary-card-value {
+            font-size: 36px;
+          }
+                
+          .summary-card-title {
+            font-size: 14px;
+          }
+        }
+      
+        /* Responsive container adjustments */
+        .dashboard-layout {
+          width: 100%;
+          max-width: 100%;
+          margin: 0 auto;
+        }
+              
+        /* Calendar container adjustments */
+        .calendar-container {
+          width: 100%;
+          overflow-x: auto;
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+              
+        .calendar-container::-webkit-scrollbar {
+          display: none;
+        }
+      
         /* Calendar Styles */
       `}</style>
-
+  
       <main className="dashboard-content">
         <div className="dashboard-layout">
           <div className="main-content">
@@ -534,10 +663,10 @@ const TenantDashboard: React.FC = () => {
                 </div>
               ))}
             </div>
-
-
+  
+  
           </div>
-
+  
           <aside className="activity-section">
             <h2 className="section-title">Payment Calendar</h2>
             <div className="calendar-container">
@@ -552,7 +681,7 @@ const TenantDashboard: React.FC = () => {
                   →
                 </button>
               </div>
-              
+                
               <div className="calendar-grid">
                 <div className="calendar-day-header">Sun</div>
                 <div className="calendar-day-header">Mon</div>
@@ -561,11 +690,11 @@ const TenantDashboard: React.FC = () => {
                 <div className="calendar-day-header">Thu</div>
                 <div className="calendar-day-header">Fri</div>
                 <div className="calendar-day-header">Sat</div>
-                
+                  
                 {Array.from({ length: firstDayOfMonth }).map((_, index) => (
                   <div key={`empty-${index}`} className="calendar-day empty"></div>
                 ))}
-                
+                  
                 {Array.from({ length: daysInMonth }).map((_, index) => {
                   const day = index + 1;
                   return (
@@ -579,7 +708,7 @@ const TenantDashboard: React.FC = () => {
                   );
                 })}
               </div>
-              
+                
               <div className="calendar-legend">
                 <div className="legend-item">
                   <div className="legend-dot important"></div>

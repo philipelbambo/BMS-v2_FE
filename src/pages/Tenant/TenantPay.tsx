@@ -490,7 +490,7 @@
         <div className="flex border-b" style={{ borderColor: '#e5e7eb' }}>
             <button
             onClick={() => setActiveTab('gcash')}
-            className="flex-1 py-3 text-sm font-medium transition-colors"
+            className="flex-1 py-3 text-sm font-medium transition-colors min-w-0"
             style={{
                 color: activeTab === 'gcash' ? '#001F3D' : '#6b7280',
                 borderBottom: activeTab === 'gcash' ? '3px solid #001F3D' : 'none',
@@ -501,7 +501,7 @@
             </button>
             <button
             onClick={() => setActiveTab('personal')}
-            className="flex-1 py-3 text-sm font-medium transition-colors"
+            className="flex-1 py-3 text-sm font-medium transition-colors min-w-0"
             style={{
                 color: activeTab === 'personal' ? '#001F3D' : '#6b7280',
                 borderBottom: activeTab === 'personal' ? '3px solid #001F3D' : 'none',
@@ -537,14 +537,14 @@
                 {/* GCash Number Display */}
                 <div className="p-4 rounded-lg border-2" style={{ backgroundColor: '#f0f9ff', borderColor: '#001F3D' }}>
                 <p className="text-xs text-gray-600 mb-2">Pay to this GCash number:</p>
-                <div className="flex items-center justify-between mb-2">
-                    <div>
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-2">
+                    <div className="text-center sm:text-left">
                     <p className="text-2xl font-bold" style={{ color: '#001F3D' }}>{gcashNumber}</p>
                     <p className="text-sm text-gray-600 mt-1">{gcashName}</p>
                     </div>
                     <button
                     onClick={() => copyToClipboard(gcashNumber)}
-                    className="p-3 rounded-lg transition-colors"
+                    className="p-3 rounded-lg transition-colors self-center sm:self-auto"
                     style={{ 
                         backgroundColor: copied ? '#10b981' : '#001F3D',
                         minWidth: '44px',

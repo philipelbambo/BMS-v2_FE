@@ -260,7 +260,7 @@ return (
             <div className="flex items-center gap-4 col-span-1">
             <button 
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden p-2 hover:bg-white/10 rounded-lg transition-colors"
+                className="lg:hidden p-2 hover:bg-white/10 rounded transition-colors"
             >
                 <Menu className="w-5 h-5" />
             </button>
@@ -270,7 +270,7 @@ return (
             </div>
             <div className="hidden lg:block"></div>
             <div className="flex items-center gap-3 justify-end col-span-1">
-            <button className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center gap-2">
+            <button className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded transition-colors flex items-center gap-2">
                 <Download className="w-4 h-4" />
                 <span className="hidden sm:inline">Export</span>
             </button>
@@ -290,7 +290,7 @@ return (
                 placeholder="Search tenants or rooms..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#001F3D] focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#001F3D] focus:border-transparent"
             />
             </div>
             <div className="flex gap-2 mt-3">
@@ -350,7 +350,7 @@ return (
                     <button
                     key={tenant.id}
                     onClick={() => setSelectedTenant(tenant as Tenant)}
-                    className={`w-full p-3 mb-2 rounded-lg text-left transition-all ${
+                    className={`w-full p-3 mb-2 rounded text-left transition-all ${
                         selectedTenant?.id === tenant.id
                         ? 'bg-[#001F3D] text-white shadow-md'
                         : 'bg-white hover:bg-gray-50 border border-gray-200'
@@ -407,7 +407,7 @@ return (
                     <button
                     key={tenant.id}
                     onClick={() => setSelectedTenant(tenant as Tenant)}
-                    className={`w-full p-3 mb-2 rounded-lg text-left transition-all ${
+                    className={`w-full p-3 mb-2 rounded text-left transition-all ${
                         selectedTenant?.id === tenant.id
                         ? 'bg-[#001F3D] text-white shadow-md'
                         : 'bg-white hover:bg-gray-50 border border-gray-200'
@@ -514,15 +514,15 @@ return (
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                <div className="bg-gray-50 rounded-lg p-4">
+                <div className="bg-gray-50 rounded p-4">
                     <p className="text-gray-500 text-sm mb-1">Monthly Rent</p>
                     <p className="text-2xl font-bold text-[#001F3D]">{formatCurrency(selectedTenant.rent)}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-4">
+                <div className="bg-gray-50 rounded p-4">
                     <p className="text-gray-500 text-sm mb-1">Due Date</p>
                     <p className="text-xl font-semibold text-gray-900">January 1, 2025</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-4">
+                <div className="bg-gray-50 rounded p-4">
                     <p className="text-gray-500 text-sm mb-1">Last Payment</p>
                     <p className="text-xl font-semibold text-gray-900">{selectedTenant.lastPaid}</p>
                 </div>
@@ -532,7 +532,7 @@ return (
                 {selectedTenant.status === 'unpaid' ? (
                     <button 
                     onClick={() => setShowPaymentModal(true)}
-                    className="flex-1 bg-[#001F3D] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#003366] transition-colors flex items-center justify-center gap-2"
+                    className="flex-1 bg-[#001F3D] text-white px-6 py-3 rounded font-semibold hover:bg-[#003366] transition-colors flex items-center justify-center gap-2"
                     >
                     <DollarSign className="w-5 h-5" />
                     Mark as Paid
@@ -540,14 +540,14 @@ return (
                 ) : (
                     <button 
                     onClick={handleMarkAsUnpaid}
-                    className="flex-1 bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+                    className="flex-1 bg-gray-200 text-gray-700 px-6 py-3 rounded font-semibold hover:bg-gray-300 transition-colors"
                     >
                     Mark as Unpaid
                     </button>
                 )}
                 <button 
                 onClick={handlePrintReceipt}
-                className="px-6 py-3 border-2 border-[#001F3D] text-[#001F3D] rounded-lg font-semibold hover:bg-[#001F3D] hover:text-white transition-colors flex items-center gap-2">
+                className="px-6 py-3 border-2 border-[#001F3D] text-[#001F3D] rounded font-semibold hover:bg-[#001F3D] hover:text-white transition-colors flex items-center gap-2">
                     <Printer className="w-5 h-5" />
                     Print Receipt
                 </button>
@@ -562,7 +562,7 @@ return (
                 </h3>
                 <div className="space-y-3">
                 {selectedTenant.paymentHistory.map((payment, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded border border-gray-200">
                     <div className="flex items-center gap-4">
                         <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
                         <CheckCircle className="w-5 h-5 text-green-600" />
@@ -600,7 +600,7 @@ return (
             <h3 className="text-xl font-bold text-gray-900">Record Payment</h3>
             <button 
                 onClick={() => setShowPaymentModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded transition-colors"
             >
                 <X className="w-5 h-5" />
             </button>
@@ -618,7 +618,7 @@ return (
                     value={paymentAmount}
                     onChange={(e) => setPaymentAmount(e.target.value)}
                     placeholder={selectedTenant?.rent.toString()}
-                    className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#001F3D] focus:border-transparent"
+                    className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#001F3D] focus:border-transparent"
                 />
                 </div>
             </div>
@@ -630,7 +630,7 @@ return (
                 <div className="grid grid-cols-2 gap-3">
                 <button
                     onClick={() => setPaymentMethod('bank-transfer')}
-                    className={`p-3 rounded-lg border-2 transition-colors ${
+                    className={`p-3 rounded border-2 transition-colors ${
                     paymentMethod === 'bank-transfer'
                         ? 'border-[#001F3D] bg-blue-50 text-[#001F3D]'
                         : 'border-gray-300 hover:border-gray-400'
@@ -640,7 +640,7 @@ return (
                 </button>
                 <button
                     onClick={() => setPaymentMethod('cash')}
-                    className={`p-3 rounded-lg border-2 transition-colors ${
+                    className={`p-3 rounded border-2 transition-colors ${
                     paymentMethod === 'cash'
                         ? 'border-[#001F3D] bg-blue-50 text-[#001F3D]'
                         : 'border-gray-300 hover:border-gray-400'
@@ -654,7 +654,7 @@ return (
             <div className="pt-4 border-t border-gray-200">
                 <button
                 onClick={handleMarkAsPaid}
-                className="w-full bg-[#001F3D] text-white py-3 rounded-lg font-semibold hover:bg-[#003366] transition-colors"
+                className="w-full bg-[#001F3D] text-white py-3 rounded font-semibold hover:bg-[#003366] transition-colors"
                 >
                 Confirm Payment
                 </button>

@@ -1,5 +1,5 @@
     import { useState, useEffect } from 'react';
-    import { Check, X, Clock, Phone, Mail, Calendar, DollarSign, Home, Search, Filter, Eye, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+    import { Check, X, Clock, Phone, Mail, Calendar, Home, Search, Filter, Eye, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 
     // Mock API functions - replace with actual API calls
     interface BookingRequest {
@@ -9,6 +9,9 @@
       phone: string;
       roomNumber: string;
       roomType: string;
+      baseRate: number;
+      wifiFee: number;
+      electricityFee: number;
       monthlyRate: number;
       requestDate: string;
       status: 'pending' | 'approved' | 'rejected';
@@ -27,9 +30,12 @@
             tenantName: 'John Michael Santos',
             email: 'john.santos@email.com',
             phone: '+63 912 345 6789',
-            roomNumber: '101',
+            roomNumber: '1',
             roomType: 'Single Room',
-            monthlyRate: 5500,
+            baseRate: 1000,
+            wifiFee: 100,
+            electricityFee: 500,
+            monthlyRate: 1600,
             requestDate: '2024-12-18T10:30:00',
             status: 'pending',
             moveInDate: '2024-12-25',
@@ -40,9 +46,12 @@
             tenantName: 'Maria Clara Reyes',
             email: 'maria.reyes@email.com',
             phone: '+63 923 456 7890',
-            roomNumber: '205',
+            roomNumber: '2',
             roomType: 'Double Room',
-            monthlyRate: 7500,
+            baseRate: 1000,
+            wifiFee: 100,
+            electricityFee: 500,
+            monthlyRate: 1600,
             requestDate: '2024-12-19T14:20:00',
             status: 'pending',
             moveInDate: '2024-12-28',
@@ -53,9 +62,12 @@
             tenantName: 'Robert Johnson',
             email: 'robert.j@email.com',
             phone: '+63 934 567 8901',
-            roomNumber: '303',
+            roomNumber: '3',
             roomType: 'Studio Room',
-            monthlyRate: 9500,
+            baseRate: 1000,
+            wifiFee: 100,
+            electricityFee: 500,
+            monthlyRate: 1600,
             requestDate: '2024-12-17T09:15:00',
             status: 'approved',
             moveInDate: '2024-12-22',
@@ -67,9 +79,12 @@
             tenantName: 'Anna Marie Lopez',
             email: 'anna.lopez@email.com',
             phone: '+63 945 678 9012',
-            roomNumber: '102',
+            roomNumber: '4',
             roomType: 'Single Room',
-            monthlyRate: 5500,
+            baseRate: 1000,
+            wifiFee: 100,
+            electricityFee: 500,
+            monthlyRate: 1600,
             requestDate: '2024-12-16T16:45:00',
             status: 'rejected',
             moveInDate: '2024-12-20',
@@ -81,9 +96,12 @@
             tenantName: 'Carlos Mendoza',
             email: 'carlos.m@email.com',
             phone: '+63 956 789 0123',
-            roomNumber: '404',
-            roomType: 'Deluxe Room',
-            monthlyRate: 12000,
+            roomNumber: '11',
+            roomType: 'Pad',
+            baseRate: 3000,
+            wifiFee: 100,
+            electricityFee: 500,
+            monthlyRate: 3600,
             requestDate: '2024-12-19T11:00:00',
             status: 'pending',
             moveInDate: '2025-01-05',
@@ -142,6 +160,12 @@
             req.id.toLowerCase().includes(searchTerm.toLowerCase())
         );
         }
+
+        // Ensure only rooms 1-11 are included
+        filtered = filtered.filter(req => {
+            const roomNum = parseInt(req.roomNumber);
+            return roomNum >= 1 && roomNum <= 11;
+        });
 
         setFilteredRequests(filtered);
     }, [requests, statusFilter, searchTerm]);
@@ -417,9 +441,13 @@
                         </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-1 text-sm font-bold text-gray-900">
-                            <DollarSign size={16} className="text-green-600" />
-                            {request.monthlyRate.toLocaleString()}
+                        <div className="flex flex-col">
+                            <div className="flex items-center gap-1 text-sm font-bold text-gray-900">
+                                ₱{request.monthlyRate.toLocaleString()}
+                            </div>
+                            <div className="text-xs text-gray-600 mt-1">
+                                Base: ₱{request.baseRate} + WiFi: ₱{request.wifiFee} + Elec: ₱{request.electricityFee}
+                            </div>
                         </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -495,9 +523,13 @@
                         <Home size={16} className="text-gray-400" />
                         <span>Room {request.roomNumber} - {request.roomType}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                        <DollarSign size={16} className="text-green-600" />
-                        <span className="font-bold text-gray-900">₱{request.monthlyRate.toLocaleString()}/month</span>
+                    <div className="flex flex-col">
+                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                            <span className="font-bold text-gray-900">₱{request.monthlyRate.toLocaleString()}/month</span>
+                        </div>
+                        <div className="text-xs text-gray-600 mt-1">
+                            Base: ₱{request.baseRate} + WiFi: ₱{request.wifiFee} + Elec: ₱{request.electricityFee}
+                        </div>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-700">
                         <Calendar size={16} className="text-gray-400" />

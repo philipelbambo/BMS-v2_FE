@@ -93,14 +93,14 @@ const AdminDashboard = () => {
     subtitle?: string;
   }) => (
     <div 
-      className="rounded-lg p-4 hover:shadow-2xl transition-shadow" 
+      className="rounded p-4 hover:shadow-2xl transition-shadow" 
       style={{ 
         backgroundColor: '#001F3D',
         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 10px 25px -5px rgba(0, 31, 61, 0.3)'
       }}
     >
       <div className="flex items-center justify-between mb-3">
-        <div className="p-2 rounded-lg bg-white bg-opacity-20">
+        <div className="p-2 rounded bg-white bg-opacity-20">
           <Icon className="w-5 h-5 text-white" />
         </div>
       </div>
@@ -171,7 +171,7 @@ const AdminDashboard = () => {
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Monthly Income Chart */}
-          <div className="bg-white rounded-lg p-6 border border-gray-100" style={{ boxShadow: '0 4px 6px -1px rgba(0, 31, 61, 0.1), 0 2px 4px -1px rgba(0, 31, 61, 0.06)' }}>
+          <div className="bg-white rounded p-6 border border-gray-100" style={{ boxShadow: '0 4px 6px -1px rgba(0, 31, 61, 0.1), 0 2px 4px -1px rgba(0, 31, 61, 0.06)' }}>
             <div className="flex items-center mb-6">
               <TrendingUp className="w-5 h-5 text-[#001F3D] mr-2" />
               <h2 className="text-xl font-bold text-gray-900">Monthly Income Trends</h2>
@@ -204,7 +204,7 @@ const AdminDashboard = () => {
           </div>
 
           {/* Payment Trends Chart */}
-          <div className="bg-white rounded-lg p-6 border border-gray-100" style={{ boxShadow: '0 4px 6px -1px rgba(0, 31, 61, 0.1), 0 2px 4px -1px rgba(0, 31, 61, 0.06)' }}>
+          <div className="bg-white rounded p-6 border border-gray-100" style={{ boxShadow: '0 4px 6px -1px rgba(0, 31, 61, 0.1), 0 2px 4px -1px rgba(0, 31, 61, 0.06)' }}>
             <div className="flex items-center mb-6">
               <DollarSign className="w-5 h-5 text-[#001F3D] mr-2" />
               <h2 className="text-xl font-bold text-gray-900">Payment Status Trends</h2>
@@ -231,7 +231,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Occupancy Distribution Chart */}
-        <div className="bg-white rounded-lg p-6 border border-gray-100" style={{ boxShadow: '0 4px 6px -1px rgba(0, 31, 61, 0.1), 0 2px 4px -1px rgba(0, 31, 61, 0.06)' }}>
+        <div className="bg-white rounded p-6 border border-gray-100" style={{ boxShadow: '0 4px 6px -1px rgba(0, 31, 61, 0.1), 0 2px 4px -1px rgba(0, 31, 61, 0.06)' }}>
           <div className="flex items-center mb-6">
             <Home className="w-5 h-5 text-[#001F3D] mr-2" />
             <h2 className="text-xl font-bold text-gray-900">Room Occupancy Distribution</h2>
@@ -265,13 +265,13 @@ const AdminDashboard = () => {
             </ResponsiveContainer>
           </div>
           <div className="grid grid-cols-2 gap-4 mt-6">
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
+            <div className="text-center p-4 bg-gray-50 rounded">
               <p className="text-gray-500 text-sm mb-1">Occupancy Rate</p>
               <p className="text-2xl font-bold text-[#001F3D]">
                 {Math.round((dashboardData.summary.occupiedRooms / dashboardData.summary.totalRooms) * 100)}%
               </p>
             </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
+            <div className="text-center p-4 bg-gray-50 rounded">
               <p className="text-gray-500 text-sm mb-1">Availability Rate</p>
               <p className="text-2xl font-bold text-gray-600">
                 {Math.round((dashboardData.summary.availableRooms / dashboardData.summary.totalRooms) * 100)}%

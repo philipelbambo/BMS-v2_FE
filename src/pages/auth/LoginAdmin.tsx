@@ -8,6 +8,7 @@
     XCircle,
     ArrowLeft,
   } from "lucide-react";
+  import axios from "axios";
 
   /* =======================
     Toast Component
@@ -62,30 +63,60 @@
     } | null>(null);
 
     /* =======================
-      Admin Login Only
+      Admin Login with Backend API
     ======================= */
-    const handleLogin = () => {
-      if (username === "admin" && password === "admin123") {
-        localStorage.setItem("auth_token", "admin_token_123");
+    const handleLogin = async () => {
+      if (!username || !password) {
+        setToast({
+          message: "Please fill in all fields",
+          type: "error",
+        });
+        return;
+      }
+
+      setIsLoading(true);
+      
+      try {
+        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/login`, {
+          username,
+          password,
+        });
+
+        // Store the token and user data
+        localStorage.setItem("auth_token", response.data.token);
         localStorage.setItem(
           "user",
-          JSON.stringify({ role: "admin", username: "admin" })
+          JSON.stringify({ 
+            id: response.data.user.id,
+            name: response.data.user.name,
+            email: response.data.user.email,
+            role: response.data.user.role 
+          })
         );
 
-        setIsLoading(true);
         setToast({
-          message: "Login successful! Redirecting to Admin Dashboard...",
+          message: response.data.message,
           type: "success",
         });
 
         setTimeout(() => {
           window.location.href = "/admin/dashboard";
         }, 1500);
-      } else {
-        setToast({
-          message: "Invalid username or password",
-          type: "error",
-        });
+      } catch (error: any) {
+        if (axios.isAxiosError(error)) {
+          const errorMessage = error.response?.data?.message || "Invalid username or password";
+          setToast({
+            message: errorMessage,
+            type: "error",
+          });
+        } else {
+          setToast({
+            message: "Network error. Please try again.",
+            type: "error",
+          });
+        }
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -143,7 +174,7 @@
                 Admin Login
               </h1>
               <p className="text-sm text-slate-500">
-                Please login to continue
+                Please enter your credentials to continue
               </p>
             </div>
 
@@ -152,7 +183,7 @@
               {/* Username */}
               <div>
                 <label className="text-sm font-medium text-slate-700">
-                  Username
+                  Email or Username
                 </label>
                 <div className="relative mt-2">
                   <Mail
@@ -168,7 +199,7 @@
                     onFocus={() => setFocusedField("username")}
                     onBlur={() => setFocusedField(null)}
                     className="w-full pl-12 py-3 border rounded focus:ring-2 focus:ring-[#001F3D]"
-                    placeholder="Enter admin username"
+                    placeholder="Enter admin email or username"
                   />
                 </div>
               </div>
