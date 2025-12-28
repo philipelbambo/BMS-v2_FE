@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, DollarSign, CheckCircle, AlertCircle, Clock, X, Menu, Download, Receipt, Printer } from 'lucide-react';
+import useBackButtonProtection from '../../hooks/useBackButtonProtection';
 
 // Define the Tenant type
 interface Payment {
@@ -62,6 +63,9 @@ const mockTenantsData: Tenant[] = [
 ];
 
 const PaymentsBillingDashboard = () => {
+    // Implement back button protection
+    useBackButtonProtection();
+    
 const [tenants, setTenants] = useState<Tenant[]>(mockTenantsData);
 const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
 const [searchQuery, setSearchQuery] = useState('');

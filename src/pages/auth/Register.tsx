@@ -79,8 +79,8 @@
 
       try {
         await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/register`, formData);
-        navigate('/', {
-          state: { message: 'Registration successful! Please log in.', type: 'success' },
+        navigate('/login-tenant', {
+          state: { message: 'Registration successful! Please log in to continue with your room reservation.', type: 'success' },
         });
       } catch (err) {
         const error = err as AxiosError<{ errors?: ApiError }>;

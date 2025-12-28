@@ -90,6 +90,7 @@
             id: response.data.user.id,
             name: response.data.user.name,
             email: response.data.user.email,
+            username: response.data.user.username,
             role: response.data.user.role 
           })
         );
@@ -145,15 +146,17 @@
           <div className="relative bg-white rounded shadow-lg p-8 border border-slate-100">
 
             {/* Back Button */}
-            <button
-              onClick={() => window.history.back()}
-              className="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-100"
+            <button 
+              onClick={() => window.location.href = '/'}
+              className="absolute top-4 left-4 flex items-center text-slate-600 hover:text-[#001F3D] transition-colors"
+              aria-label="Go back"
             >
-              <ArrowLeft className="w-5 h-5 text-slate-700" />
+              <ArrowLeft className="w-5 h-5 mr-1" />
+              <span className="text-sm">Home</span>
             </button>
 
             {/* Logo */}
-            <div className="text-center mb-8">
+            <div className="text-center mb-8 mt-6">
               <div className="mx-auto w-16 h-16 bg-[#001F3D] rounded-full flex items-center justify-center mb-4">
                 <svg
                   className="w-8 h-8 text-white"

@@ -1,6 +1,7 @@
     import React, { useState, useEffect } from 'react';
     import { useNavigate, useLocation } from 'react-router-dom';
     import axios from 'axios';
+    import { isAuthenticated, getUserRole } from '../../utils/auth';
 
     interface FormData {
     email: string;
@@ -17,6 +18,32 @@
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+    
+    useEffect(() => {
+      // Check if user is already authenticated
+      if (isAuthenticated()) {
+        const role = getUserRole();
+        if (role === 'admin') {
+          navigate('/admin/dashboard', { replace: true });
+        } else {
+          navigate('/tenant/dashboard', { replace: true });
+        }
+      }
+    }, [navigate]);
+    
+    // Additional check to prevent back navigation to login if already authenticated
+    useEffect(() => {
+      const handleBeforeUnload = () => {
+        // Store the current page to detect if user tries to go back
+        sessionStorage.setItem('lastPage', window.location.pathname);
+      };
+      
+      window.addEventListener('beforeunload', handleBeforeUnload);
+      
+      return () => {
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+      };
+    }, []);
 
     // Handle success message from registration
     useEffect(() => {
@@ -62,7 +89,12 @@
                 })
             );
             
-            navigate('/tenant/dashboard', { replace: true });
+            // Check if user came from registration and redirect to tenant application
+            if (location.state?.message?.includes('continue with your room reservation')) {
+                navigate('/tenant-application', { replace: true });
+            } else {
+                navigate('/tenant/dashboard', { replace: true });
+            }
         } catch (error: any) {
             if (axios.isAxiosError(error)) {
                 const errorMessage = error.response?.data?.message || 'Invalid email or password.';
@@ -93,23 +125,6 @@
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="w-full max-w-lg bg-white rounded shadow-md p-8 md:p-10 space-y-6 relative">
-            {/* Back Button */}
-            <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="absolute -top-2 -left-2 w-10 h-10 rounded-full bg-white border border-gray-300 flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors"
-            aria-label="Go back"
-            >
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-[#001F3D]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-            >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            </button>
 
             {/* Accent bar */}
             <div className="h-1.5 bg-[#001F3D] rounded-t-xl -mx-8 -mt-8 mb-5"></div>

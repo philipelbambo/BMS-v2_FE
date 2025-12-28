@@ -56,40 +56,31 @@ function App() {
           <Route path="/login-tenant" element={<LoginTenant />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/tenant-application" element={<TenantForm />} />
           <Route path="/Tenant-application" element={<TenantForm />} />
 
           {/* ================= ADMIN ================= */}
-          <Route
-            element={
-              <ProtectedRoute>
-                <MainLayout />
-              </ProtectedRoute>
-            }
-          >
+          <Route element={
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          }>
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/rooms" element={<RoomManagement />} />
             <Route path="/admin/tenant" element={<Tenant />} />
-            <Route
-              path="/admin/booking-requests"
-              element={<BookingRequestsAdmin />}
-            />
+            <Route path="/admin/booking-requests" element={<BookingRequestsAdmin />} />
             <Route path="/admin/payment-bill" element={<PaymentBill />} />
             <Route path="/admin/reports" element={<Reports />} />
             <Route path="/admin/settings" element={<Settings />} />
-            <Route
-              path="/admin/notifications"
-              element={<AdminNotifications />}
-            />
+            <Route path="/admin/notifications" element={<AdminNotifications />} />
           </Route>
 
           {/* ================= TENANT ================= */}
-          <Route
-            element={
-              <TenantProtectedRoute>
-                <TenantLayout />
-              </TenantProtectedRoute>
-            }
-          >
+          <Route element={
+            <TenantProtectedRoute>
+              <TenantLayout />
+            </TenantProtectedRoute>
+          }>
             <Route path="/tenant/dashboard" element={<TenantDashboard />} />
             <Route path="/tenant/view" element={<TenantView />} />
             <Route path="/tenant/request" element={<TenantRequest />} />

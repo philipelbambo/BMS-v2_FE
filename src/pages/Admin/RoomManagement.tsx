@@ -1,5 +1,6 @@
     import React, { useState, useEffect } from 'react';
     import { Plus, Edit2, Trash2, X, Search, Filter, Home } from 'lucide-react';
+    import useBackButtonProtection from '../../hooks/useBackButtonProtection';
 
     interface Room {
     id: string;
@@ -22,6 +23,9 @@
     const STORAGE_KEY = 'rooms-data';
 
     export default function RoomManagement() {
+    // Implement back button protection
+    useBackButtonProtection();
+    
     const [rooms, setRooms] = useState<Room[]>([]);
     const [filteredRooms, setFilteredRooms] = useState<Room[]>([]);
     const [showModal, setShowModal] = useState(false);

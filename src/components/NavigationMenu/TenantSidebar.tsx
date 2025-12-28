@@ -2,6 +2,7 @@
     import { NavLink, useNavigate } from "react-router-dom";
     import { LayoutDashboard, Eye, FilePlus, CreditCard, CheckCircle, LogOut } from "lucide-react";
     import { useTheme } from "../../contexts/ThemeContext";
+    import { logoutUser } from "../../utils/auth";
 
     interface TenantSidebarProps {
     isOpen?: boolean;
@@ -24,10 +25,9 @@
     const logout = () => {
         setIsLoggingOut(true);
         setTimeout(() => {
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("role");
+        // Use auth utility to logout
+        logoutUser(navigate, 'tenant');
         setIsLoggingOut(false);
-        navigate("/login-tenant");
         }, 1000);
     };
 

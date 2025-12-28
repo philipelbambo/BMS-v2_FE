@@ -4,6 +4,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
 import { Home, Users, DollarSign, TrendingUp } from 'lucide-react';
+import useBackButtonProtection from '../../hooks/useBackButtonProtection';
 
 // Mock data for immediate, smooth rendering
 const initialMockData = {
@@ -37,6 +38,9 @@ const initialMockData = {
 const AdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState(initialMockData);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+
+  // Implement back button protection
+  useBackButtonProtection();
 
   useEffect(() => {
     fetchDashboardData();

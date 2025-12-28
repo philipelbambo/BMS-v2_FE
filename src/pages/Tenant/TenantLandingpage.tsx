@@ -1,5 +1,6 @@
     import React, { useState, useEffect } from 'react';
     import {Home,CheckCircle,BookmarkCheck,ChevronLeft,ChevronRight,MapPin,Phone,Mail,} from "lucide-react";
+    import { isAuthenticated, getUserRole } from '../../utils/auth';
 
 
     // ====== Interfaces ======
@@ -201,7 +202,7 @@
     const [currentRoomId, setCurrentRoomId] = useState(1);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+    const [userRole, setUserRole] = useState<string | null>(null);
 
     const room = mockRoomData.find(r => r.id === currentRoomId) || mockRoomData[0];
 
@@ -233,21 +234,31 @@
         }
     };
 
-    const handleReserveClick = () => {
-        if (!isLoggedIn) {
-        setShowLoginPrompt(true);
-        setTimeout(() => setShowLoginPrompt(false), 4000);
-        return;
-        }
-        alert(`Redirecting to reservation form for ${room.title}`);
-    };
 
+
+    // Check authentication status on component mount
     useEffect(() => {
-        if (showLoginPrompt) {
-        const timer = setTimeout(() => setShowLoginPrompt(false), 4000);
-        return () => clearTimeout(timer);
+        const checkAuth = () => {
+        const authStatus = isAuthenticated();
+        setIsLoggedIn(authStatus);
+        if (authStatus) {
+            setUserRole(getUserRole());
         }
-    }, [showLoginPrompt]);
+        };
+        
+        checkAuth();
+        
+        // Listen for storage events to handle login/logout from other tabs
+        const handleStorageChange = () => {
+        checkAuth();
+        };
+        
+        window.addEventListener('storage', handleStorageChange);
+        
+        return () => {
+        window.removeEventListener('storage', handleStorageChange);
+        };
+    }, []);
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -263,24 +274,15 @@
             <nav className="hidden md:flex space-x-6">
                 <a href="/" className="text-gray-600 hover:text-[#001F3D] font-medium">Home</a>
                 <a href="/tenant/rooms" className="text-gray-600 hover:text-[#001F3D] font-medium">All Rooms</a>
-                {!isLoggedIn ? (
                 <>
                     <a href="/login-tenant" className="text-[#001F3D] font-bold">Login</a>
                     <a href="/register" className="bg-[#001F3D] text-white px-4 py-2 rounded font-bold">Register</a>
                 </>
-                ) : (
-                <a href="/tenant/dashboard" className="text-[#001F3D] font-bold">My Account</a>
-                )}
             </nav>
             </div>
         </header>
 
-        {/* Login Prompt */}
-        {showLoginPrompt && (
-            <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-[rgb(13,161,0)] text-white px-6 py-3 rounded shadow-lg">
-            <p className="font-bold">❗ Please register first to reserve a room.</p>
-            </div>
-        )}
+        {/* Login Prompt - No longer needed since we redirect directly to registration */}
 
         {/* Back Button & Room Navigation */}
         <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 py-6">
@@ -412,13 +414,13 @@
                 </div>
             </div>
             {/* CTA */}
-            <button
-        onClick={handleReserveClick}
-        className="w-full md:w-auto px-10 py-4 bg-[#001F3D] text-white text-lg font-bold rounded hover:bg-[#003566] transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
-        >
-        <BookmarkCheck size={22} />
-        Reserve This Room
-        </button>
+            <a
+            href="/register"
+            className="md:w-auto px-3 py-3 bg-[#001F3D] text-white text-lg font-bold rounded hover:bg-[#003566] transition-all shadow-lg hover:shadow-xl inline-flex items-center justify-center gap-2 min-w-[120px] text-center"
+            >
+            <BookmarkCheck size={20} />
+            Reserve This Room
+            </a>
             {/* Room Navigation Buttons */}
             <div className="border-t border-gray-200 mt-8 pt-8">
                 <div className="flex justify-between items-center">

@@ -1,14 +1,8 @@
-interface ActivityItem {
-  id: string;
-  type: 'payment' | 'maintenance' | 'message' | 'document';
-  title: string;
-  description: string;
-  date: string;
-  icon: React.ReactNode;
-}import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Home, DollarSign, FileText, AlertCircle } from 'lucide-react';
-
-// TypeScript Interfaces
+import useBackButtonProtection from '../../hooks/useBackButtonProtection';
+import { useNavigate } from 'react-router-dom';
+import { getUserRole, isAuthenticated } from '../../utils/auth';
 interface SummaryCard {
   id: string;
   title: string;
@@ -63,6 +57,11 @@ const useViewport = (): ViewportSize => {
 const TenantDashboard: React.FC = () => {
   const viewport = useViewport();
   const [activeActivityIndex, setActiveActivityIndex] = useState(0);
+  
+  const navigate = useNavigate();
+
+  // Implement back button protection
+  useBackButtonProtection();
 
   const summaryCards: SummaryCard[] = [
     {
@@ -664,6 +663,45 @@ const TenantDashboard: React.FC = () => {
               ))}
             </div>
   
+            {/* Reserved Room Section */}
+            <div className="quick-actions">
+              <h2 className="section-title">Your Reserved Room</h2>
+              <div className="action-buttons">
+                <div className="summary-card" style={{minHeight: '120px'}}>
+                  <div className="summary-card-header">
+                    <div className="summary-card-icon">
+                      <Home size={24} />
+                    </div>
+                  </div>
+                  <div className="summary-card-content">
+                    <div className="summary-card-title">Room Type</div>
+                    <div className="summary-card-value">Single Room</div>
+                  </div>
+                </div>
+                <div className="summary-card" style={{minHeight: '120px'}}>
+                  <div className="summary-card-header">
+                    <div className="summary-card-icon">
+                      <DollarSign size={24} />
+                    </div>
+                  </div>
+                  <div className="summary-card-content">
+                    <div className="summary-card-title">Monthly Rent</div>
+                    <div className="summary-card-value">₱3,500</div>
+                  </div>
+                </div>
+                <div className="summary-card" style={{minHeight: '120px'}}>
+                  <div className="summary-card-header">
+                    <div className="summary-card-icon">
+                      <FileText size={24} />
+                    </div>
+                  </div>
+                  <div className="summary-card-content">
+                    <div className="summary-card-title">Application Status</div>
+                    <div className="summary-card-value" style={{color: 'var(--warning-color)'}}>Pending</div>
+                  </div>
+                </div>
+              </div>
+            </div>
   
           </div>
   

@@ -1,5 +1,6 @@
     import React, { useState, useEffect } from 'react';
     import { Search, Edit2, Eye, MoreVertical, UserCheck, UserX, RefreshCw, Filter, Download, Plus } from 'lucide-react';
+    import useBackButtonProtection from '../../hooks/useBackButtonProtection';
 
     // Types
     interface Tenant {
@@ -31,6 +32,9 @@
     }
 
     const TenantManagement: React.FC = () => {
+    // Implement back button protection
+    useBackButtonProtection();
+    
     const [tenants, setTenants] = useState<Tenant[]>([]);
     const [filteredTenants, setFilteredTenants] = useState<Tenant[]>([]);
     const [searchQuery, setSearchQuery] = useState('');

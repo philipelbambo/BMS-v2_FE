@@ -283,7 +283,7 @@ const BoardinghouseLanding: React.FC = () => {
               <div className="h-8 w-[1px] bg-gray-200"></div>
               <div className="flex items-center space-x-4">
                 <a 
-                  href="/login-tenant" 
+                  href="/login-admin" 
                   className="px-7 py-2.5 text-[#001F3D] font-bold hover:bg-[#001F3D]/5 rounded transition-all text-center"
                 >
                   Login
@@ -312,7 +312,7 @@ const BoardinghouseLanding: React.FC = () => {
               <a href="#rooms" className="block text-xl font-bold text-gray-900" onClick={() => setMobileMenuOpen(false)}>Rooms</a>
               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
                 <a 
-                  href="/login-tenant" 
+                  href="/login-admin" 
                   className="w-full px-6 py-4 text-[#001F3D] border-2 border-[#001F3D] rounded font-bold text-center"
                   onClick={() => setMobileMenuOpen(false)}
                 >

@@ -13,6 +13,7 @@ import {
   Settings as SettingsIcon,
 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { getUsername, getUserName } from "../../utils/auth";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -61,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
             <UserCircle className="h-10 w-10 text-white" />
             {isOpen && (
               <div className="leading-tight">
-                <p className="text-sm font-semibold text-white">Admin User</p>
+                <p className="text-sm font-semibold text-white">{getUsername() || getUserName() || 'Admin User'}</p>
                 <span className="text-xs text-white/70">Administrator</span>
               </div>
             )}
@@ -105,7 +106,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
         <div className="relative w-full mb-4">
           <button
             onClick={() => setShowLogoutMenu(!showLogoutMenu)}
-            className={`flex items-center gap-3 py-3 transition-all w-[90%] rounded-r-xl shadow-[3px_3px_6px_rgba(0,0,0,0.4)] bg-white/10 text-white hover:bg-red-600`}
+            className={`flex items-center gap-3 py-3 transition-all w-[90%] rounded shadow-[3px_3px_6px_rgba(0,0,0,0.4)] bg-white/10 text-white hover:bg-red-600`}
             style={{
               justifyContent: isOpen ? "flex-start" : "center",
               paddingLeft: isOpen ? "1.5rem" : "0",
@@ -117,11 +118,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 
           {/* DROP-UP MENU */}
           {showLogoutMenu && isOpen && (
-            <div className="absolute bottom-14 left-0 w-[90%] bg-white/10 rounded-xl shadow-lg py-2 flex flex-col gap-1 z-10">
+            <div className="absolute bottom-14 left-0 w-[90%] bg-white/10 rounded shadow-lg py-2 flex flex-col gap-1 z-10">
               {/* SETTINGS LINK */}
               <NavLink
                 to="/admin/settings"
-                className="flex items-center gap-2 text-white px-4 py-2 hover:bg-white/20 rounded-lg"
+                className="flex items-center gap-2 text-white px-4 py-2 hover:bg-white/20 rounded"
                 onClick={() => setShowLogoutMenu(false)}
               >
                 <SettingsIcon className="h-5 w-5" />
@@ -131,7 +132,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
               {/* CONFIRM LOGOUT */}
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 text-white px-4 py-2 hover:bg-red-600 rounded-lg"
+                className="flex items-center gap-2 text-white px-4 py-2 hover:bg-red-600 rounded"
               >
                 <LogOut className="h-5 w-5" />
                 <span>Logout</span>
@@ -140,7 +141,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
               {/* CANCEL BUTTON */}
               <button
                 onClick={() => setShowLogoutMenu(false)}
-                className="text-white px-4 py-2 text-left hover:bg-white/20 rounded-lg"
+                className="text-white px-4 py-2 text-left hover:bg-white/20 rounded"
               >
                 Cancel
               </button>
@@ -152,7 +153,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
       {/* FULL SCREEN LOADING OVERLAY */}
       {isLoggingOut && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="flex flex-col items-center gap-2 bg-white/10 p-6 rounded-xl shadow-lg">
+          <div className="flex flex-col items-center gap-2 bg-white/10 p-6 rounded shadow-lg">
             <svg
               className="animate-spin h-10 w-10 text-white"
               xmlns="http://www.w3.org/2000/svg"

@@ -1,5 +1,6 @@
-    import React, { useState, ChangeEvent } from 'react';
+    import React, { useState, ChangeEvent, useEffect } from 'react';
     import { User, Home, FileText, CheckCircle, MapPin, Phone, Mail } from 'lucide-react';
+    import { isAuthenticated, getUserRole } from '../../utils/auth';
 
     interface TenantFormData {
     fullName: string;
@@ -50,7 +51,34 @@
 
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [isSubmitted, setIsSubmitted] = useState(false);
-    const [isLoggedIn] = useState(true); // Assume logged-in user
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [userRole, setUserRole] = useState<string | null>(null);
+
+    // Check authentication status on component mount
+    useEffect(() => {
+        const checkAuth = () => {
+        const authStatus = isAuthenticated();
+        setIsLoggedIn(authStatus);
+        if (authStatus) {
+            setUserRole(getUserRole());
+        }
+        // Don't redirect if not authenticated - let users see the form but prompt for login
+        setIsLoggedIn(authStatus);
+        };
+        
+        checkAuth();
+        
+        // Listen for storage events to handle login/logout from other tabs
+        const handleStorageChange = () => {
+        checkAuth();
+        };
+        
+        window.addEventListener('storage', handleStorageChange);
+        
+        return () => {
+        window.removeEventListener('storage', handleStorageChange);
+        };
+    }, []);
 
     const validateEmail = (email: string): boolean => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -123,16 +151,51 @@
         }
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (validateForm()) {
-        const tenantData = {
-            ...formData,
-            status: 'Pending',
-            submittedAt: new Date().toISOString(),
-        };
+        const formDataToSend = new FormData();
         
-        console.log('Tenant Application Submitted:', tenantData);
-        setIsSubmitted(true);
+        // Add all form fields to FormData
+        Object.entries(formData).forEach(([key, value]) => {
+            if (key === 'idFile' && value instanceof File) {
+            formDataToSend.append(key, value);
+            } else if (key !== 'idFile') {
+            formDataToSend.append(key, value as string);
+            }
+        });
+        
+        // Add status and submission timestamp
+        formDataToSend.append('status', 'Pending');
+        formDataToSend.append('submittedAt', new Date().toISOString());
+        
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/tenant-application`, {
+            method: 'POST',
+            body: formDataToSend,
+            // Don't set Content-Type header when using FormData - browser will set it with correct boundary
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            },
+            });
+            
+            if (response.ok) {
+            const result = await response.json();
+            console.log('Tenant Application Submitted:', result);
+            setIsSubmitted(true);
+            
+            // After successful submission, redirect to dashboard after a delay
+            setTimeout(() => {
+                window.location.href = '/tenant/dashboard';
+            }, 2000); // 2 seconds delay to show success message
+            } else {
+            const errorData = await response.json();
+            console.error('Error submitting application:', errorData);
+            setErrors({ form: errorData.message || 'Failed to submit application' });
+            }
+        } catch (error) {
+            console.error('Error submitting application:', error);
+            setErrors({ form: 'Network error. Please try again.' });
+        }
         
         setTimeout(() => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -180,7 +243,7 @@
             </div>
             <nav className="hidden md:flex space-x-6">
                 <a href="/" className="text-gray-600 hover:text-[#001F3D] font-medium">Home</a>
-                <a href="/tenant/rooms" className="text-gray-600 hover:text-[#001F3D] font-medium">All Rooms</a>
+                <a href="/tenant-landingpage" className="text-gray-600 hover:text-[#001F3D] font-medium">All Rooms</a>
                 {!isLoggedIn ? (
                 <>
                     <a href="/login-tenant" className="text-[#001F3D] font-bold">Login</a>
@@ -223,12 +286,6 @@
             /* Form Content */
             <main className="max-w-[1600px] mx-auto px-6 lg:px-12 py-12 flex-grow">
             <div className="max-w-5xl mx-auto">
-                {/* Page Header */}
-                <div className="bg-[#001F3D] text-white rounded-2xl shadow-xl p-8 mb-8 text-center">
-                <h1 className="text-4xl font-black mb-3">Tenant Application Form</h1>
-                <p className="text-lg opacity-90">Please fill out all required fields to complete your boarding house application</p>
-                </div>
-
                 {/* Form Card */}
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
                 <div className="p-8">
@@ -550,6 +607,7 @@
                     </label>
                     {errors.agreeToRules && <span className="text-xs text-red-500 block mb-4">{errors.agreeToRules}</span>}
 
+                    {isLoggedIn ? (
                     <button
                         type="button"
                         onClick={handleSubmit}
@@ -562,6 +620,15 @@
                     >
                         Submit Application
                     </button>
+                    ) : (
+                    <button
+                        type="button"
+                        onClick={() => window.location.href = '/login-tenant'}
+                        className="w-full py-4 text-lg font-bold rounded-lg bg-[#001F3D] text-white hover:bg-[#003566] shadow-lg hover:shadow-xl cursor-pointer"
+                    >
+                        Please Login to Submit Application
+                    </button>
+                    )}
                     </div>
                 </div>
                 </div>
